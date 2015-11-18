@@ -1,0 +1,23 @@
+{
+	// this is a test file
+	"author" : "carsten",
+	"date" : "18-nov-2015",
+
+	// in square brackets is a list
+	"segmentation-hypotheses" : [
+		{ "id" : 5, "probability" : 0.7},
+		{ "id" : 7, "probability" : 0.1},
+		{ "id" : 9, "probability" : 0.3}
+	],
+
+	// links
+	"linking-hypotheses" : [
+		{ "src" : 5, "dest" : 7, "probability" : 0.9},
+		{ "src" : 5, "dest" : 9, "probability" : 0.3}
+	],
+
+	// list of lists defining exclusion sets
+	"exclusions" : [
+		[7, 9]
+	]
+}
