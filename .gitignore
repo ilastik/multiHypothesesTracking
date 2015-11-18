@@ -1,0 +1,12 @@
+
+# added by GitSavvy
+/.tags
+
+# added by GitSavvy
+/.tags_sorted_by_file
+
+# vim temporary files
+*.sw[pmno]
+
+# added by GitSavvy
+build/

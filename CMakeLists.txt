@@ -1,0 +1,64 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.6)
+PROJECT(multiHypoTracking)
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_extensions/)
+
+# --------------------------------------------------------------
+# dependencies
+find_package( Cplex )
+# find_package( VIGRA REQUIRED )
+# find_package( Boost REQUIRED )
+find_package( Opengm REQUIRED )
+find_package( GUROBI )
+
+# --------------------------------------------------------------
+# configure optimizer
+
+if(GUROBI_FOUND)
+    set(OPTIMIZER_INCLUDE_DIRS ${GUROBI_INCLUDE_DIR})
+    set(OPTIMIZER_LIBRARIES ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
+    add_definitions(-DWITH_GUROBI)
+else()
+	if(CPLEX_FOUND)
+	    set(OPTIMIZER_INCLUDE_DIRS ${CPLEX_INCLUDE_DIRS})
+	    set(OPTIMIZER_LIBRARIES ${CPLEX_LIBRARIES})
+	    add_definitions(-DWITH_CPLEX)
+	    # CPLEX switch to be compatible with STL
+		ADD_DEFINITIONS(-DIL_STD)
+    else()
+    	message(FATAL_ERROR "No optimizer found at all!")
+    endif()
+endif()
+
+# --------------------------------------------------------------
+# check for C++ 11 support:
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+if(COMPILER_SUPPORTS_CXX11)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+else()
+        message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
+
+# --------------------------------------------------------------
+file(GLOB_RECURSE LIB_SOURCES src/*.cpp)
+file(GLOB_RECURSE HEADERS include/*.h*)
+
+include_directories(
+	${PROJECT_SOURCE_DIR}/include/
+	${Opengm_INCLUDE_DIR} 
+	${OPTIMIZER_INCLUDE_DIRS}
+)
+
+add_library(multiHypoTracking SHARED ${LIB_SOURCES} ${HEADERS})
+target_link_libraries(multiHypoTracking ${OPTIMIZER_LIBRARIES})
+
+# --------------------------------------------------------------
+
+add_subdirectory(bin)
+
+# --------------------------------------------------------------
+enable_testing()
+add_subdirectory(test)
