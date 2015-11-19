@@ -105,6 +105,7 @@ private:
 	size_t addVariableToOpenGM(
 		GraphicalModelType& model, 
 		WeightsType& weights, 
+		FeatureVector& features,
 		const std::vector<size_t>& weightIds);
 
 	void addIncomingConstraintToOpenGM(GraphicalModelType& model);

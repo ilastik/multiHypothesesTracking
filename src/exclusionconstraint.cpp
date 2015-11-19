@@ -1,4 +1,5 @@
 #include "exclusionconstraint.h"
+#include <algorithm>
 
 namespace mht
 {
@@ -17,6 +18,9 @@ void ExclusionConstraint::readFromJson(const Json::Value& entry)
 	{
 		ids_.push_back(entry[i].asInt());
 	}
+
+	// sort because OpenGM likes to have variable ids in order
+	std::sort(ids_.begin(), ids_.end());
 }
 
 void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses)

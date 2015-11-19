@@ -54,6 +54,7 @@ void SegmentationHypothesis::toDot(std::ostream& stream) const
 size_t SegmentationHypothesis::addVariableToOpenGM(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
+	FeatureVector& features,
 	const std::vector<size_t>& weightIds)
 {
 	// Add variable to model. All Variables are binary!
@@ -62,14 +63,14 @@ size_t SegmentationHypothesis::addVariableToOpenGM(
 
 	// add unary factor to model
 	std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
-	size_t numFeatures = features_.size();
+	size_t numFeatures = features.size();
 	assert(weightIds.size() == numFeatures * 2);
 
 	for(size_t l = 0; l < 2; l++)
 	{
 		FeaturesAndIndicesType featureAndIndex;
 
-		featureAndIndex.features = features_;
+		featureAndIndex.features = features;
 		for(size_t i = 0; i < numFeatures; ++i)
 			featureAndIndex.weightIds.push_back(weightIds[l * numFeatures + i]);
 
@@ -89,6 +90,7 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
     
+    // TODO: make sure that links are sorted by their opengm variable ids!
     // add all incoming transition variables with positive coefficient
     for(size_t i = 0; i < incomingLinks_.size(); ++i)
     {
@@ -123,6 +125,7 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
     
+    // TODO: make sure that links are sorted by their opengm variable ids!
     // add all incoming transition variables with positive coefficient
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
@@ -191,8 +194,8 @@ void SegmentationHypothesis::addToOpenGMModel(
 	const std::vector<size_t>& divisionWeightIds)
 {
 	std::cout << "Adding segmentation hypothesis " << id_ << " to opengm" << std::endl;
-	opengmVariableId_ = addVariableToOpenGM(model, weights, detectionWeightIds);
-	opengmDivisionVariableId_ = addVariableToOpenGM(model, weights, divisionWeightIds);
+	opengmVariableId_ = addVariableToOpenGM(model, weights, features_, detectionWeightIds);
+	opengmDivisionVariableId_ = addVariableToOpenGM(model, weights, divisionFeatures_, divisionWeightIds);
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model);
