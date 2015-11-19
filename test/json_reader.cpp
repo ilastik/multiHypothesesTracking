@@ -28,6 +28,12 @@ BOOST_AUTO_TEST_CASE( json_test )
 		BOOST_CHECK(hyp.isMember("id"));
 		BOOST_CHECK(hyp.isMember("features"));
 		std::cout << "\t\tHypothesis " << i << " has id " << hyp["id"].asInt() << " and prob " << hyp["features"][0].asFloat() << std::endl; 
+		if(hyp.isMember("divisionFeatures"))
+		{
+			const Json::Value divFeat = hyp["divisionFeatures"];
+			BOOST_CHECK(divFeat.isArray());
+			std::cout << "\t\t\tFound division features!" << std::endl;
+		}
 	}
 
 	const Json::Value linkingHypotheses = root["linking-hypotheses"];

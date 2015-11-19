@@ -5,12 +5,12 @@
 
 	// in square brackets is a list
 	"segmentation-hypotheses" : [
-		{ "id" : 5, "features" : [0.7]},
+		{ "id" : 5, "features" : [0.7], "divisionFeatures" : [0.4]},
 		{ "id" : 7, "features" : [0.1]},
 		{ "id" : 9, "features" : [0.3]}
 	],
 
-	// links
+	// links: source id, destination id, features
 	"linking-hypotheses" : [
 		{ "src" : 5, "dest" : 7, "features" : [0.9]},
 		{ "src" : 5, "dest" : 9, "features" : [0.3]}
