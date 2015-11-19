@@ -5,15 +5,15 @@
 
 	// in square brackets is a list
 	"segmentation-hypotheses" : [
-		{ "id" : 5, "probability" : 0.7},
-		{ "id" : 7, "probability" : 0.1},
-		{ "id" : 9, "probability" : 0.3}
+		{ "id" : 5, "features" : [0.7]},
+		{ "id" : 7, "features" : [0.1]},
+		{ "id" : 9, "features" : [0.3]}
 	],
 
 	// links
 	"linking-hypotheses" : [
-		{ "src" : 5, "dest" : 7, "probability" : 0.9},
-		{ "src" : 5, "dest" : 9, "probability" : 0.3}
+		{ "src" : 5, "dest" : 7, "features" : [0.9]},
+		{ "src" : 5, "dest" : 9, "features" : [0.3]}
 	],
 
 	// list of lists defining exclusion sets

@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE( json_test )
 		const Json::Value hyp = segmentationHypotheses[i];
 		BOOST_CHECK(hyp.isObject());
 		BOOST_CHECK(hyp.isMember("id"));
-		BOOST_CHECK(hyp.isMember("probability"));
-		std::cout << "\t\tHypothesis " << i << " has id " << hyp["id"].asInt() << " and prob " << hyp["probability"].asFloat() << std::endl; 
+		BOOST_CHECK(hyp.isMember("features"));
+		std::cout << "\t\tHypothesis " << i << " has id " << hyp["id"].asInt() << " and prob " << hyp["features"][0].asFloat() << std::endl; 
 	}
 
 	const Json::Value linkingHypotheses = root["linking-hypotheses"];
@@ -39,8 +39,8 @@ BOOST_AUTO_TEST_CASE( json_test )
 		BOOST_CHECK(hyp.isObject());
 		BOOST_CHECK(hyp.isMember("src"));
 		BOOST_CHECK(hyp.isMember("dest"));
-		BOOST_CHECK(hyp.isMember("probability"));
-		std::cout << "\t\tHypothesis " << i << " links " << hyp["src"].asInt() << " and " << hyp["dest"] << " with prob " << hyp["probability"].asFloat() << std::endl; 
+		BOOST_CHECK(hyp.isMember("features"));
+		std::cout << "\t\tHypothesis " << i << " links " << hyp["src"].asInt() << " and " << hyp["dest"] << " with prob " << hyp["features"][0].asFloat() << std::endl; 
 	}
 
 	const Json::Value exclusions = root["exclusions"];
