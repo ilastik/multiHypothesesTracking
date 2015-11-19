@@ -4,7 +4,7 @@
 namespace mht
 {
 
-LinkingHypothesis::LinkingHypothesis(int srcId, int destId, FeatureVector features):
+LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const FeatureVector& features):
 	srcId_(srcId),
 	destId_(destId),
 	features_(features),

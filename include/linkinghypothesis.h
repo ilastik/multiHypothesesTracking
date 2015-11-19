@@ -35,7 +35,7 @@ public:
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
-	LinkingHypothesis(int srcId, int destId, FeatureVector features);
+	LinkingHypothesis(int srcId, int destId, const FeatureVector& features);
 
 	/**
 	 * @brief read linking hypothesis from Json

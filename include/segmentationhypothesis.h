@@ -22,10 +22,11 @@ public:
 	/**
 	 * @brief Enumerate the strings for attributes used in the Json file
 	 */
-	enum class JsonTypes {Id, Features};
+	enum class JsonTypes {Id, Features, DivisionFeatures};
 	std::map<JsonTypes, std::string> JsonTypeNames = {
 		{JsonTypes::Id, "id"}, 
-		{JsonTypes::Features, "features"}
+		{JsonTypes::Features, "features"},
+		{JsonTypes::DivisionFeatures, "divisionFeatures"}
 	};
 
 public:
@@ -34,7 +35,7 @@ public:
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
-	SegmentationHypothesis(int id, FeatureVector features);
+	SegmentationHypothesis(int id, const FeatureVector& features, const FeatureVector& divisionFeatures);
 
 	/**
 	 * @brief read segmentation hypothesis from Json
@@ -49,6 +50,11 @@ public:
 	 * @return number of features, this should be equal for all hypotheses!
 	 */
 	const size_t getNumFeatures() const { return features_.size(); }
+
+	/**
+	 * @return number of division features, this should be equal for all hypotheses!
+	 */
+	const size_t getNumDivisionFeatures() const { return divisionFeatures_.size(); }
 
 	/**
 	 * @brief Add this hypothesis to the OpenGM model
@@ -108,6 +114,7 @@ private:
 private:
 	int id_;
 	FeatureVector features_;
+	FeatureVector divisionFeatures_;
 	int opengmVariableId_;
 	int opengmDivisionVariableId_;
 	std::vector< std::shared_ptr<LinkingHypothesis> > incomingLinks_;

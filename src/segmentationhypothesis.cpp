@@ -5,7 +5,7 @@
 namespace mht
 {
 
-SegmentationHypothesis::SegmentationHypothesis(int id, FeatureVector features):
+SegmentationHypothesis::SegmentationHypothesis(int id, const FeatureVector& features, const FeatureVector& divisionFeatures):
 	id_(id),
 	features_(features),
 	opengmVariableId_(-1)
@@ -25,6 +25,13 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 	for(int i = 0; i < (int)features.size(); i++)
 	{
 		features_.push_back(features[i].asDouble());
+	}
+
+	divisionFeatures_.clear();
+	const Json::Value divisionFeatures = entry[JsonTypeNames[JsonTypes::DivisionFeatures]];
+	for(int i = 0; i < (int)divisionFeatures.size(); i++)
+	{
+		divisionFeatures_.push_back(divisionFeatures[i].asDouble());
 	}
 
 	return id_;
