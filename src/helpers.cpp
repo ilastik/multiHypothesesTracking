@@ -1,6 +1,6 @@
 #include "helpers.h"
 
-namespace covertree
+namespace mht
 {
 
 std::ostream& operator<<(std::ostream& stream, const FeatureVector& feats)
@@ -16,4 +16,4 @@ std::ostream& operator<<(std::ostream& stream, const FeatureVector& feats)
 	return stream;
 }
 
-}
+} // end namespace mht
