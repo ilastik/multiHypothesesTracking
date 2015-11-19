@@ -42,14 +42,18 @@ void Model::readFromJson(const std::string& filename)
 		LinkingHypothesis hyp;
 		hyp.readFromJson(jsonHyp);
 		hyp.registerWithSegmentations(segmentationHypotheses_);
+		linkingHypotheses_.push_back(hyp);
 	}
 
-	// const Json::Value exclusions = root[JsonTypeNames[JsonTypes::Exclusions]];
-	// std::cout << "\tcontains " << exclusions.size() << " exclusions" << std::endl;
-	// for(int i = 0; i < (int)exclusions.size(); i++)
-	// {
-	// 	const Json::Value hyp = exclusions[i];
-	// }
+	const Json::Value exclusions = root[JsonTypeNames[JsonTypes::Exclusions]];
+	std::cout << "\tcontains " << exclusions.size() << " exclusions" << std::endl;
+	for(int i = 0; i < (int)exclusions.size(); i++)
+	{
+		const Json::Value jsonExc = exclusions[i];
+		ExclusionConstraint exclusion;
+		exclusion.readFromJson(jsonExc);
+		exclusionConstraints_.push_back(exclusion);
+	}
 }
 
 size_t Model::computeNumWeights() const
@@ -97,6 +101,11 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
 		iter->second.addToOpenGMModel(model_, weights, {}, {});
+	}
+
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+	{
+		iter->addToOpenGMModel(model_, segmentationHypotheses_);
 	}
 }
 

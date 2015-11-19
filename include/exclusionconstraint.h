@@ -1,0 +1,42 @@
+#ifndef EXCLUSION_CONSTRAINT_H
+#define EXCLUSION_CONSTRAINT_H
+
+#include <json/json.h>
+#include "segmentationhypothesis.h"
+
+namespace mht
+{
+
+class ExclusionConstraint
+{
+public:
+	ExclusionConstraint(){}
+
+	/**
+	 * @brief Manually create an exclusion constraint disallowing the two hypotheses to be active at the same time
+	 */
+	ExclusionConstraint(const std::vector<int>& ids);
+	
+	/**
+	 * @brief read exclusion constraint from Json
+	 * @details expects the json array to be a list of ints representing ids
+	 * 
+	 * @param entry json object for this hypothesis
+	 */
+	void readFromJson(const Json::Value& entry);
+
+	/**
+	 * @brief Add this constraint to the OpenGM model
+	 * 
+	 * @param model OpenGM model
+	 * @param segmentationHypotheses the map of all segmentation hypotheses
+	 */
+	void addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+
+private:
+	std::vector<int> ids_;
+};
+
+} // end namespace mht
+
+#endif // EXCLUSION_CONSTRAINT_H

@@ -3,6 +3,7 @@
 
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
+#include "exclusionconstraint.h"
 #include "helpers.h"
 
 namespace mht
@@ -54,7 +55,7 @@ public:
 private:
 	std::map<int, SegmentationHypothesis> segmentationHypotheses_;
 	std::vector<LinkingHypothesis> linkingHypotheses_;
-	// std::vector<ExclusionConstraints> exclusionConstraints_;
+	std::vector<ExclusionConstraint> exclusionConstraints_;
 
 	// OpenGM stuff
 	GraphicalModelType model_;
