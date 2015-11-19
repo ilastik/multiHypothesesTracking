@@ -2,6 +2,7 @@
 #include <json/json.h>
 #include <fstream>
 #include <stdexcept>
+#include <numeric>
 
 #ifdef WITH_CPLEX
 #include <opengm/inference/lpcplex2.hxx>
@@ -39,9 +40,9 @@ void Model::readFromJson(const std::string& filename)
 	for(int i = 0; i < (int)linkingHypotheses.size(); i++)
 	{
 		const Json::Value jsonHyp = linkingHypotheses[i];
-		LinkingHypothesis hyp;
-		hyp.readFromJson(jsonHyp);
-		hyp.registerWithSegmentations(segmentationHypotheses_);
+		std::shared_ptr<LinkingHypothesis> hyp = std::make_shared<LinkingHypothesis>();
+		hyp->readFromJson(jsonHyp);
+		hyp->registerWithSegmentations(segmentationHypotheses_);
 		linkingHypotheses_.push_back(hyp);
 	}
 
@@ -50,9 +51,9 @@ void Model::readFromJson(const std::string& filename)
 	for(int i = 0; i < (int)exclusions.size(); i++)
 	{
 		const Json::Value jsonExc = exclusions[i];
-		ExclusionConstraint exclusion;
+		exclusionConstraints_.push_back(ExclusionConstraint());
+		ExclusionConstraint& exclusion = exclusionConstraints_.back();
 		exclusion.readFromJson(jsonExc);
-		exclusionConstraints_.push_back(exclusion);
 	}
 }
 
@@ -80,27 +81,41 @@ size_t Model::computeNumWeights() const
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
 		if(numLinkFeatures < 0)
-			numLinkFeatures = iter->getNumFeatures();
+			numLinkFeatures = (*iter)->getNumFeatures();
 		else
-			if(iter->getNumFeatures() != numLinkFeatures)
+			if((*iter)->getNumFeatures() != numLinkFeatures)
 				throw std::runtime_error("Detections do not have the same number of features!");
 	}
 
-	// we need two sets of weights for all features to represent state "on" and "off"
+	// we need two sets of weights for all features to represent state "on" and "off"!
 	return 2 * (numDetFeatures + numDivFeatures + numLinkFeatures);
 }
 
 void Model::initializeOpenGMModel(WeightsType& weights)
 {
+	std::cout << "Initializing opengm model..." << std::endl;
+	// we need two sets of weights for all features to represent state "on" and "off"!
+	size_t numLinkWeights = 2 * linkingHypotheses_.front()->getNumFeatures();
+	std::vector<size_t> linkWeightIds(numLinkWeights);
+	std::iota(linkWeightIds.begin(), linkWeightIds.end(), 0); // fill with increasing values starting at 0
+
 	// first add all link variables, because segmentations will use them when defining constraints
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		iter->addToOpenGMModel(model_, weights, {});
+		(*iter)->addToOpenGMModel(model_, weights, linkWeightIds);
 	}
+
+	size_t numDetWeights = 2 * segmentationHypotheses_.begin()->second.getNumFeatures();
+	std::vector<size_t> detWeightIds(numDetWeights);
+	std::iota(detWeightIds.begin(), detWeightIds.end(), numLinkWeights); // fill with increasing values starting at 0
+
+	size_t numDivWeights = 2 * segmentationHypotheses_.begin()->second.getNumDivisionFeatures();
+	std::vector<size_t> divWeightIds(numDivWeights);
+	std::iota(divWeightIds.begin(), divWeightIds.end(), numLinkWeights + numDetWeights); // fill with increasing values starting at 0
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		iter->second.addToOpenGMModel(model_, weights, {}, {});
+		iter->second.addToOpenGMModel(model_, weights, detWeightIds, divWeightIds);
 	}
 
 	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
@@ -109,8 +124,15 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 	}
 }
 
-Solution Model::infer()
+Solution Model::infer(const std::vector<ValueType>& weights)
 {
+	// use weights that were given
+	WeightsType weightObject(computeNumWeights());
+	assert(weights.size() == weightObject.numberOfWeights());
+	for(size_t i = 0; i < weights.size(); i++)
+		weightObject.setWeight(i, weights[i]);
+	initializeOpenGMModel(weightObject);
+
 #ifdef WITH_CPLEX
 	std::cout << "Using cplex optimizer" << std::endl;
 	typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
@@ -140,47 +162,51 @@ Solution Model::infer()
 	return solution;
 }
 
-void Model::learn()
+std::vector<ValueType> Model::learn(const std::string gt_filename)
 {
-// 	DatasetType dataset;
-// 	WeightsType initialWeights(getNumWeights());
-// 	dataset.setWeights(initialWeights);
-// 	buildModel(dataset.getWeights());
+	DatasetType dataset;
+	WeightsType initialWeights(computeNumWeights());
+	dataset.setWeights(initialWeights);
+	initializeOpenGMModel(dataset.getWeights());
 
-// 	Solution gt;
-// 	NodeVisitor node_to_GT_visitor([&](CoverTreeNodePtr node){
-// 		gt.push_back(node->getCoverLabel());
-// 		gt.push_back(node->getAddLabel());
-// 	});
-// 	tree_.getRoot()->accept(&node_to_GT_visitor);
+	// Solution gt;
+	// NodeVisitor node_to_GT_visitor([&](CoverTreeNodePtr node){
+	// 	gt.push_back(node->getCoverLabel());
+	// 	gt.push_back(node->getAddLabel());
+	// });
+	// tree_.getRoot()->accept(&node_to_GT_visitor);
 
-// 	std::cout << "got ground truth: ";
-// 	for(size_t s : gt)
-// 		std::cout << s << " ";
-// 	std::cout << std::endl;
+	// std::cout << "got ground truth: ";
+	// for(size_t s : gt)
+	// 	std::cout << s << " ";
+	// std::cout << std::endl;
 
-// 	dataset.pushBackInstance(graphical_model_, gt);
+	// dataset.pushBackInstance(graphical_model_, gt);
 	
-// 	std::cout << "Done setting up dataset, creating learner" << std::endl;
-// 	opengm::learning::StructMaxMargin<DatasetType>::Parameter learner_param;
-// 	opengm::learning::StructMaxMargin<DatasetType> learner(dataset, learner_param);
+	std::cout << "Done setting up dataset, creating learner" << std::endl;
+	opengm::learning::StructMaxMargin<DatasetType>::Parameter learnerParam;
+	opengm::learning::StructMaxMargin<DatasetType> learner(dataset, learnerParam);
 
-// #ifdef WITH_CPLEX
-// 	typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-// #else
-// 	typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-// #endif
+#ifdef WITH_CPLEX
+	typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
+#else
+	typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
+#endif
 	
-// 	OptimizerType::Parameter optimizer_param;
-// 	optimizer_param.integerConstraintNodeVar_ = true;
-// 	optimizer_param.relaxation_ = OptimizerType::Parameter::TightPolytope;
-// 	optimizer_param.verbose_ = true;
-// 	optimizer_param.useSoftConstraints_ = false;
+	OptimizerType::Parameter optimizerParam;
+	optimizerParam.integerConstraintNodeVar_ = true;
+	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
+	optimizerParam.verbose_ = true;
+	optimizerParam.useSoftConstraints_ = false;
 
-// 	std::cout << "Calling learn()..." << std::endl;
-// 	learner.learn<OptimizerType>(optimizer_param); 
-// 	std::cout << "extracting weights" << std::endl;
-// 	weights_ = learner.getWeights();
+	std::cout << "Calling learn()..." << std::endl;
+	learner.learn<OptimizerType>(optimizerParam); 
+	std::cout << "extracting weights" << std::endl;
+	const WeightsType& finalWeights = learner.getWeights();
+	std::vector<double> resultWeights;
+	for(size_t i = 0; i < finalWeights.numberOfWeights(); ++i)
+		resultWeights.push_back(finalWeights.getWeight(i));
+	return resultWeights;
 }
 
 } // end namespace mht

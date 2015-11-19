@@ -16,7 +16,7 @@ namespace mht
  * @details It can be read from Json, be added to an opengm model 
  * (with unary composed of several features that are learnable).
  */
-class LinkingHypothesis : std::enable_shared_from_this<LinkingHypothesis>
+class LinkingHypothesis : public std::enable_shared_from_this<LinkingHypothesis>
 {
 public:
 	/**
@@ -30,7 +30,7 @@ public:
 	};
 
 public:
-	LinkingHypothesis(){}
+	LinkingHypothesis();
 
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing

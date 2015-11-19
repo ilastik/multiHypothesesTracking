@@ -30,7 +30,7 @@ public:
 	};
 
 public:
-	SegmentationHypothesis(){}
+	SegmentationHypothesis();
 
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
@@ -62,13 +62,13 @@ public:
 	 * 
 	 * @param model OpenGM model
 	 * @param weights OpenGM weight object (if you are running learning this must be a reference to the weight object of the dataset)
-	 * @param variableWeightIds indices of the weights that are meant to be used together with the detection features (size must match 2*numFeatures)
+	 * @param detectionWeightIds indices of the weights that are meant to be used together with the detection features (size must match 2*numFeatures)
 	 * @param divisionWeightIds indices of the weights that are meant to be used together with the division features (size must match 2*numFeatures)
 	 */
 	void addToOpenGMModel(
 		GraphicalModelType& model, 
 		WeightsType& weights,
-		const std::vector<size_t>& variableWeightIds,
+		const std::vector<size_t>& detectionWeightIds,
 		const std::vector<size_t>& divisionWeightIds);
 
 	/**

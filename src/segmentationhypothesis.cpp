@@ -5,10 +5,17 @@
 namespace mht
 {
 
+SegmentationHypothesis::SegmentationHypothesis():
+	id_(-1),
+	opengmVariableId_(-1),
+	opengmDivisionVariableId_(-1)
+{}
+
 SegmentationHypothesis::SegmentationHypothesis(int id, const FeatureVector& features, const FeatureVector& divisionFeatures):
 	id_(id),
 	features_(features),
-	opengmVariableId_(-1)
+	opengmVariableId_(-1),
+	opengmDivisionVariableId_(-1)
 {}
 
 const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
@@ -33,6 +40,8 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 	{
 		divisionFeatures_.push_back(divisionFeatures[i].asDouble());
 	}
+
+	std::cout << "Found segmentation hypothesis with id " << id_ << std::endl;
 
 	return id_;
 }
@@ -79,13 +88,6 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
 	LinearConstraintFunctionType::LinearConstraintType incomingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
-
-	// add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
-    incomingConsistencyConstraint.add(indicatorVariable, -1.0);
-
-    factorVariables.push_back(opengmVariableId_);
-    constraintShape.push_back(2);
     
     // add all incoming transition variables with positive coefficient
     for(size_t i = 0; i < incomingLinks_.size(); ++i)
@@ -98,6 +100,13 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
         factorVariables.push_back(incomingLinks_[i]->getOpenGMVariableId());
         constraintShape.push_back(2);
     }
+
+    // add this variable's state with negative coefficient
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
+    incomingConsistencyConstraint.add(indicatorVariable, -1.0);
+
+    factorVariables.push_back(opengmVariableId_);
+    constraintShape.push_back(2);
 
     incomingConsistencyConstraint.setBound( 0 );
     incomingConsistencyConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::Equal);
@@ -113,19 +122,6 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
 	LinearConstraintFunctionType::LinearConstraintType outgoingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
-
-	// add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
-    outgoingConsistencyConstraint.add(indicatorVariable, -1.0);
-
-    factorVariables.push_back(opengmVariableId_);
-    constraintShape.push_back(2);
-
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(1, LabelType(1));
-    outgoingConsistencyConstraint.add(divisionIndicatorVariable, -1.0);
-
-    factorVariables.push_back(opengmDivisionVariableId_);
-    constraintShape.push_back(2);
     
     // add all incoming transition variables with positive coefficient
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
@@ -138,6 +134,19 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
         factorVariables.push_back(outgoingLinks_[i]->getOpenGMVariableId());
         constraintShape.push_back(2);
     }
+
+    // add this variable's state with negative coefficient
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
+    outgoingConsistencyConstraint.add(indicatorVariable, -1.0);
+
+    factorVariables.push_back(opengmVariableId_);
+    constraintShape.push_back(2);
+
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(1, LabelType(1));
+    outgoingConsistencyConstraint.add(divisionIndicatorVariable, -1.0);
+
+    factorVariables.push_back(opengmDivisionVariableId_);
+    constraintShape.push_back(2);
 
     outgoingConsistencyConstraint.setBound( 0 );
     outgoingConsistencyConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::Equal);
@@ -178,10 +187,11 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 void SegmentationHypothesis::addToOpenGMModel(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
-	const std::vector<size_t>& variableWeightIds,
+	const std::vector<size_t>& detectionWeightIds,
 	const std::vector<size_t>& divisionWeightIds)
 {
-	opengmVariableId_ = addVariableToOpenGM(model, weights, variableWeightIds);
+	std::cout << "Adding segmentation hypothesis " << id_ << " to opengm" << std::endl;
+	opengmVariableId_ = addVariableToOpenGM(model, weights, detectionWeightIds);
 	opengmDivisionVariableId_ = addVariableToOpenGM(model, weights, divisionWeightIds);
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
