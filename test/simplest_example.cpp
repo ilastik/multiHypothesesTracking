@@ -16,14 +16,22 @@ using namespace mht;
 int main()
 {
 	Model model;
-	model.readFromJson("example.json");
+	model.readFromJson("magic.json");
 	size_t numWeights = model.computeNumWeights();
-	
+	std::vector<double> weights = model.learn("gt.json");
+
+	Model model2;
+	model2.readFromJson("magic.json");
+	Solution sol = model2.infer(weights);
+
+	std::cout << "found gt solution: " << sol << std::endl;
+
 	// BOOST_CHECK_EQUAL(numWeights, 6);
 
 	// run inference with some dummy weight vector
-	std::vector<double> weights(6, 1.0);
-	Solution sol = model.infer(weights);
+	// std::vector<double> weights(6, 1.0);
+	// Solution sol = model.infer(weights);
+
 	return 0;
 }
 

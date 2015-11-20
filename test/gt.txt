@@ -1,6 +1,8 @@
-Ground truth
+{
 
-Frame 1
+
+
+/*Frame 1
 1
 2
 
@@ -13,4 +15,5 @@ Frame 3
 6 (=5)
 7 (=4)
 8 (daughter of 3)
-9 (daughter of 3)
+9 (daughter of 3)*/
+}

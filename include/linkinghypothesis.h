@@ -42,8 +42,9 @@ public:
 	 * @details expects the json value to contain attributes "src"(int), "dest"(int), and "features"(list of double)
 	 * 
 	 * @param entry json object for this hypothesis
+	 * @returns a pair of (src, dest) segmentation hypotheis ids
 	 */
-	void readFromJson(const Json::Value& entry);
+	const std::pair<int, int> readFromJson(const Json::Value& entry);
 
 	/**
 	 * @return number of features, this should be equal for all hypotheses!

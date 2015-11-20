@@ -17,7 +17,7 @@ LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const FeatureVector&
 	opengmVariableId_(-1)
 {}
 
-void LinkingHypothesis::readFromJson(const Json::Value& entry)
+const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& entry)
 {
 	if(!entry.isObject())
 		throw std::runtime_error("Cannot extract LinkingHypothesis from non-object JSON entry");
@@ -37,6 +37,7 @@ void LinkingHypothesis::readFromJson(const Json::Value& entry)
 	}
 
 	std::cout << "Found linking hypothesis between " << srcId_ << " and " << destId_ << std::endl;
+	return std::make_pair(srcId_, destId_);
 }
 
 void LinkingHypothesis::toDot(std::ostream& stream) const

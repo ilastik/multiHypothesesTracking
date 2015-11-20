@@ -3,17 +3,15 @@
 namespace mht
 {
 
-std::ostream& operator<<(std::ostream& stream, const FeatureVector& feats)
+void saveWeightsToJSON(const std::vector<ValueType>& weights, const std::string& filename)
 {
-	stream << "(";
-	for(FeatureVector::const_iterator f_it = feats.begin(); f_it != feats.end(); ++f_it)
-	{
-		if(f_it != feats.begin())
-			stream << ", ";
-		stream << *f_it;
-	}
-	stream << ")";
-	return stream;
+
 }
+
+std::vector<ValueType> readWeightsFromJSON(const std::string& filename)
+{
+
+}
+
 
 } // end namespace mht

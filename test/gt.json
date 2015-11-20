@@ -1,0 +1,66 @@
+{
+
+	// specify values of links as that is enough to deduce all variable labels
+	"linking-results" : [
+		{ "src" : 1, "dest" : 3, "value": false},
+		{ "src" : 1, "dest" : 4, "value": true},
+		{ "src" : 1, "dest" : 5, "value": true},
+		{ "src" : 1, "dest" : 45, "value": false},
+		{ "src" : 2, "dest" : 3, "value": true},
+		{ "src" : 2, "dest" : 4, "value": false},
+		{ "src" : 2, "dest" : 5, "value": false},
+		{ "src" : 2, "dest" : 45, "value": false},
+		{ "src" : 21, "dest" : 3, "value": false},
+		{ "src" : 21, "dest" : 4, "value": false},
+		{ "src" : 21, "dest" : 5, "value": false},
+		{ "src" : 21, "dest" : 45, "value": false},
+		{ "src" : 3, "dest" : 6, "value": false},
+		{ "src" : 3, "dest" : 7, "value": false},
+		{ "src" : 3, "dest" : 8, "value": true},
+		{ "src" : 3, "dest" : 9, "value": true},
+		{ "src" : 3, "dest" : 10, "value": false},
+		{ "src" : 3, "dest" : 11, "value": false},
+		{ "src" : 3, "dest" : 12, "value": false},
+		{ "src" : 3, "dest" : 13, "value": false},
+		{ "src" : 4, "dest" : 6, "value": false},
+		{ "src" : 4, "dest" : 7, "value": true},
+		{ "src" : 4, "dest" : 8, "value": false},
+		{ "src" : 4, "dest" : 9, "value": false},
+		{ "src" : 4, "dest" : 10, "value": false},
+		{ "src" : 4, "dest" : 11, "value": false},
+		{ "src" : 4, "dest" : 12, "value": false},
+		{ "src" : 4, "dest" : 13, "value": false},
+		{ "src" : 5, "dest" : 6, "value": true},
+		{ "src" : 5, "dest" : 7, "value": false},
+		{ "src" : 5, "dest" : 8, "value": false},
+		{ "src" : 5, "dest" : 9, "value": false},
+		{ "src" : 5, "dest" : 10, "value": false},
+		{ "src" : 5, "dest" : 11, "value": false},
+		{ "src" : 5, "dest" : 12, "value": false},
+		{ "src" : 5, "dest" : 13, "value": false},
+		{ "src" : 45, "dest" : 6, "value": false},
+		{ "src" : 45, "dest" : 7, "value": false},
+		{ "src" : 45, "dest" : 8, "value": false},
+		{ "src" : 45, "dest" : 9, "value": false},
+		{ "src" : 45, "dest" : 10, "value": false},
+		{ "src" : 45, "dest" : 11, "value": false},
+		{ "src" : 45, "dest" : 12, "value": false},
+		{ "src" : 45, "dest" : 13, "value": false}
+	]
+
+/*Frame 1
+1
+2
+
+Frame 2
+3 (=2)
+4 (daughter of 1)
+5 (daughter of 1)
+
+Frame 3
+6 (=5)
+7 (=4)
+8 (daughter of 3)
+9 (daughter of 3)*/
+
+}

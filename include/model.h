@@ -24,11 +24,15 @@ public:
 	/**
 	 * @brief Enumerate the strings for attributes used in the Json file
 	 */
-	enum class JsonTypes {Segmentations, Links, Exclusions};
+	enum class JsonTypes {Segmentations, Links, Exclusions, LinkResults, SrcId, DestId, Value};
 	std::map<JsonTypes, std::string> JsonTypeNames = {
 		{JsonTypes::Segmentations, "segmentation-hypotheses"}, 
 		{JsonTypes::Links, "linking-hypotheses"}, 
-		{JsonTypes::Exclusions, "exclusions"}
+		{JsonTypes::Exclusions, "exclusions"},
+		{JsonTypes::LinkResults, "linking-results"},
+		{JsonTypes::SrcId, "src"}, 
+		{JsonTypes::DestId, "dest"}, 
+		{JsonTypes::Value, "value"} 
 	};
 
 public:	
@@ -57,7 +61,24 @@ public:
 	 * @param gt_filename JSON file containing a mapping of "src"(int), "dest"(int) -> "value"(bool)
 	 * @return the vector of learned weights
 	 */
-	std::vector<ValueType> learn(const std::string gt_filename);
+	std::vector<ValueType> learn(const std::string& gt_filename);
+
+	/**
+	 * @brief Export a found solution vector as a readable json file
+	 * 
+	 * @param filename where to save the result
+	 * @param sol the labeling to save
+	 */
+	void saveResultToJson(const std::string& filename, const Solution& sol);
+
+
+	/**
+	 * @brief check that the solution does not violate any constraints
+	 * 
+	 * @param sol solution vector
+	 * @return boolean value describing whether this solution is valid
+	 */
+	bool verifySolution(const Solution& sol);
 
 private:
 	/**
@@ -68,10 +89,18 @@ private:
 	 */
 	void initializeOpenGMModel(WeightsType& weights);
 
+	/**
+	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
+	 * 
+	 * @param filename where to find the ground truth
+	 * @return the solution as a vector of per-opengm-variable labelings
+	 */
+	Solution readGTfromJson(const std::string& filename);
+
 private:
 	std::map<int, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around
-	std::vector< std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
+	std::map<std::pair<int, int>, std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
 	std::vector<ExclusionConstraint> exclusionConstraints_;
 
 	// OpenGM stuff

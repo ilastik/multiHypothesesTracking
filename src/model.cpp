@@ -3,6 +3,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <numeric>
+#include <sstream>
 
 #ifdef WITH_CPLEX
 #include <opengm/inference/lpcplex2.hxx>
@@ -19,7 +20,7 @@ void Model::readFromJson(const std::string& filename)
 {
 	std::ifstream input(filename.c_str());
 	if(!input.good())
-		throw std::runtime_error("Could not open JSON file " + filename);
+		throw std::runtime_error("Could not open JSON model file " + filename);
 
 	Json::Value root;
 	input >> root;
@@ -41,9 +42,9 @@ void Model::readFromJson(const std::string& filename)
 	{
 		const Json::Value jsonHyp = linkingHypotheses[i];
 		std::shared_ptr<LinkingHypothesis> hyp = std::make_shared<LinkingHypothesis>();
-		hyp->readFromJson(jsonHyp);
+		std::pair<int, int> ids = hyp->readFromJson(jsonHyp);
 		hyp->registerWithSegmentations(segmentationHypotheses_);
-		linkingHypotheses_.push_back(hyp);
+		linkingHypotheses_[ids] = hyp;
 	}
 
 	const Json::Value exclusions = root[JsonTypeNames[JsonTypes::Exclusions]];
@@ -81,9 +82,9 @@ size_t Model::computeNumWeights() const
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
 		if(numLinkFeatures < 0)
-			numLinkFeatures = (*iter)->getNumFeatures();
+			numLinkFeatures = iter->second->getNumFeatures();
 		else
-			if((*iter)->getNumFeatures() != numLinkFeatures)
+			if(iter->second->getNumFeatures() != numLinkFeatures)
 				throw std::runtime_error("Detections do not have the same number of features!");
 	}
 
@@ -95,14 +96,14 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 {
 	std::cout << "Initializing opengm model..." << std::endl;
 	// we need two sets of weights for all features to represent state "on" and "off"!
-	size_t numLinkWeights = 2 * linkingHypotheses_.front()->getNumFeatures();
+	size_t numLinkWeights = 2 * linkingHypotheses_.begin()->second->getNumFeatures();
 	std::vector<size_t> linkWeightIds(numLinkWeights);
 	std::iota(linkWeightIds.begin(), linkWeightIds.end(), 0); // fill with increasing values starting at 0
 
 	// first add all link variables, because segmentations will use them when defining constraints
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		(*iter)->addToOpenGMModel(model_, weights, linkWeightIds);
+		iter->second->addToOpenGMModel(model_, weights, linkWeightIds);
 	}
 
 	size_t numDetWeights = 2 * segmentationHypotheses_.begin()->second.getNumFeatures();
@@ -162,26 +163,15 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	return solution;
 }
 
-std::vector<ValueType> Model::learn(const std::string gt_filename)
+std::vector<ValueType> Model::learn(const std::string& gt_filename)
 {
 	DatasetType dataset;
 	WeightsType initialWeights(computeNumWeights());
 	dataset.setWeights(initialWeights);
 	initializeOpenGMModel(dataset.getWeights());
 
-	// Solution gt;
-	// NodeVisitor node_to_GT_visitor([&](CoverTreeNodePtr node){
-	// 	gt.push_back(node->getCoverLabel());
-	// 	gt.push_back(node->getAddLabel());
-	// });
-	// tree_.getRoot()->accept(&node_to_GT_visitor);
-
-	// std::cout << "got ground truth: ";
-	// for(size_t s : gt)
-	// 	std::cout << s << " ";
-	// std::cout << std::endl;
-
-	// dataset.pushBackInstance(graphical_model_, gt);
+	Solution gt = readGTfromJson(gt_filename);
+	dataset.pushBackInstance(model_, gt);
 	
 	std::cout << "Done setting up dataset, creating learner" << std::endl;
 	opengm::learning::StructMaxMargin<DatasetType>::Parameter learnerParam;
@@ -207,6 +197,86 @@ std::vector<ValueType> Model::learn(const std::string gt_filename)
 	for(size_t i = 0; i < finalWeights.numberOfWeights(); ++i)
 		resultWeights.push_back(finalWeights.getWeight(i));
 	return resultWeights;
+}
+
+Solution Model::readGTfromJson(const std::string& filename)
+{
+	std::ifstream input(filename.c_str());
+	if(!input.good())
+		throw std::runtime_error("Could not open JSON ground truth file " + filename);
+
+	Json::Value root;
+	input >> root;
+
+	const Json::Value linkingResults = root[JsonTypeNames[JsonTypes::LinkResults]];
+	std::cout << "\tcontains " << linkingResults.size() << " linking annotations" << std::endl;
+
+	// create a solution vector that holds a value for each segmentation / detection / link
+	Solution solution(model_.numberOfVariables(), 0);
+
+	// first set all source nodes to active. If a node is already active, this means a division
+	for(int i = 0; i < linkingResults.size(); ++i)
+	{
+		const Json::Value jsonHyp = linkingResults[i];
+		int srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asInt();
+		int destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asInt();
+		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
+		if(value)
+		{
+			// try to find link
+			if(linkingHypotheses_.find(std::make_pair(srcId, destId)) == linkingHypotheses_.end())
+			{
+				std::stringstream s;
+				s << "Cannot find link to annotate: " << srcId << " to " << destId;
+				throw std::runtime_error(s.str());
+			}
+			
+			// set link active
+			std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[std::make_pair(srcId, destId)];
+			solution[hyp->getOpenGMVariableId()] = 1;
+
+			// set source active, if it was active already then this is a division
+			if(solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] == 1)
+				solution[segmentationHypotheses_[srcId].getOpenGMDivisionVariableId()] = 1;
+			else
+			{
+				if(solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] == 1)
+					throw std::runtime_error("A source node has been used more than once!");
+				solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] = 1;
+			}
+		}
+	}
+
+	// enable target nodes so that the last node of each track is also active
+	for(int i = 0; i < linkingResults.size(); ++i)
+	{
+		const Json::Value jsonHyp = linkingResults[i];
+		int srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asInt();
+		int destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asInt();
+		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
+
+		if(value)
+		{
+			solution[segmentationHypotheses_[destId].getOpenGMVariableId()] = 1;
+		}
+	}
+
+	std::cout << "found gt solution: ";
+	for(size_t s : solution)
+		std::cout << s << " ";
+	std::cout << std::endl;
+
+	return solution;
+}
+
+bool Model::verifySolution(const Solution& sol)
+{
+	
+}
+
+void Model::saveResultToJson(const std::string& filename, const Solution& sol)
+{
+	// how does saving json work?
 }
 
 } // end namespace mht
