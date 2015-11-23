@@ -29,9 +29,17 @@ public:
 	 * @brief Add this constraint to the OpenGM model
 	 * 
 	 * @param model OpenGM model
-	 * @param segmentationHypotheses the map of all segmentation hypotheses
+	 * @param segmentationHypotheses the map of all segmentation hypotheses by id
 	 */
 	void addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+
+	/**
+	 * @brief Check that the given solution vector obeys this exclusion constraint
+	 * 
+	 * @param sol the opengm solution vector
+	 * @param segmentationHypotheses the map or all segmentation hypotheses by id
+	 */
+	bool verifySolution(const Solution& sol, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
 
 private:
 	std::vector<int> ids_;

@@ -19,17 +19,6 @@ namespace mht
 class LinkingHypothesis : public std::enable_shared_from_this<LinkingHypothesis>
 {
 public:
-	/**
-	 * @brief Enumerate the strings for attributes used in the Json file
-	 */
-	enum class JsonTypes {SrcId, DestId, Features};
-	std::map<JsonTypes, std::string> JsonTypeNames = {
-		{JsonTypes::SrcId, "src"}, 
-		{JsonTypes::DestId, "dest"}, 
-		{JsonTypes::Features, "features"}
-	};
-
-public:
 	LinkingHypothesis();
 
 	/**
@@ -45,6 +34,14 @@ public:
 	 * @returns a pair of (src, dest) segmentation hypotheis ids
 	 */
 	const std::pair<int, int> readFromJson(const Json::Value& entry);
+
+	/**
+	 * @brief Create a json string describing this link with its value (for result saving)
+	 * 
+	 * @param state the state that this link has (will be saved as "value" in JSON)
+	 * @return the Json value to put in an array into the result file
+	 */
+	const Json::Value toJson(bool state) const;
 
 	/**
 	 * @return number of features, this should be equal for all hypotheses!

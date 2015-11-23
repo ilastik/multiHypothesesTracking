@@ -19,12 +19,20 @@ int main()
 	model.readFromJson("magic.json");
 	size_t numWeights = model.computeNumWeights();
 	std::vector<double> weights = model.learn("gt.json");
+	Solution gt = model.readGTfromJson("gt.json");
+	std::cout << "GT is valid? " << (model.verifySolution(gt)?"yes":"no") << std::endl;
+
+	saveWeightsToJson(weights, "weights.json");
+	std::vector<double> weights2 = readWeightsFromJson("weights.json");
+	// BOOST_CHECK_EQUAL(weights.size(), weights2.size());
+	// for(size_t i = 0; i < weights.size(); i++)
+	// 	BOOST_CHECK_EQUAL(weights[i], weights2[i]);
 
 	Model model2;
 	model2.readFromJson("magic.json");
 	Solution sol = model2.infer(weights);
-
-	std::cout << "found gt solution: " << sol << std::endl;
+	model2.saveResultToJson("result.json", sol);
+	std::cout << "Solution is valid? " << (model2.verifySolution(sol)?"yes":"no") << std::endl;
 
 	// BOOST_CHECK_EQUAL(numWeights, 6);
 
@@ -35,33 +43,3 @@ int main()
 	return 0;
 }
 
-// BOOST_AUTO_TEST_CASE( LearnWeights )
-// {
-// 	CoverTree tree(createTestRootWithGT());
-// 	CoverTreeInferenceModel infModel(tree, 
-// 		5, // max num objects within node
-// 		3); // max num objects that can be added if the children do not account for them
-
-// 	infModel.learn();
-
-// 	std::string filename = std::tmpnam(nullptr);
-// 	tree.toDot(filename);
-// }
-
-// BOOST_AUTO_TEST_CASE( InferenceWithLearnedWeights )
-// {
-// 	CoverTree tree(createTestRootWithGT());
-// 	CoverTreeInferenceModel infModel(tree, 
-// 		5, // max num objects within node
-// 		3); // max num objects that can be added if the children do not account for them
-
-// 	// run inference with learned vector
-// 	std::vector<double> weights = {-1, 2, 1, 0, 0, 2, 1, -3, 0, 0, 0, -2, 0, 1, -1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, -1, -1, 4, 0, -1, -4, 0, 1, 0, 0, 0};
-// 	infModel.infer(weights);
-	
-// 	BOOST_CHECK_EQUAL(tree.getRoot()->getCoverLabel(), 4);
-// 	BOOST_CHECK_EQUAL(tree.getRoot()->getAddLabel(), 0);
-
-// 	std::string filename = std::tmpnam(nullptr);
-// 	tree.toDot(filename);
-// }

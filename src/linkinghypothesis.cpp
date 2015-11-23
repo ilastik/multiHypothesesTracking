@@ -89,4 +89,13 @@ void LinkingHypothesis::addToOpenGMModel(
 	model.addFactor(fid, &opengmVariableId_, &opengmVariableId_+1);
 }
 
+const Json::Value LinkingHypothesis::toJson(bool state) const
+{
+	Json::Value val;
+	val[JsonTypeNames[JsonTypes::SrcId]] = Json::Value(srcId_);
+	val[JsonTypeNames[JsonTypes::DestId]] = Json::Value(destId_);
+	val[JsonTypeNames[JsonTypes::Value]] = Json::Value(state);
+	return val;
+}
+
 } // end namespace mht

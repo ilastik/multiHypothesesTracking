@@ -217,4 +217,37 @@ void SegmentationHypothesis::addOutgoingLink(std::shared_ptr<LinkingHypothesis> 
 		outgoingLinks_.push_back(link);
 }
 
+bool SegmentationHypothesis::verifySolution(const Solution& sol)
+{
+	size_t ownValue = sol[opengmVariableId_];
+	size_t divisionValue = sol[opengmDivisionVariableId_];
+	
+	//--------------------------------
+	// check incoming
+	size_t sumIncoming = 0;
+	for(auto link : incomingLinks_)
+	{
+		sumIncoming += sol[link->getOpenGMVariableId()];
+	}
+	// TODO: how are we dealing with appearance / disappearance?
+	if(incomingLinks_.size() > 0 && sumIncoming != ownValue)
+		return false;
+
+	//--------------------------------
+	// check outgoing
+	size_t sumOutgoing = 0;
+	for(auto link : outgoingLinks_)
+	{
+		sumOutgoing += sol[link->getOpenGMVariableId()];
+	}
+
+	// TODO: how are we dealing with appearance / disappearance?
+	if(outgoingLinks_.size() > 0 && sumOutgoing != ownValue + divisionValue)
+		return false;
+
+	//--------------------------------
+	// check divisions
+	return divisionValue <= ownValue;
+}
+
 } // end namespace mht

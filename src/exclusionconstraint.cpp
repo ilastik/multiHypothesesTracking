@@ -50,4 +50,16 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
     model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
 }
 
+bool ExclusionConstraint::verifySolution(const Solution& sol, std::map<int, SegmentationHypothesis>& segmentationHypotheses)
+{
+	size_t sum = 0;
+
+	for(size_t i = 0; i < ids_.size(); ++i)
+    {
+        sum += sol[segmentationHypotheses[ids_[i]].getOpenGMVariableId()];
+    }
+
+    return sum < 2;
+}
+
 } // end namespace mht

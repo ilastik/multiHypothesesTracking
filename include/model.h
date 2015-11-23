@@ -20,21 +20,6 @@ namespace mht
  */
 class Model
 {
-public:
-	/**
-	 * @brief Enumerate the strings for attributes used in the Json file
-	 */
-	enum class JsonTypes {Segmentations, Links, Exclusions, LinkResults, SrcId, DestId, Value};
-	std::map<JsonTypes, std::string> JsonTypeNames = {
-		{JsonTypes::Segmentations, "segmentation-hypotheses"}, 
-		{JsonTypes::Links, "linking-hypotheses"}, 
-		{JsonTypes::Exclusions, "exclusions"},
-		{JsonTypes::LinkResults, "linking-results"},
-		{JsonTypes::SrcId, "src"}, 
-		{JsonTypes::DestId, "dest"}, 
-		{JsonTypes::Value, "value"} 
-	};
-
 public:	
 	/**
 	 * @brief Read a model from a json file
@@ -71,9 +56,17 @@ public:
 	 */
 	void saveResultToJson(const std::string& filename, const Solution& sol);
 
+	/**
+	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
+	 * 
+	 * @param filename where to find the ground truth
+	 * @return the solution as a vector of per-opengm-variable labelings
+	 */
+	Solution readGTfromJson(const std::string& filename);
 
 	/**
 	 * @brief check that the solution does not violate any constraints
+	 * @detail WARNING: may only be used after calling learn() or infer() because it needs an initialized opengm model!
 	 * 
 	 * @param sol solution vector
 	 * @return boolean value describing whether this solution is valid
@@ -88,14 +81,6 @@ private:
 	 * @param weights a reference to the weights object that will be used in all 
 	 */
 	void initializeOpenGMModel(WeightsType& weights);
-
-	/**
-	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
-	 * 
-	 * @param filename where to find the ground truth
-	 * @return the solution as a vector of per-opengm-variable labelings
-	 */
-	Solution readGTfromJson(const std::string& filename);
 
 private:
 	std::map<int, SegmentationHypothesis> segmentationHypotheses_;

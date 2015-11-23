@@ -19,17 +19,6 @@ class LinkingHypothesis;
 class SegmentationHypothesis
 {
 public:
-	/**
-	 * @brief Enumerate the strings for attributes used in the Json file
-	 */
-	enum class JsonTypes {Id, Features, DivisionFeatures};
-	std::map<JsonTypes, std::string> JsonTypeNames = {
-		{JsonTypes::Id, "id"}, 
-		{JsonTypes::Features, "features"},
-		{JsonTypes::DivisionFeatures, "divisionFeatures"}
-	};
-
-public:
 	SegmentationHypothesis();
 
 	/**
@@ -100,6 +89,13 @@ public:
 	 * @return the opengm variable id of the division variable
 	 */
 	int getOpenGMDivisionVariableId() const { return opengmDivisionVariableId_; }
+
+	/**
+	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions
+	 * 
+	 * @param sol the opengm solution vector
+	 */
+	bool verifySolution(const Solution& sol);
 
 private:
 	size_t addVariableToOpenGM(

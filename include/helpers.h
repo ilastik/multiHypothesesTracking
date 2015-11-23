@@ -58,9 +58,31 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<T>& feats)
 	return stream;
 }
 
+// --------------------------------------------------------------
+// json type definitions
+// --------------------------------------------------------------
+
+/**
+ * @brief Enumerate the strings for attributes used in the Json files
+ */
+enum class JsonTypes {Segmentations, 
+	Links, 
+	Exclusions, 
+	LinkResults, 
+	SrcId, 
+	DestId, 
+	Value, 
+	Id, 
+	Features, 
+	DivisionFeatures, 
+	Weights
+};
+
+extern std::map<JsonTypes, std::string> JsonTypeNames;
+
 // load / save weights object to JSON
-void saveWeightsToJSON(const std::vector<ValueType>& weights, const std::string& filename);
-std::vector<ValueType> readWeightsFromJSON(const std::string& filename);
+void saveWeightsToJson(const std::vector<ValueType>& weights, const std::string& filename);
+std::vector<ValueType> readWeightsFromJson(const std::string& filename);
 
 }
 

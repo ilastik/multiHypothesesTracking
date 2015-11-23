@@ -155,10 +155,7 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	optimizer.arg(solution);
 	std::cout << "solution has energy: " << optimizer.value() << std::endl;
 
-	std::cout << " found solution: ";
-	for(size_t s : solution)
-		std::cout << s << " ";
-	std::cout << std::endl;
+	std::cout << " found solution: " << solution << std::endl;
 
 	return solution;
 }
@@ -261,22 +258,61 @@ Solution Model::readGTfromJson(const std::string& filename)
 		}
 	}
 
-	std::cout << "found gt solution: ";
-	for(size_t s : solution)
-		std::cout << s << " ";
-	std::cout << std::endl;
+	std::cout << "found gt solution: " << solution << std::endl;
 
 	return solution;
 }
 
 bool Model::verifySolution(const Solution& sol)
 {
-	
+	std::cout << "Checking solution..." << std::endl;
+
+	bool valid = true;
+
+	// check that all exclusions are obeyed
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+	{
+		if(!iter->verifySolution(sol, segmentationHypotheses_))
+		{
+			std::cout << "\tFound violated exclusion constraint " << std::endl;
+			valid = false;
+		}
+	}
+
+	// check that flow-conservation + division constraints are satisfied
+	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+	{
+		if(!iter->second.verifySolution(sol))
+		{
+			std::cout << "\tFound violated flow conservation constraint " << std::endl;
+			valid = false;
+		}
+	}
+
+	return valid;
 }
 
 void Model::saveResultToJson(const std::string& filename, const Solution& sol)
 {
-	// how does saving json work?
+	std::ofstream output(filename.c_str());
+	if(!output.good())
+		throw std::runtime_error("Could not open JSON result file for saving: " + filename);
+
+	Json::Value root;
+	Json::Value& linksJson = root[JsonTypeNames[JsonTypes::LinkResults]];
+
+	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
+	{
+		bool value = false;
+		if(sol[iter->second->getOpenGMVariableId()] > 0)
+			value = true;
+		linksJson.append(iter->second->toJson(value));
+	}
+
+	if(!linksJson.isArray())
+		throw std::runtime_error("Cannot save results to non-array JSON entry");
+
+	output << root << std::endl;
 }
 
 } // end namespace mht
