@@ -98,14 +98,34 @@ public:
 	bool verifySolution(const Solution& sol);
 
 private:
+	/**
+	 * @brief Add a variable with given unary features and corresponding weights to opengm
+	 * 
+	 * @param model OpenGM Model
+	 * @param weights opengm dataset weight object
+	 * @param features feature vector
+	 * @param weightIds ids into the weight vector that correspond to features
+	 * @return the new opengm variable id
+	 */
 	size_t addVariableToOpenGM(
 		GraphicalModelType& model, 
 		WeightsType& weights, 
 		FeatureVector& features,
 		const std::vector<size_t>& weightIds);
 
+	/**
+	 * @brief Add incoming constraints to OpenGM
+	 */
 	void addIncomingConstraintToOpenGM(GraphicalModelType& model);
+
+	/**
+	 * @brief Add outgoing constraints to OpenGM
+	 */
 	void addOutgoingConstraintToOpenGM(GraphicalModelType& model);
+
+	/**
+	 * @brief Add division constraints to OpenGM
+	 */
 	void addDivisionConstraintToOpenGM(GraphicalModelType& model);
 
 private:

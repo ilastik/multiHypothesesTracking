@@ -7,6 +7,9 @@
 namespace mht
 {
 
+/**
+ * @brief An exclusion constraint models that of a set of segmentation hypotheses only one can be active at once.
+ */
 class ExclusionConstraint
 {
 public:

@@ -44,6 +44,12 @@ typedef std::vector<ValueType> FeatureVector;
 // --------------------------------------------------------------
 // functions
 // --------------------------------------------------------------
+/**
+ * @brief Output std vectors of stuff
+ * 
+ * @param stream output stream
+ * @param feats the vector of stuff
+ */
 template<class T>
 std::ostream& operator<<(std::ostream& stream, const std::vector<T>& feats)
 {
@@ -78,10 +84,23 @@ enum class JsonTypes {Segmentations,
 	Weights
 };
 
+/// mapping from JsonTypes to strings which are used in the Json files
 extern std::map<JsonTypes, std::string> JsonTypeNames;
 
-// load / save weights object to JSON
+/**
+ * @brief save weights to Json
+ * 
+ * @param weights a vector of weights (not the OpenGM Weight object)
+ * @param filename file to save the weights to
+ */
 void saveWeightsToJson(const std::vector<ValueType>& weights, const std::string& filename);
+
+/**
+ * @brief read weights from Json
+ * 
+ * @param filename
+ * @return a vector of weights
+ */
 std::vector<ValueType> readWeightsFromJson(const std::string& filename);
 
 }
