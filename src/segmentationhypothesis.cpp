@@ -41,7 +41,7 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 		divisionFeatures_.push_back(divisionFeatures[i].asDouble());
 	}
 
-	std::cout << "Found segmentation hypothesis with id " << id_ << std::endl;
+	// std::cout << "Found segmentation hypothesis with id " << id_ << std::endl;
 
 	return id_;
 }
@@ -193,7 +193,7 @@ void SegmentationHypothesis::addToOpenGMModel(
 	const std::vector<size_t>& detectionWeightIds,
 	const std::vector<size_t>& divisionWeightIds)
 {
-	std::cout << "Adding segmentation hypothesis " << id_ << " to opengm" << std::endl;
+	// std::cout << "Adding segmentation hypothesis " << id_ << " to opengm" << std::endl;
 	opengmVariableId_ = addVariableToOpenGM(model, weights, features_, detectionWeightIds);
 	opengmDivisionVariableId_ = addVariableToOpenGM(model, weights, divisionFeatures_, divisionWeightIds);
 	addIncomingConstraintToOpenGM(model);
@@ -255,7 +255,7 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 	// check divisions
 	if(divisionValue > ownValue)
 		std::cout << "At node " << id_ << ": division > value: " << divisionValue << " > " << ownValue << std::endl;
-	
+
 	return divisionValue <= ownValue;
 }
 

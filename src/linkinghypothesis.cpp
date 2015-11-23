@@ -36,7 +36,7 @@ const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& ent
 		features_.push_back(features[i].asDouble());
 	}
 
-	std::cout << "Found linking hypothesis between " << srcId_ << " and " << destId_ << std::endl;
+	// std::cout << "Found linking hypothesis between " << srcId_ << " and " << destId_ << std::endl;
 	return std::make_pair(srcId_, destId_);
 }
 
@@ -50,9 +50,9 @@ void LinkingHypothesis::registerWithSegmentations(std::map<int, SegmentationHypo
 	assert(segmentationHypotheses.find(srcId_) != segmentationHypotheses.end());
 	assert(segmentationHypotheses.find(destId_) != segmentationHypotheses.end());
 
-	std::cout << "Registering outgoing link for " << srcId_ << std::endl;
+	// std::cout << "Registering outgoing link for " << srcId_ << std::endl;
 	segmentationHypotheses[srcId_].addOutgoingLink(shared_from_this());
-	std::cout << "Registering incoming link for " << destId_ << std::endl;
+	// std::cout << "Registering incoming link for " << destId_ << std::endl;
 	segmentationHypotheses[destId_].addIncomingLink(shared_from_this());
 }
 
@@ -61,7 +61,7 @@ void LinkingHypothesis::addToOpenGMModel(
 	WeightsType& weights, 
 	const std::vector<size_t>& weightIds)
 {
-	std::cout << "Adding linking hypothesis between " << srcId_ << " and " << destId_ << " to opengm" << std::endl;
+	// std::cout << "Adding linking hypothesis between " << srcId_ << " and " << destId_ << " to opengm" << std::endl;
 
 	// Add variable to model. All Variables are binary!
 	size_t numLabels = 2;
