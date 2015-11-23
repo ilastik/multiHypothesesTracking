@@ -59,6 +59,9 @@ bool ExclusionConstraint::verifySolution(const Solution& sol, std::map<int, Segm
         sum += sol[segmentationHypotheses[ids_[i]].getOpenGMVariableId()];
     }
 
+    if(sum > 1)
+    	std::cout << "Violating exclusion constraint between ids: " << ids_ << std::endl;
+    
     return sum < 2;
 }
 

@@ -231,7 +231,10 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol)
 	}
 	// TODO: how are we dealing with appearance / disappearance?
 	if(incomingLinks_.size() > 0 && sumIncoming != ownValue)
+	{
+		std::cout << "At node " << id_ << ": incoming=" << sumIncoming << " is NOT EQUAL to " << ownValue << std::endl;
 		return false;
+	}
 
 	//--------------------------------
 	// check outgoing
@@ -243,10 +246,16 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol)
 
 	// TODO: how are we dealing with appearance / disappearance?
 	if(outgoingLinks_.size() > 0 && sumOutgoing != ownValue + divisionValue)
+	{
+		std::cout << "At node " << id_ << ": outgoing=" << sumOutgoing << " is NOT EQUAL to " << ownValue << " + " << divisionValue << " (own+div)" << std::endl;
 		return false;
+	}
 
 	//--------------------------------
 	// check divisions
+	if(divisionValue > ownValue)
+		std::cout << "At node " << id_ << ": division > value: " << divisionValue << " > " << ownValue << std::endl;
+	
 	return divisionValue <= ownValue;
 }
 
