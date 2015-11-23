@@ -68,7 +68,7 @@ public:
 	/**
 	 * @brief Save this node to an open ostream in the graphviz dot format
 	 */
-	void toDot(std::ostream& stream) const;
+	void toDot(std::ostream& stream, const Solution* sol) const;
 
 	/**
 	 * @return the opengm variable id of the transition variable

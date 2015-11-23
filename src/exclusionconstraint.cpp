@@ -65,4 +65,15 @@ bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<int
     return sum < 2;
 }
 
+void ExclusionConstraint::toDot(std::ostream& stream) const
+{
+	for(size_t i = 0; i < ids_.size(); ++i)
+	{
+		for(size_t j = i + 1; j < ids_.size(); ++j)
+		{
+			stream << "\t" << ids_[i] << " -> " << ids_[j] << "[ color=\"red\" fontcolor=\"red\" ]" << "; \n" << std::flush;	
+		}
+	}
+}
+
 } // end namespace mht

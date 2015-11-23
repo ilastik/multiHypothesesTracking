@@ -315,4 +315,30 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 	output << root << std::endl;
 }
 
+void Model::toDot(const std::string& filename, const Solution* sol) const
+{
+	std::ofstream out_file(filename.c_str());
+
+    if(!out_file.good())
+    {
+        throw std::runtime_error("Could not open file " + filename + " to save graph to");
+    }
+
+    out_file << "digraph G {\n";
+
+    // nodes
+    for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+		iter->second.toDot(out_file, sol);
+
+	// links
+	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
+		iter->second->toDot(out_file, sol);
+
+	// exclusions
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+		iter->toDot(out_file);
+	
+    out_file << "}";
+}
+
 } // end namespace mht

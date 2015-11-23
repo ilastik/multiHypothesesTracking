@@ -44,6 +44,11 @@ public:
 	 */
 	bool verifySolution(const Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const;
 
+	/**
+	 * @brief Save this constraint as red edges in a graphviz dot graph
+	 */
+	void toDot(std::ostream& stream) const;
+
 private:
 	std::vector<int> ids_;
 };

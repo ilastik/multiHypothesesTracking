@@ -73,6 +73,14 @@ public:
 	 */
 	bool verifySolution(const Solution& sol) const;
 
+	/**
+	 * @brief Create a graphviz dot output of the full graph, showing used nodes/links in blue and exclusion constraints in red
+	 * 
+	 * @param filename output filename
+	 * @param sol pointer to solution vector, if nullptr it will be ignored
+	 */
+	void toDot(const std::string& filename, const Solution* sol = nullptr) const;
+
 private:
 	/**
 	 * @brief Initialize the OpenGM model by adding variables, factors and constraints.

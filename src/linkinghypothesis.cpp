@@ -40,9 +40,14 @@ const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& ent
 	return std::make_pair(srcId_, destId_);
 }
 
-void LinkingHypothesis::toDot(std::ostream& stream) const
+void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
-	throw std::runtime_error("implement me");
+	stream << "\t" << srcId_ << " -> " << destId_;
+
+	if(sol != nullptr && opengmVariableId_ > 0 && sol->at(opengmVariableId_) > 0)
+		stream << "[ color=\"blue\" fontcolor=\"blue\" ]";
+
+	stream << "; \n" << std::flush;
 }
 
 void LinkingHypothesis::registerWithSegmentations(std::map<int, SegmentationHypothesis>& segmentationHypotheses)

@@ -46,9 +46,22 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 	return id_;
 }
 
-void SegmentationHypothesis::toDot(std::ostream& stream) const
+void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
-	throw std::runtime_error("implement me");
+	stream << "\t" << id_ << " [ label=\"" << id_ << ", div=";
+
+	if(sol != nullptr && opengmDivisionVariableId_ > 0 && sol->at(opengmDivisionVariableId_) > 0)
+		stream << "yes";
+	else
+		stream << "no";
+
+	stream << "\" ";
+
+	// highlight active nodes in blue
+	if(sol != nullptr && opengmVariableId_ > 0 && sol->at(opengmVariableId_) > 0)
+		stream << "color=\"blue\" fontcolor=\"blue\" ";
+
+	stream <<  "]; \n" << std::flush;
 }
 
 size_t SegmentationHypothesis::addVariableToOpenGM(
