@@ -95,7 +95,7 @@ public:
 	 * 
 	 * @param sol the opengm solution vector
 	 */
-	bool verifySolution(const Solution& sol);
+	bool verifySolution(const Solution& sol) const;
 
 private:
 	/**

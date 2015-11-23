@@ -54,7 +54,7 @@ public:
 	 * @param filename where to save the result
 	 * @param sol the labeling to save
 	 */
-	void saveResultToJson(const std::string& filename, const Solution& sol);
+	void saveResultToJson(const std::string& filename, const Solution& sol) const;
 
 	/**
 	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
@@ -71,7 +71,7 @@ public:
 	 * @param sol solution vector
 	 * @return boolean value describing whether this solution is valid
 	 */
-	bool verifySolution(const Solution& sol);
+	bool verifySolution(const Solution& sol) const;
 
 private:
 	/**

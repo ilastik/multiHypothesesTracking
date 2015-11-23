@@ -42,7 +42,7 @@ public:
 	 * @param sol the opengm solution vector
 	 * @param segmentationHypotheses the map or all segmentation hypotheses by id
 	 */
-	bool verifySolution(const Solution& sol, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+	bool verifySolution(const Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const;
 
 private:
 	std::vector<int> ids_;

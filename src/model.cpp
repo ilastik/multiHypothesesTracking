@@ -263,7 +263,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	return solution;
 }
 
-bool Model::verifySolution(const Solution& sol)
+bool Model::verifySolution(const Solution& sol) const
 {
 	std::cout << "Checking solution..." << std::endl;
 
@@ -292,7 +292,7 @@ bool Model::verifySolution(const Solution& sol)
 	return valid;
 }
 
-void Model::saveResultToJson(const std::string& filename, const Solution& sol)
+void Model::saveResultToJson(const std::string& filename, const Solution& sol) const
 {
 	std::ofstream output(filename.c_str());
 	if(!output.good())

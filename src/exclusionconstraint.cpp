@@ -50,18 +50,18 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
     model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
 }
 
-bool ExclusionConstraint::verifySolution(const Solution& sol, std::map<int, SegmentationHypothesis>& segmentationHypotheses)
+bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const
 {
 	size_t sum = 0;
 
 	for(size_t i = 0; i < ids_.size(); ++i)
     {
-        sum += sol[segmentationHypotheses[ids_[i]].getOpenGMVariableId()];
+        sum += sol[segmentationHypotheses.at(ids_[i]).getOpenGMVariableId()];
     }
 
     if(sum > 1)
     	std::cout << "Violating exclusion constraint between ids: " << ids_ << std::endl;
-    
+
     return sum < 2;
 }
 

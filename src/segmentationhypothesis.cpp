@@ -217,7 +217,7 @@ void SegmentationHypothesis::addOutgoingLink(std::shared_ptr<LinkingHypothesis> 
 		outgoingLinks_.push_back(link);
 }
 
-bool SegmentationHypothesis::verifySolution(const Solution& sol)
+bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 {
 	size_t ownValue = sol[opengmVariableId_];
 	size_t divisionValue = sol[opengmDivisionVariableId_];
