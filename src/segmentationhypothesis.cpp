@@ -98,6 +98,9 @@ size_t SegmentationHypothesis::addVariableToOpenGM(
 
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)
 {
+	if(incomingLinks_.size() == 0)
+		return;
+
 	// add constraint for sum of incoming = this label
 	LinearConstraintFunctionType::LinearConstraintType incomingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
@@ -108,7 +111,7 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < incomingLinks_.size(); ++i)
     {
     	// indicator variable references the i+1'th argument of the constraint function, and its state 1
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(1 + i, 1);
+        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(i, 1);
         incomingConsistencyConstraint.add(indicatorVariable, 1.0);
         
         // directly save which variables we are interested in
@@ -117,7 +120,7 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     }
 
     // add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(incomingLinks_.size(), LabelType(1));
     incomingConsistencyConstraint.add(indicatorVariable, -1.0);
 
     factorVariables.push_back(opengmVariableId_);
@@ -133,6 +136,9 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
 
 void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& model)
 {
+	if(outgoingLinks_.size() == 0)
+		return;
+
 	// add constraint for sum of ougoing = this label + division
 	LinearConstraintFunctionType::LinearConstraintType outgoingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
@@ -143,7 +149,7 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
     	// indicator variable references the i+2'nd argument of the constraint function, and its state 1
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(2 + i, 1);
+        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(i, 1);
         outgoingConsistencyConstraint.add(indicatorVariable, 1.0);
         
         // directly save which variables we are interested in
@@ -152,13 +158,13 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     }
 
     // add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(outgoingLinks_.size(), LabelType(1));
     outgoingConsistencyConstraint.add(indicatorVariable, -1.0);
 
     factorVariables.push_back(opengmVariableId_);
     constraintShape.push_back(2);
 
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(1, LabelType(1));
+    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(outgoingLinks_.size()+1, LabelType(1));
     outgoingConsistencyConstraint.add(divisionIndicatorVariable, -1.0);
 
     factorVariables.push_back(opengmDivisionVariableId_);
@@ -181,13 +187,13 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 
 	// add this variable's state with negative coefficient
     const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
-    divisionConstraint.add(indicatorVariable, 1.0);
+    divisionConstraint.add(indicatorVariable, -1.0);
 
     factorVariables.push_back(opengmVariableId_);
     constraintShape.push_back(2);
 
     const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(1, LabelType(1));
-    divisionConstraint.add(divisionIndicatorVariable, -1.0);
+    divisionConstraint.add(divisionIndicatorVariable, 1.0);
 
     factorVariables.push_back(opengmDivisionVariableId_);
     constraintShape.push_back(2);
