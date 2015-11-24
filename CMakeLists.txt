@@ -5,10 +5,9 @@ set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_extensions/)
 # --------------------------------------------------------------
 # dependencies
 find_package( Cplex )
-# find_package( VIGRA REQUIRED )
-# find_package( Boost REQUIRED )
 find_package( Opengm REQUIRED )
 find_package( GUROBI )
+find_package(HDF5 REQUIRED)
 
 # --------------------------------------------------------------
 # configure optimizer
@@ -50,6 +49,7 @@ include_directories(
 	${PROJECT_SOURCE_DIR}/include/
 	${Opengm_INCLUDE_DIR} 
 	${OPTIMIZER_INCLUDE_DIRS}
+	${Boost_INCLUDE_DIRS}
 )
 
 add_library(multiHypoTracking SHARED ${LIB_SOURCES} ${HEADERS})

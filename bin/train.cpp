@@ -1,78 +1,44 @@
 #include <iostream>
 
-// using namespace mht;
+#include <boost/program_options.hpp>
+
+#include "model.h"
+
+using namespace mht;
 
 int main(int argc, char** argv) {
+	namespace po = boost::program_options;
 
-	// hid_t projectFile = marray::hdf5::openFile("training_dataset.hdf");
+	std::string modelFilename;
+	std::string groundtruthFilename;
+	std::string weightsFilename("weights.json");
 
-	// marray::Marray<double> featuresCover;
-	// marray::hdf5::load(projectFile, "features_cover", featuresCover);
+	// Declare the supported options.
+	po::options_description description("Allowed options");
+	description.add_options()
+	    ("help", "produce help message")
+	    ("model,m", po::value<std::string>(&modelFilename), "filename of model stored as Json file")
+	    ("groundtruth,g", po::value<std::string>(&groundtruthFilename), "filename of ground truth stored as Json file")
+	    ("weights,w", po::value<std::string>(&weightsFilename), "filename where the resulting weights will be stored as Json file")
+	;
 
-	// int numNodes         = featuresCover.shape(0);
-	// int numCoverFeatures = featuresCover.shape(1);
+	po::variables_map variableMap;
+	po::store(po::parse_command_line(argc, argv, description), variableMap);
+	po::notify(variableMap);
 
-	// std::cout
-	// 		<< "creating covertree with " << numNodes
-	// 		<< " nodes and " << numCoverFeatures
-	// 		<< " cover features" << std::endl;
+	if (variableMap.count("help")) {
+	    std::cout << description << std::endl;
+	    return 1;
+	}
 
-	// std::vector<CoverTreeNodePtr> nodes;
-	// for (int i = 0; i < numNodes; i++) {
-
-	// 	std::vector<double> fc(numCoverFeatures);
-	// 	for (int j = 0; j < numCoverFeatures; j++)
-	// 		fc[j] = featuresCover(i, j);
-
-	// 	// TODO: if we have special 'add features', set them here instead of 
-	// 	// repeating the 'cover features'
-	// 	nodes.push_back(CoverTreeNodePtr(new CoverTreeNode(fc,fc)));
-	// }
-
-	// marray::Marray<int> childEdges;
-	// marray::hdf5::load(projectFile, "child_edges", childEdges);
-
-	// std::cout << "adding " << childEdges.shape(0) << " child edges" << std::endl;
-
-	// for (int i = 0; i < childEdges.shape(0); i++)
-	// 	nodes[childEdges(i, 0)]->addChild(nodes[childEdges(i, 1)]);
-
-	// marray::Marray<int> labels;
-	// marray::hdf5::load(projectFile, "labels", labels);
-
-	// for (int i = 0; i < numNodes; i++)
-	// 	nodes[i]->setCoverLabel(labels(i));
-
-	// // find root
-	// CoverTreeNodePtr root;
-	// for (CoverTreeNodePtr n : nodes)
-	// 	if (!n->getParent())
-	// 		if (!root)
-	// 			root = n;
-	// 		else
-	// 			throw std::runtime_error("Tree contains multiple root nodes!");
-
-	// CoverTree tree(root);
-	// CoverTreeInferenceModel infModel(
-	// 	tree,
-	// 	10, // max num objects within node
-	// 	5); // max num objects that can be added if the children do not account for them
-
-	// infModel.learn();
-	// const auto& weights = infModel.getWeights();
-
-	// // get result on training data
-	// std::vector<double> w;
-	// for (int i = 0; i < weights.numberOfWeights(); i++)
-	// 	w.push_back(weights.getWeight(i));
-
-	// infModel.infer(w);
-
-	// for (int i = 0; i < numNodes; i++)
-	// 	if (nodes[i]->getCoverLabel() != labels(i))
-	// 		std::cout
-	// 				<< "cover label of node " << i
-	// 				<< " is wrong: should be " << labels(i)
-	// 				<< ", is " << nodes[i]->getCoverLabel()
-	// 				<< std::endl;
+	if (!variableMap.count("model") || !variableMap.count("groundtruth")) {
+	    std::cout << "Model and Groundtruth filenames have to be specified!" << std::endl;
+	    std::cout << description << std::endl;
+	} else {
+	    Model model;
+		model.readFromJson(modelFilename);
+		size_t numWeights = model.computeNumWeights();
+		std::vector<double> weights = model.learn(groundtruthFilename);
+		saveWeightsToJson(weights, weightsFilename);
+	}
 }

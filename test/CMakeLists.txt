@@ -2,13 +2,12 @@ cmake_minimum_required(VERSION 2.8)
 message( "\nConfiguring tests:" )
 
 # dependencies
-find_package( Boost REQUIRED COMPONENTS unit_test_framework)
-find_package( Cplex REQUIRED )
-find_package( Opengm REQUIRED )
+find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Opengm REQUIRED)
 
 include_directories(
-  ${Boost_INCLUDE_DIRS}
-  ${PROJECT_SOURCE_DIR}/include/
+	${Boost_INCLUDE_DIRS}
+	${PROJECT_SOURCE_DIR}/include/
 )
 
 # enable dynamic linking with boost test
