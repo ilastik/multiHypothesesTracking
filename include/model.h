@@ -81,7 +81,6 @@ public:
 	 */
 	void toDot(const std::string& filename, const Solution* sol = nullptr) const;
 
-private:
 	/**
 	 * @brief Initialize the OpenGM model by adding variables, factors and constraints.
 	 * @detail This is called by learn() or infer()
