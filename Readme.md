@@ -3,6 +3,17 @@ by Carsten Haubold, 2015
 
 This is a standalone tool for running tracking of divisible objects, with competing detection hypotheses in each frame. When specifying a ground truth labeling for a dataset, the weights can be learned using structured learning (by [OpenGM's](http://github.com/opengm/opengm) implementation of [SBMRM](https://github.com/funkey/sbmrm)). The tracking problem is then solved as ILP by Gurobi or CPLEX, depending on how this tool was compiled.
 
+## Installation
+
+Requirements: 
+
+* a compiler capable of C++11 (clang or GCC >= 4.8)
+* cmake >= 2.8 for configuration
+* [opengm](https://github.com/opengm/opengm)'s learning-experimental branch: https://github.com/opengm/opengm/tree/learning-experimental.
+* boost (e.g. `brew install boost`)
+* hdf5 (e.g. `brew tap homebrew/science; brew install hdf5`)
+
+
 ## Binaries
 
 The `bin` folder contains the tools that can be run from the command line. 
