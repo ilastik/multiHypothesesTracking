@@ -38,7 +38,7 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
         exclusionConstraint.add(indicatorVariable, 1.0);
         
         // directly save which variables we are interested in
-        factorVariables.push_back(segmentationHypotheses[ids_[i]].getOpenGMVariableId());
+        factorVariables.push_back(segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId());
         constraintShape.push_back(2);
     }
 
@@ -56,7 +56,7 @@ bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<int
 
 	for(size_t i = 0; i < ids_.size(); ++i)
     {
-        sum += sol[segmentationHypotheses.at(ids_[i]).getOpenGMVariableId()];
+        sum += sol[segmentationHypotheses.at(ids_[i]).getDetectionVariable().getOpenGMVariableId()];
     }
 
     if(sum > 1)

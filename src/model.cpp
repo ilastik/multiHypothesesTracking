@@ -58,25 +58,29 @@ void Model::readFromJson(const std::string& filename)
 	}
 }
 
-size_t Model::computeNumWeights() const
+size_t Model::computeNumWeights()
 {
 	int numDetFeatures = -1;
 	int numDivFeatures = -1;
+	int numAppFeatures = -1;
+	int numDisFeatures = -1;
 	int numLinkFeatures = -1;
+
+	auto checkNumFeatures = [](const SegmentationHypothesis::Variable& var, int& previousNumFeats, const std::string& name)
+	{
+		if(previousNumFeats < 0 && var.getNumFeatures() > 0)
+			previousNumFeats = var.getNumFeatures();
+		else
+			if(var.getNumFeatures() > 0 && var.getNumFeatures() != previousNumFeats)
+				throw std::runtime_error(name + " do not have the same number of features!");
+	};
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		if(numDetFeatures < 0)
-			numDetFeatures = iter->second.getNumFeatures();
-		else
-			if(iter->second.getNumFeatures() != numDetFeatures)
-				throw std::runtime_error("Detections do not have the same number of features!");
-
-		if(numDivFeatures < 0)
-			numDivFeatures = iter->second.getNumDivisionFeatures();
-		else
-			if(iter->second.getNumDivisionFeatures() != numDivFeatures)
-				throw std::runtime_error("Divisions do not have the same number of features!");
+		checkNumFeatures(iter->second.getDetectionVariable(), numDetFeatures, "Detections");
+		checkNumFeatures(iter->second.getDivisionVariable(), numDivFeatures, "Divisions");
+		checkNumFeatures(iter->second.getAppearanceVariable(), numAppFeatures, "Appearances");
+		checkNumFeatures(iter->second.getDisappearanceVariable(), numDisFeatures, "Disappearances");
 	}
 
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
@@ -85,18 +89,28 @@ size_t Model::computeNumWeights() const
 			numLinkFeatures = iter->second->getNumFeatures();
 		else
 			if(iter->second->getNumFeatures() != numLinkFeatures)
-				throw std::runtime_error("Detections do not have the same number of features!");
+				throw std::runtime_error("Links do not have the same number of features!");
 	}
 
+	// we don't want -1 weights, 
+	numDetFeatures_ = std::max((int)0, numDetFeatures);
+	numDivFeatures_ = std::max((int)0, numDivFeatures);
+	numAppFeatures_ = std::max((int)0, numAppFeatures);
+	numDisFeatures_ = std::max((int)0, numDisFeatures);
+	numLinkFeatures_ = std::max((int)0, numLinkFeatures);
+
 	// we need two sets of weights for all features to represent state "on" and "off"!
-	return 2 * (numDetFeatures + numDivFeatures + numLinkFeatures);
+	return 2 * (numDetFeatures_ + numDivFeatures_ + numLinkFeatures_ + numAppFeatures_ + numDisFeatures_);
 }
 
 void Model::initializeOpenGMModel(WeightsType& weights)
 {
+	// make sure the numbers of features are initialized
+	computeNumWeights();
+
 	std::cout << "Initializing opengm model..." << std::endl;
 	// we need two sets of weights for all features to represent state "on" and "off"!
-	size_t numLinkWeights = 2 * linkingHypotheses_.begin()->second->getNumFeatures();
+	size_t numLinkWeights = 2 * numLinkFeatures_;
 	std::vector<size_t> linkWeightIds(numLinkWeights);
 	std::iota(linkWeightIds.begin(), linkWeightIds.end(), 0); // fill with increasing values starting at 0
 
@@ -106,17 +120,25 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 		iter->second->addToOpenGMModel(model_, weights, linkWeightIds);
 	}
 
-	size_t numDetWeights = 2 * segmentationHypotheses_.begin()->second.getNumFeatures();
+	size_t numDetWeights = 2 * numDetFeatures_;
 	std::vector<size_t> detWeightIds(numDetWeights);
 	std::iota(detWeightIds.begin(), detWeightIds.end(), numLinkWeights); // fill with increasing values starting at 0
 
-	size_t numDivWeights = 2 * segmentationHypotheses_.begin()->second.getNumDivisionFeatures();
+	size_t numDivWeights = 2 * numDivFeatures_;
 	std::vector<size_t> divWeightIds(numDivWeights);
-	std::iota(divWeightIds.begin(), divWeightIds.end(), numLinkWeights + numDetWeights); // fill with increasing values starting at 0
+	std::iota(divWeightIds.begin(), divWeightIds.end(), numLinkWeights + numDetWeights);
+
+	size_t numAppWeights = 2 * numAppFeatures_;
+	std::vector<size_t> appWeightIds(numAppWeights);
+	std::iota(appWeightIds.begin(), appWeightIds.end(), numLinkWeights + numDetWeights + numDivWeights);
+
+	size_t numDisWeights = 2 * numDisFeatures_;
+	std::vector<size_t> disWeightIds(numDisWeights);
+	std::iota(disWeightIds.begin(), disWeightIds.end(), numLinkWeights + numDetWeights + numDivWeights + numAppWeights);
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		iter->second.addToOpenGMModel(model_, weights, detWeightIds, divWeightIds);
+		iter->second.addToOpenGMModel(model_, weights, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
 	}
 
 	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
@@ -233,13 +255,13 @@ Solution Model::readGTfromJson(const std::string& filename)
 			solution[hyp->getOpenGMVariableId()] = 1;
 
 			// set source active, if it was active already then this is a division
-			if(solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] == 1)
-				solution[segmentationHypotheses_[srcId].getOpenGMDivisionVariableId()] = 1;
+			if(solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] == 1)
+				solution[segmentationHypotheses_[srcId].getDivisionVariable().getOpenGMVariableId()] = 1;
 			else
 			{
-				if(solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] == 1)
+				if(solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] == 1)
 					throw std::runtime_error("A source node has been used more than once!");
-				solution[segmentationHypotheses_[srcId].getOpenGMVariableId()] = 1;
+				solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] = 1;
 			}
 		}
 	}
@@ -254,7 +276,45 @@ Solution Model::readGTfromJson(const std::string& filename)
 
 		if(value)
 		{
-			solution[segmentationHypotheses_[destId].getOpenGMVariableId()] = 1;
+			solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] = 1;
+		}
+	}
+
+	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+	{
+		size_t detValue = solution[iter->second.getDetectionVariable().getOpenGMVariableId()];
+
+		if(detValue > 0)
+		{
+			// each variable that has no active incoming links but is active should have its appearance variables set to 1
+			if(iter->second.getNumActiveIncomingLinks(solution) == 0)
+			{
+				if(iter->second.getAppearanceVariable().getOpenGMVariableId() == -1)
+				{
+					std::stringstream s;
+					s << "Segmentation Hypothesis: " << iter->first << " - GT contains appearing variable that has no appearance features set!";
+					throw std::runtime_error(s.str());
+				}
+				else
+				{
+					solution[iter->second.getAppearanceVariable().getOpenGMVariableId()] = 1;
+				}
+			}
+
+			// each variable that has no active outgoing links but is active should have its disappearance variables set to 1
+			if(iter->second.getNumActiveOutgoingLinks(solution) == 0)
+			{
+				if(iter->second.getDisappearanceVariable().getOpenGMVariableId() == -1)
+				{
+					std::stringstream s;
+					s << "Segmentation Hypothesis: " << iter->first << " - GT contains disappearing variable that has no disappearance features set!";
+					throw std::runtime_error(s.str());
+				}
+				else
+				{
+					solution[iter->second.getDisappearanceVariable().getOpenGMVariableId()] = 1;
+				}
+			}
 		}
 	}
 

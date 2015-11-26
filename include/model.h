@@ -30,7 +30,7 @@ public:
 	/**
 	 * @return the number of weights which is estimated by checking how many features are given for detections, links and divisions
 	 */
-	size_t computeNumWeights() const;
+	size_t computeNumWeights();
 	
 	/**
 	 * @brief Find the minimal-energy configuration using an ILP
@@ -97,6 +97,13 @@ private:
 
 	// OpenGM stuff
 	GraphicalModelType model_;
+
+	// numbers of features
+	size_t numDetFeatures_;
+	size_t numDivFeatures_;
+	size_t numAppFeatures_;
+	size_t numDisFeatures_;
+	size_t numLinkFeatures_;
 };
 
 } // end namespace mht

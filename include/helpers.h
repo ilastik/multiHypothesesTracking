@@ -80,7 +80,9 @@ enum class JsonTypes {Segmentations,
 	Value, 
 	Id, 
 	Features, 
-	DivisionFeatures, 
+	DivisionFeatures,
+	AppearanceFeatures,
+	DisappearanceFeatures,
 	Weights
 };
 

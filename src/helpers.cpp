@@ -16,6 +16,8 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::Id, "id"}, 
 	{JsonTypes::Features, "features"},
 	{JsonTypes::DivisionFeatures, "divisionFeatures"},
+	{JsonTypes::AppearanceFeatures, "appearanceFeatures"},
+	{JsonTypes::DisappearanceFeatures, "disappearanceFeatures"},
 	{JsonTypes::Weights, "weights"},
 };
 

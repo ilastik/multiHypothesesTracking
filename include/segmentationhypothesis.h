@@ -18,17 +18,68 @@ class LinkingHypothesis;
  */
 class SegmentationHypothesis
 {
-public:
+public: // nested classes
+	/**
+	 * @brief A segmentation hypothesis comprises of several variables: detection, division, appearance and disappearance.
+	 * 		  This class wraps their most important functionality
+	 */
+	class Variable{
+	public:
+		/**
+		 * @brief Construct with the given feature vector
+		 */
+		Variable(const FeatureVector& features = {}):
+			features_(features),
+			opengmVariableId_(-1)
+		{}
+
+		/**
+		 * @brief Add this variable with given unary features and corresponding weights to opengm
+		 * 
+		 * @param model OpenGM Model
+		 * @param weights opengm dataset weight object
+		 * @param weightIds ids into the weight vector that correspond to features
+		 * @return the new opengm variable id
+		 */
+		void addToOpenGM(
+			GraphicalModelType& model, 
+			WeightsType& weights, 
+			const std::vector<size_t>& weightIds);
+
+		/**
+		 * @return number of features
+		 */
+		const size_t getNumFeatures() const { return features_.size(); }
+
+		/**
+		 * @return the opengm variable id of this variable
+		 */
+		int getOpenGMVariableId() const { return opengmVariableId_; }
+
+	private:
+		FeatureVector features_;
+		int opengmVariableId_;
+	};
+
+public: // API
 	SegmentationHypothesis();
 
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
-	SegmentationHypothesis(int id, const FeatureVector& features, const FeatureVector& divisionFeatures);
+	SegmentationHypothesis(
+		int id, 
+		const FeatureVector& detectionFeatures, 
+		const FeatureVector& divisionFeatures,
+		const FeatureVector& appearanceFeatures = {},
+		const FeatureVector& disappearanceFeatures = {});
 
 	/**
 	 * @brief read segmentation hypothesis from Json
-	 * @details expects the json value to contain attributes "id"(int) and "features"(list of double)
+	 * @details expects the json value to contain attributes "id"(int) and "features"(list of double),
+	 * 			as well as "divisionFeatures", "appearanceFeatures" and "disappearanceFeatures", where
+	 * 			the presence of the latter two toggles the presence of an appearance or disappearance node.
+	 * 			Hypotheses which do not have these, are not allowed to appear/disappear!
 	 * 
 	 * @param entry json object for this hypothesis
 	 * @return the found id of this hypothesis
@@ -36,14 +87,25 @@ public:
 	const int readFromJson(const Json::Value& entry);
 
 	/**
-	 * @return number of features, this should be equal for all hypotheses!
+	 * @return detection variable
 	 */
-	const size_t getNumFeatures() const { return features_.size(); }
+	const Variable& getDetectionVariable() const { return detection_; }
 
 	/**
-	 * @return number of division features, this should be equal for all hypotheses!
+	 * @return division variable
 	 */
-	const size_t getNumDivisionFeatures() const { return divisionFeatures_.size(); }
+	const Variable& getDivisionVariable() const { return division_; }
+
+	/**
+	 * @return appearance variable
+	 */
+	const Variable& getAppearanceVariable() const { return appearance_; }
+
+	/**
+	 * @return disappearance variable
+	 */
+	const Variable& getDisappearanceVariable() const { return disappearance_; }
+
 
 	/**
 	 * @brief Add this hypothesis to the OpenGM model
@@ -58,7 +120,9 @@ public:
 		GraphicalModelType& model, 
 		WeightsType& weights,
 		const std::vector<size_t>& detectionWeightIds,
-		const std::vector<size_t>& divisionWeightIds);
+		const std::vector<size_t>& divisionWeightIds = {},
+		const std::vector<size_t>& appearanceWeightIds = {},
+		const std::vector<size_t>& disappearanceWeightIds = {});
 
 	/**
 	 * @brief Add an incoming link to this node as hypothesis. Will be considered in conservation constraints
@@ -81,38 +145,23 @@ public:
 	void toDot(std::ostream& stream, const Solution* sol) const;
 
 	/**
-	 * @return the opengm variable id of the segmentation variable
-	 */
-	int getOpenGMVariableId() const { return opengmVariableId_; }
-
-	/**
-	 * @return the opengm variable id of the division variable
-	 */
-	int getOpenGMDivisionVariableId() const { return opengmDivisionVariableId_; }
-
-	/**
 	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions
 	 * 
 	 * @param sol the opengm solution vector
 	 */
 	bool verifySolution(const Solution& sol) const;
 
-private:
 	/**
-	 * @brief Add a variable with given unary features and corresponding weights to opengm
-	 * 
-	 * @param model OpenGM Model
-	 * @param weights opengm dataset weight object
-	 * @param features feature vector
-	 * @param weightIds ids into the weight vector that correspond to features
-	 * @return the new opengm variable id
+	 * @return the number of incoming links of this detection which are active in the given solution
 	 */
-	size_t addVariableToOpenGM(
-		GraphicalModelType& model, 
-		WeightsType& weights, 
-		FeatureVector& features,
-		const std::vector<size_t>& weightIds);
+	size_t getNumActiveIncomingLinks(const Solution& sol) const;
 
+	/**
+	 * @return the number of outoing links of this detection which are active in the given solution
+	 */
+	size_t getNumActiveOutgoingLinks(const Solution& sol) const;
+
+private:
 	/**
 	 * @brief Add incoming constraints to OpenGM
 	 */
@@ -128,12 +177,19 @@ private:
 	 */
 	void addDivisionConstraintToOpenGM(GraphicalModelType& model);
 
+	/**
+	 * @brief Add constraint that ensures that division and disappearance are not active at once
+	 */
+	void addDivisionDisappearanceConstraintToOpenGM(GraphicalModelType& model);
+
 private:
 	int id_;
-	FeatureVector features_;
-	FeatureVector divisionFeatures_;
-	int opengmVariableId_;
-	int opengmDivisionVariableId_;
+	
+	Variable detection_;
+	Variable division_;
+	Variable appearance_;
+	Variable disappearance_;
+
 	std::vector< std::shared_ptr<LinkingHypothesis> > incomingLinks_;
 	std::vector< std::shared_ptr<LinkingHypothesis> > outgoingLinks_;
 };

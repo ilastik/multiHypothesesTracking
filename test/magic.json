@@ -5,21 +5,21 @@
 
 	// in square brackets is a list
 	"segmentation-hypotheses" : [
-		{ "id" : 1, "features" : [0.053649107483225, 100.982, 108.904], "divisionFeatures" : [1.5]},
-		{ "id" : 2, "features" : [0.06847623060458811, 78.774, 108.462], "divisionFeatures" : [0.2]},
+		{ "id" : 1, "features" : [0.053649107483225, 100.982, 108.904], "divisionFeatures" : [1.5], "appearanceFeatures" : [0]},
+		{ "id" : 2, "features" : [0.06847623060458811, 78.774, 108.462], "divisionFeatures" : [0.2], "appearanceFeatures" : [0]},
 		{ "id" : 21, "features" : [0.059754965446018805, 166.035, 215.028], "divisionFeatures" : [1]},
 		{ "id" : 3, "features" : [0.058595771764307185, 56.787, 60.745], "divisionFeatures" : [1.4]},
 		{ "id" : 4, "features" : [0.06666401060413317, 19.310, 20.125], "divisionFeatures" : [0.7]},
 		{ "id" : 5, "features" : [0.05906063000102768, 83.938, 81.394], "divisionFeatures" : [0.2]},
 		{ "id" : 45, "features" : [0.06269096763756367, 96.098, 90.355], "divisionFeatures" : [1.1]},
-		{ "id" : 6, "features" : [0.042083305970947116, 50.890, 49.244], "divisionFeatures" : [0]},
-		{ "id" : 7, "features" : [0.041147859080963765, 74.757, 78.313], "divisionFeatures" : [0]},
-		{ "id" : 8, "features" : [0.046878268130962596, 129.865, 123.491], "divisionFeatures" : [0]},
-		{ "id" : 9, "features" : [0.04561690331310423, 40.474, 51.662], "divisionFeatures" : [0]},
-		{ "id" : 10, "features" : [0.0745667788136819, 91.536, 121.499], "divisionFeatures" : [0]},
-		{ "id" : 11, "features" : [0.0745667788136819, 37.234, 41.593], "divisionFeatures" : [0]},
-		{ "id" : 12, "features" : [0.03728347475085034, 38.915, 46.530], "divisionFeatures" : [0]},
-		{ "id" : 13, "features" : [0.04616574189480179, 100.054, 133.454], "divisionFeatures" : [0]}
+		{ "id" : 6, "features" : [0.042083305970947116, 50.890, 49.244], "disappearanceFeatures" : [0.2]},
+		{ "id" : 7, "features" : [0.041147859080963765, 74.757, 78.313], "disappearanceFeatures" : [0.2]},
+		{ "id" : 8, "features" : [0.046878268130962596, 129.865, 123.491], "disappearanceFeatures" : [0.2]},
+		{ "id" : 9, "features" : [0.04561690331310423, 40.474, 51.662], "disappearanceFeatures" : [0.2]},
+		{ "id" : 10, "features" : [0.0745667788136819, 91.536, 121.499], "disappearanceFeatures" : [1.0]},
+		{ "id" : 11, "features" : [0.0745667788136819, 37.234, 41.593], "disappearanceFeatures" : [1.0]},
+		{ "id" : 12, "features" : [0.03728347475085034, 38.915, 46.530], "disappearanceFeatures" : [1.0]},
+		{ "id" : 13, "features" : [0.04616574189480179, 100.054, 133.454], "disappearanceFeatures" : [1.0]}
 	],
 
 	// links
