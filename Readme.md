@@ -8,7 +8,7 @@ This is a standalone tool for running tracking of divisible objects, with compet
 Requirements: 
 
 * a compiler capable of C++11 (clang or GCC >= 4.8)
-* cmake >= 2.8 for configuration
+* cmake >= 2.8 for configuration (e.g. `brew install cmake`)
 * [opengm](https://github.com/opengm/opengm)'s learning-experimental branch: https://github.com/opengm/opengm/tree/learning-experimental.
 * boost (e.g. `brew install boost`)
 * hdf5 (e.g. `brew tap homebrew/science; brew install hdf5`)
