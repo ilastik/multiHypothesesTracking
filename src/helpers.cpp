@@ -2,7 +2,7 @@
 #include <json/json.h>
 #include "helpers.h"
 
-namespace mht
+namespace helpers
 {
 
 std::map<JsonTypes, std::string> JsonTypeNames = {

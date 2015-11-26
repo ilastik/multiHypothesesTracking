@@ -1,5 +1,5 @@
-#ifndef EXCLUSION_CONSTRAINT_H
-#define EXCLUSION_CONSTRAINT_H
+#ifndef MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H
+#define MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H
 
 #include <json/json.h>
 #include "segmentationhypothesis.h"
@@ -34,7 +34,7 @@ public:
 	 * @param model OpenGM model
 	 * @param segmentationHypotheses the map of all segmentation hypotheses by id
 	 */
-	void addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+	void addToOpenGMModel(helpers::GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
 
 	/**
 	 * @brief Check that the given solution vector obeys this exclusion constraint
@@ -42,7 +42,7 @@ public:
 	 * @param sol the opengm solution vector
 	 * @param segmentationHypotheses the map or all segmentation hypotheses by id
 	 */
-	bool verifySolution(const Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const;
+	bool verifySolution(const helpers::Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const;
 
 	/**
 	 * @brief Save this constraint as red edges in a graphviz dot graph
@@ -55,4 +55,4 @@ private:
 
 } // end namespace mht
 
-#endif // EXCLUSION_CONSTRAINT_H
+#endif // MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H

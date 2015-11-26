@@ -1,11 +1,11 @@
-#ifndef LINKING_HYPOTHESIS_H
-#define LINKING_HYPOTHESIS_H
+#ifndef MULTIHYPOTHESIS_LINKING_HYPOTHESIS_H
+#define MULTIHYPOTHESIS_LINKING_HYPOTHESIS_H
 
 #include <iostream>
 #include <memory>
 
 #include <json/json.h>
-#include "helpers.h"
+#include "../helpers.h"
 #include "segmentationhypothesis.h"
 
 namespace mht
@@ -24,7 +24,7 @@ public:
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
-	LinkingHypothesis(int srcId, int destId, const FeatureVector& features);
+	LinkingHypothesis(int srcId, int destId, const helpers::FeatureVector& features);
 
 	/**
 	 * @brief read linking hypothesis from Json
@@ -56,7 +56,7 @@ public:
 	 * @param weights OpenGM weight object (if you are running learning this must be a reference to the weight object of the dataset)
 	 * @param weightIds indices of the weights that are meant to be used together with the features (size must match 2*numFeatures)
 	 */
-	void addToOpenGMModel(GraphicalModelType& model, WeightsType& weights, const std::vector<size_t>& weightIds);
+	void addToOpenGMModel(helpers::GraphicalModelType& model, helpers::WeightsType& weights, const std::vector<size_t>& weightIds);
 
 	/**
 	 * @brief notify the two connected segmentation hypotheses about their new incoming/outgoing link
@@ -68,7 +68,7 @@ public:
 	/**
 	 * @brief Save this node to an open ostream in the graphviz dot format
 	 */
-	void toDot(std::ostream& stream, const Solution* sol) const;
+	void toDot(std::ostream& stream, const helpers::Solution* sol) const;
 
 	/**
 	 * @return the opengm variable id of the transition variable
@@ -78,10 +78,10 @@ public:
 private:
 	int srcId_;
 	int destId_;
-	FeatureVector features_;
+	helpers::FeatureVector features_;
 	int opengmVariableId_;
 };
 
 } // end namespace mht
 
-#endif // LINKING_HYPOTHESIS_H
+#endif // MULTIHYPOTHESIS_LINKING_HYPOTHESIS_H

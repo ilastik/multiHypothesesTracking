@@ -2,9 +2,11 @@
 
 #include <boost/program_options.hpp>
 
-#include "model.h"
+#include "multihypothesis/model.h"
+#include "helpers.h"
 
 using namespace mht;
+using namespace helpers;
 
 int main(int argc, char** argv) {
 	namespace po = boost::program_options;

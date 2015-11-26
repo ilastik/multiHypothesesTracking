@@ -1,6 +1,8 @@
-#include "segmentationhypothesis.h"
-#include "linkinghypothesis.h"
+#include "multihypothesis/segmentationhypothesis.h"
+#include "multihypothesis/linkinghypothesis.h"
 #include <stdexcept>
+
+using namespace helpers;
 
 namespace mht
 {
@@ -11,10 +13,10 @@ SegmentationHypothesis::SegmentationHypothesis():
 
 SegmentationHypothesis::SegmentationHypothesis(
 	int id, 
-	const FeatureVector& detectionFeatures, 
-	const FeatureVector& divisionFeatures,
-	const FeatureVector& appearanceFeatures,
-	const FeatureVector& disappearanceFeatures):
+	const helpers::FeatureVector& detectionFeatures, 
+	const helpers::FeatureVector& divisionFeatures,
+	const helpers::FeatureVector& appearanceFeatures,
+	const helpers::FeatureVector& disappearanceFeatures):
 	id_(id),
 	detection_(detectionFeatures),
 	division_(divisionFeatures),
@@ -34,7 +36,7 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 	// define helper lambda function used below
 	auto extractFeatures = [&](JsonTypes type)
 	{
-		FeatureVector featVec;
+		helpers::FeatureVector featVec;
 		if(!entry.isMember(JsonTypeNames[type]))
 			throw std::runtime_error("Could not find Json tags for " + JsonTypeNames[type]);
 

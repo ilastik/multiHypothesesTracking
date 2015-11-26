@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MULTIHYPOTHESIS_MODEL_H
+#define MULTIHYPOTHESIS_MODEL_H
 
 #include <memory>
 #include <vector>
@@ -8,7 +8,7 @@
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
 #include "exclusionconstraint.h"
-#include "helpers.h"
+#include "../helpers.h"
 
 namespace mht
 {
@@ -37,7 +37,7 @@ public:
 	 * @param weights a vector of weights to use
 	 * @return the vector of per-variable labels, can be used with the detection/linking hypotheses to query their state
 	 */
-	Solution infer(const std::vector<ValueType>& weights);
+	helpers::Solution infer(const std::vector<helpers::ValueType>& weights);
 
 	/**
 	 * @brief Run learning using a given ground truth file
@@ -46,7 +46,7 @@ public:
 	 * @param gt_filename JSON file containing a mapping of "src"(int), "dest"(int) -> "value"(bool)
 	 * @return the vector of learned weights
 	 */
-	std::vector<ValueType> learn(const std::string& gt_filename);
+	std::vector<helpers::ValueType> learn(const std::string& gt_filename);
 
 	/**
 	 * @brief Export a found solution vector as a readable json file
@@ -54,7 +54,7 @@ public:
 	 * @param filename where to save the result
 	 * @param sol the labeling to save
 	 */
-	void saveResultToJson(const std::string& filename, const Solution& sol) const;
+	void saveResultToJson(const std::string& filename, const helpers::Solution& sol) const;
 
 	/**
 	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
@@ -62,7 +62,7 @@ public:
 	 * @param filename where to find the ground truth
 	 * @return the solution as a vector of per-opengm-variable labelings
 	 */
-	Solution readGTfromJson(const std::string& filename);
+	helpers::Solution readGTfromJson(const std::string& filename);
 
 	/**
 	 * @brief check that the solution does not violate any constraints
@@ -71,7 +71,7 @@ public:
 	 * @param sol solution vector
 	 * @return boolean value describing whether this solution is valid
 	 */
-	bool verifySolution(const Solution& sol) const;
+	bool verifySolution(const helpers::Solution& sol) const;
 
 	/**
 	 * @brief Create a graphviz dot output of the full graph, showing used nodes/links in blue and exclusion constraints in red
@@ -79,7 +79,7 @@ public:
 	 * @param filename output filename
 	 * @param sol pointer to solution vector, if nullptr it will be ignored
 	 */
-	void toDot(const std::string& filename, const Solution* sol = nullptr) const;
+	void toDot(const std::string& filename, const helpers::Solution* sol = nullptr) const;
 
 	/**
 	 * @brief Initialize the OpenGM model by adding variables, factors and constraints.
@@ -87,7 +87,7 @@ public:
 	 * 
 	 * @param weights a reference to the weights object that will be used in all 
 	 */
-	void initializeOpenGMModel(WeightsType& weights);
+	void initializeOpenGMModel(helpers::WeightsType& weights);
 
 	/**
 	 * @return a vector of strings describing each entry in the weight vector
@@ -101,7 +101,7 @@ private:
 	std::vector<ExclusionConstraint> exclusionConstraints_;
 
 	// OpenGM stuff
-	GraphicalModelType model_;
+	helpers::GraphicalModelType model_;
 
 	// numbers of features
 	size_t numDetFeatures_;
@@ -113,4 +113,4 @@ private:
 
 } // end namespace mht
 
-#endif // MODEL_H
+#endif // MULTIHYPOTHESIS_MODEL_H

@@ -1,5 +1,7 @@
-#include "linkinghypothesis.h"
+#include "multihypothesis/linkinghypothesis.h"
 #include <stdexcept>
+
+using namespace helpers;
 
 namespace mht
 {
@@ -10,7 +12,7 @@ LinkingHypothesis::LinkingHypothesis():
 	opengmVariableId_(-1)
 {}
 
-LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const FeatureVector& features):
+LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const helpers::FeatureVector& features):
 	srcId_(srcId),
 	destId_(destId),
 	features_(features),

@@ -1,4 +1,4 @@
-#include "model.h"
+#include "multihypothesis/model.h"
 #include <json/json.h>
 #include <fstream>
 #include <stdexcept>
@@ -12,6 +12,8 @@
 #endif
 
 #include <opengm/learning/struct-max-margin.hxx>
+
+using namespace helpers;
 
 namespace mht
 {

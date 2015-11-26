@@ -15,7 +15,7 @@
 #include <opengm/learning/loss/hammingloss.hxx>
 
 
-namespace mht
+namespace helpers
 {
 
 // --------------------------------------------------------------

@@ -1,10 +1,10 @@
-#ifndef SEGMENTATION_HYPOTHESIS_H
-#define SEGMENTATION_HYPOTHESIS_H
+#ifndef MULTIHYPOTHESIS_SEGMENTATION_HYPOTHESIS_H
+#define MULTIHYPOTHESIS_SEGMENTATION_HYPOTHESIS_H
 
 #include <iostream>
 
 #include <json/json.h>
-#include "helpers.h"
+#include "../helpers.h"
 
 namespace mht
 {
@@ -28,7 +28,7 @@ public: // nested classes
 		/**
 		 * @brief Construct with the given feature vector
 		 */
-		Variable(const FeatureVector& features = {}):
+		Variable(const helpers::FeatureVector& features = {}):
 			features_(features),
 			opengmVariableId_(-1)
 		{}
@@ -42,8 +42,8 @@ public: // nested classes
 		 * @return the new opengm variable id
 		 */
 		void addToOpenGM(
-			GraphicalModelType& model, 
-			WeightsType& weights, 
+			helpers::GraphicalModelType& model, 
+			helpers::WeightsType& weights, 
 			const std::vector<size_t>& weightIds);
 
 		/**
@@ -57,7 +57,7 @@ public: // nested classes
 		int getOpenGMVariableId() const { return opengmVariableId_; }
 
 	private:
-		FeatureVector features_;
+		helpers::FeatureVector features_;
 		int opengmVariableId_;
 	};
 
@@ -69,10 +69,10 @@ public: // API
 	 */
 	SegmentationHypothesis(
 		int id, 
-		const FeatureVector& detectionFeatures, 
-		const FeatureVector& divisionFeatures,
-		const FeatureVector& appearanceFeatures = {},
-		const FeatureVector& disappearanceFeatures = {});
+		const helpers::FeatureVector& detectionFeatures, 
+		const helpers::FeatureVector& divisionFeatures,
+		const helpers::FeatureVector& appearanceFeatures = {},
+		const helpers::FeatureVector& disappearanceFeatures = {});
 
 	/**
 	 * @brief read segmentation hypothesis from Json
@@ -117,8 +117,8 @@ public: // API
 	 * @param divisionWeightIds indices of the weights that are meant to be used together with the division features (size must match 2*numFeatures)
 	 */
 	void addToOpenGMModel(
-		GraphicalModelType& model, 
-		WeightsType& weights,
+		helpers::GraphicalModelType& model, 
+		helpers::WeightsType& weights,
 		const std::vector<size_t>& detectionWeightIds,
 		const std::vector<size_t>& divisionWeightIds = {},
 		const std::vector<size_t>& appearanceWeightIds = {},
@@ -142,45 +142,45 @@ public: // API
 	/**
 	 * @brief Save this node to an open ostream in the graphviz dot format
 	 */
-	void toDot(std::ostream& stream, const Solution* sol) const;
+	void toDot(std::ostream& stream, const helpers::Solution* sol) const;
 
 	/**
 	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions
 	 * 
 	 * @param sol the opengm solution vector
 	 */
-	bool verifySolution(const Solution& sol) const;
+	bool verifySolution(const helpers::Solution& sol) const;
 
 	/**
 	 * @return the number of incoming links of this detection which are active in the given solution
 	 */
-	size_t getNumActiveIncomingLinks(const Solution& sol) const;
+	size_t getNumActiveIncomingLinks(const helpers::Solution& sol) const;
 
 	/**
 	 * @return the number of outoing links of this detection which are active in the given solution
 	 */
-	size_t getNumActiveOutgoingLinks(const Solution& sol) const;
+	size_t getNumActiveOutgoingLinks(const helpers::Solution& sol) const;
 
 private:
 	/**
 	 * @brief Add incoming constraints to OpenGM
 	 */
-	void addIncomingConstraintToOpenGM(GraphicalModelType& model);
+	void addIncomingConstraintToOpenGM(helpers::GraphicalModelType& model);
 
 	/**
 	 * @brief Add outgoing constraints to OpenGM
 	 */
-	void addOutgoingConstraintToOpenGM(GraphicalModelType& model);
+	void addOutgoingConstraintToOpenGM(helpers::GraphicalModelType& model);
 
 	/**
 	 * @brief Add division constraints to OpenGM
 	 */
-	void addDivisionConstraintToOpenGM(GraphicalModelType& model);
+	void addDivisionConstraintToOpenGM(helpers::GraphicalModelType& model);
 
 	/**
 	 * @brief Add constraint that ensures that division and disappearance are not active at once
 	 */
-	void addDivisionDisappearanceConstraintToOpenGM(GraphicalModelType& model);
+	void addDivisionDisappearanceConstraintToOpenGM(helpers::GraphicalModelType& model);
 
 private:
 	int id_;
@@ -196,4 +196,4 @@ private:
 
 } // end namespace mht
 
-#endif // SEGMENTATION_HYPOTHESIS_H
+#endif // MULTIHYPOTHESIS_SEGMENTATION_HYPOTHESIS_H

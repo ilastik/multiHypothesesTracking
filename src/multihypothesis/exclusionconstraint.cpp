@@ -1,5 +1,7 @@
-#include "exclusionconstraint.h"
+#include "multihypothesis/exclusionconstraint.h"
 #include <algorithm>
+
+using namespace helpers;
 
 namespace mht
 {

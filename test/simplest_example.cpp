@@ -6,11 +6,12 @@
 #include <boost/test/unit_test.hpp>
 
 #include "helpers.h"
-#include "segmentationhypothesis.h"
-#include "linkinghypothesis.h"
-#include "model.h"
+#include "multihypothesis/segmentationhypothesis.h"
+#include "multihypothesis/linkinghypothesis.h"
+#include "multihypothesis/model.h"
 
 using namespace mht;
+using namespace helpers;
 
 // BOOST_AUTO_TEST_CASE( OpenGMInference )
 int main()

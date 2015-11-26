@@ -2,9 +2,11 @@
 
 #include <boost/program_options.hpp>
 
-#include "model.h"
+#include "multihypothesis/model.h"
+#include "helpers.h"
 
 using namespace mht;
+using namespace helpers;
 
 int main(int argc, char** argv) {
 	namespace po = boost::program_options;
@@ -26,15 +28,19 @@ int main(int argc, char** argv) {
 	po::store(po::parse_command_line(argc, argv, description), variableMap);
 	po::notify(variableMap);
 
-	if (variableMap.count("help")) {
+	if (variableMap.count("help")) 
+	{
 	    std::cout << description << std::endl;
 	    return 1;
 	}
 
-	if (!variableMap.count("model") || !variableMap.count("groundtruth")) {
+	if (!variableMap.count("model") || !variableMap.count("groundtruth")) 
+	{
 	    std::cout << "Model and Groundtruth filenames have to be specified!" << std::endl;
 	    std::cout << description << std::endl;
-	} else {
+	} 
+	else 
+	{
 	    Model model;
 		model.readFromJson(modelFilename);
 		std::vector<double> weights = model.learn(groundtruthFilename);
