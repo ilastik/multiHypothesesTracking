@@ -25,7 +25,8 @@ All of the tools use JSON file formats as input and output (see below). Invoke t
 * `track`: given a graph and weights, return the best tracking result
 * `validate`: given a graph and a solution, check whether it violates any constraints (useful when creating a ground truth)
 * `printgraph`: given a graph (and optionally a solution), draw the graph with graphviz dot (see below)
-* 
+
+
 **Example:**
 ```
 $ ls
