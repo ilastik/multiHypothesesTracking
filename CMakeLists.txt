@@ -28,6 +28,9 @@ else()
     endif()
 endif()
 
+# opengm defines: do not include LPDef symbols everywhere
+ADD_DEFINITIONS(-DOPENGM_LPDEF_NO_SYMBOLS)
+
 # --------------------------------------------------------------
 # check for C++ 11 support:
 include(CheckCXXCompilerFlag)
