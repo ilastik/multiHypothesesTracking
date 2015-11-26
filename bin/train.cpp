@@ -38,6 +38,7 @@ int main(int argc, char** argv) {
 	    Model model;
 		model.readFromJson(modelFilename);
 		std::vector<double> weights = model.learn(groundtruthFilename);
-		saveWeightsToJson(weights, weightsFilename);
+		std::vector<std::string> weightDescriptions = model.getWeightDescriptions();
+		saveWeightsToJson(weights, weightsFilename, weightDescriptions);
 	}
 }

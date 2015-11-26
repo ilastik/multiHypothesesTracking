@@ -401,4 +401,33 @@ void Model::toDot(const std::string& filename, const Solution* sol) const
     out_file << "}";
 }
 
+std::vector<std::string> Model::getWeightDescriptions()
+{
+	std::vector<std::string> descriptions;
+	computeNumWeights();
+
+	auto addVariableWeightDescriptions = [&](size_t numFeatures, const std::string& name)
+	{
+		// each variable has duplicate features for state 0 and state 1
+		for(size_t state = 0; state < 2; ++state)
+		{
+			for(size_t f = 0; f < numFeatures; ++f)
+			{
+				// append this variable's state/feature combination description
+				std::stringstream d;
+				d << name << " = " << state << " - feature " << f;
+				descriptions.push_back(d.str());
+			}
+		}
+	};
+
+	addVariableWeightDescriptions(numDetFeatures_, "Detection");
+	addVariableWeightDescriptions(numDivFeatures_, "Division");
+	addVariableWeightDescriptions(numAppFeatures_, "Appearance");
+	addVariableWeightDescriptions(numDisFeatures_, "Disappearance");
+	addVariableWeightDescriptions(numLinkFeatures_, "Link");
+
+	return descriptions;
+}
+
 } // end namespace mht

@@ -94,8 +94,12 @@ extern std::map<JsonTypes, std::string> JsonTypeNames;
  * 
  * @param weights a vector of weights (not the OpenGM Weight object)
  * @param filename file to save the weights to
+ * @param weightDescriptions an optional vector that contains a description for each weight
  */
-void saveWeightsToJson(const std::vector<ValueType>& weights, const std::string& filename);
+void saveWeightsToJson(
+	const std::vector<ValueType>& weights, 
+	const std::string& filename,
+	const std::vector<std::string>& weightDescriptions = {});
 
 /**
  * @brief read weights from Json

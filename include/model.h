@@ -89,6 +89,11 @@ public:
 	 */
 	void initializeOpenGMModel(WeightsType& weights);
 
+	/**
+	 * @return a vector of strings describing each entry in the weight vector
+	 */
+	std::vector<std::string> getWeightDescriptions();
+
 private:
 	std::map<int, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around

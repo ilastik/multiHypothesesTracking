@@ -21,8 +21,14 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::Weights, "weights"},
 };
 
-void saveWeightsToJson(const std::vector<ValueType>& weights, const std::string& filename)
+void saveWeightsToJson(
+	const std::vector<ValueType>& weights, 
+	const std::string& filename, 
+	const std::vector<std::string>& weightDescriptions)
 {
+	if(weightDescriptions.size() > 0 && weightDescriptions.size() != weights.size())
+		throw std::runtime_error("Length of weight descriptions must match length of weights if given");
+
 	std::ofstream output(filename.c_str());
 	if(!output.good())
 		throw std::runtime_error("Could not open JSON weight file for saving: " + filename);
@@ -30,9 +36,12 @@ void saveWeightsToJson(const std::vector<ValueType>& weights, const std::string&
 	Json::Value root;
 	Json::Value& weightsJson = root[JsonTypeNames[JsonTypes::Weights]];
 
-	for(auto w : weights)
+	for(size_t i = 0; i < weights.size(); i++)
 	{
-		weightsJson.append(Json::Value(w));
+		Json::Value v(weights[i]);
+		if(weightDescriptions.size() > 0)
+			v.setComment("// " + weightDescriptions[i], Json::commentAfterOnSameLine);
+		weightsJson.append(v);
 	}
 
 	if(!weightsJson.isArray())
