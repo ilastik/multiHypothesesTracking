@@ -37,6 +37,7 @@ typedef opengm::learning::HammingLoss	LossType;
 typedef opengm::datasets::EditableDataset<GraphicalModelType, LossType> DatasetType;
 typedef std::vector<LabelType> Solution;
 typedef opengm::learning::Weights<ValueType> WeightsType;
+typedef LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType IndicatorVariableType;
 
 // other stuff
 typedef std::vector<ValueType> FeatureVector;
@@ -63,6 +64,45 @@ std::ostream& operator<<(std::ostream& stream, const std::vector<T>& feats)
 	stream << ")";
 	return stream;
 }
+
+/**
+ * @brief create an indicator variable and add it to the constraint. 
+ * 		  Assumes the function argument index to be the next number
+ * 
+ * @param constraint the constraint function to add to
+ * @param opengmVariableId the opengm variable in question
+ * @param state which state of the variable are we interested in
+ * @param coefficient by what coefficient is the indicator variable to be multiplied
+ * @param constraintShape a vector containing the number of labels of all previous variables of the constraint
+ * @param factorVariables list of opengm variables that this constraint should reason about
+ * @param model the opengm model
+ */
+void addOpenGMVariableToConstraint(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	size_t opengmVariableId,
+	size_t state, 
+	double coefficient,
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model);
+
+/**
+ * @brief add the variable's value to the constraint, not just an indicator variable
+ * 
+ * @param constraint the constraint function to add to
+ * @param opengmVariableId the opengm variable in question
+ * @param coefficient by what coefficient is the indicator variable to be multiplied
+ * @param constraintShape a vector containing the number of labels of all previous variables of the constraint
+ * @param factorVariables list of opengm variables that this constraint should reason about
+ * @param model the opengm model
+ */
+void addOpenGMVariableStateToConstraint(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	size_t opengmVariableId,
+	double coefficient,
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model);
 
 // --------------------------------------------------------------
 // json type definitions

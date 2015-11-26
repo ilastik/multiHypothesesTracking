@@ -74,5 +74,40 @@ std::vector<ValueType> readWeightsFromJson(const std::string& filename)
 	return weights;
 }
 
+void addOpenGMVariableToConstraint(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	size_t opengmVariableId,
+	size_t state, 
+	double coefficient,
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model)
+{
+	IndicatorVariableType indicatorVariable(constraintShape.size(), LabelType(state));
+    constraint.add(indicatorVariable, coefficient);
+
+    factorVariables.push_back(opengmVariableId);
+    constraintShape.push_back(model.numberOfLabels(opengmVariableId));
+}
+
+void addOpenGMVariableStateToConstraint(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	size_t opengmVariableId,
+	double coefficient,
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model)
+{
+	size_t numStates = model.numberOfLabels(opengmVariableId);
+
+	for(size_t i = 1; i < numStates; i++)
+	{
+		IndicatorVariableType indicatorVariable(constraintShape.size(), LabelType(i));
+	    constraint.add(indicatorVariable, coefficient * i);
+	}
+
+    factorVariables.push_back(opengmVariableId);
+    constraintShape.push_back(numStates);
+}
 
 } // end namespace mht

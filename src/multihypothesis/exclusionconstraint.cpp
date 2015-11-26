@@ -36,12 +36,8 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
     for(size_t i = 0; i < ids_.size(); ++i)
     {
     	// indicator variable references the i'th argument of the constraint function, and its state 1
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(i, 1);
-        exclusionConstraint.add(indicatorVariable, 1.0);
-        
-        // directly save which variables we are interested in
-        factorVariables.push_back(segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId());
-        constraintShape.push_back(2);
+    	addOpenGMVariableToConstraint(exclusionConstraint, segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId(),
+			1, 1.0, constraintShape, factorVariables, model);
     }
 
     exclusionConstraint.setBound( 1 );

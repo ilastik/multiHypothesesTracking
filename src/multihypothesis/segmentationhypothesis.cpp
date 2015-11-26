@@ -136,29 +136,19 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < incomingLinks_.size(); ++i)
     {
     	// indicator variable references the i+1'th argument of the constraint function, and its state 1
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(i, 1);
-        incomingConsistencyConstraint.add(indicatorVariable, 1.0);
-        
-        // directly save which variables we are interested in
-        factorVariables.push_back(incomingLinks_[i]->getOpenGMVariableId());
-        constraintShape.push_back(2);
+    	addOpenGMVariableToConstraint(incomingConsistencyConstraint, incomingLinks_[i]->getOpenGMVariableId(),
+    		1, 1.0, constraintShape, factorVariables, model);
     }
 
     // add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(incomingLinks_.size(), LabelType(1));
-    incomingConsistencyConstraint.add(indicatorVariable, -1.0);
-
-    factorVariables.push_back(detection_.getOpenGMVariableId());
-    constraintShape.push_back(2);
+	addOpenGMVariableToConstraint(incomingConsistencyConstraint, detection_.getOpenGMVariableId(),
+		1, -1.0, constraintShape, factorVariables, model);
 
     // add appearance with positive coefficient, if any
     if(appearance_.getOpenGMVariableId() >= 0)
     {
-    	const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(incomingLinks_.size()+1, LabelType(1));
-	    incomingConsistencyConstraint.add(indicatorVariable, 1.0);
-
-	    factorVariables.push_back(appearance_.getOpenGMVariableId());
-	    constraintShape.push_back(2);
+    	addOpenGMVariableToConstraint(incomingConsistencyConstraint, appearance_.getOpenGMVariableId(),
+    		1, 1.0, constraintShape, factorVariables, model);
     }
 
     incomingConsistencyConstraint.setBound( 0 );
@@ -184,39 +174,26 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
     	// indicator variable references the i+2'nd argument of the constraint function, and its state 1
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(i, 1);
-        outgoingConsistencyConstraint.add(indicatorVariable, 1.0);
-        
-        // directly save which variables we are interested in
-        factorVariables.push_back(outgoingLinks_[i]->getOpenGMVariableId());
-        constraintShape.push_back(2);
+        addOpenGMVariableToConstraint(outgoingConsistencyConstraint, outgoingLinks_[i]->getOpenGMVariableId(),
+    		1, 1.0, constraintShape, factorVariables, model);
     }
 
     // add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(outgoingLinks_.size(), LabelType(1));
-    outgoingConsistencyConstraint.add(indicatorVariable, -1.0);
-
-    factorVariables.push_back(detection_.getOpenGMVariableId());
-    constraintShape.push_back(2);
+    addOpenGMVariableToConstraint(outgoingConsistencyConstraint, detection_.getOpenGMVariableId(),
+		1, -1.0, constraintShape, factorVariables, model);
 
 	// also the division node, if any
     if(division_.getOpenGMVariableId() >= 0)
     {
-        const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(outgoingLinks_.size()+1, LabelType(1));
-        outgoingConsistencyConstraint.add(divisionIndicatorVariable, -1.0);
-    
-        factorVariables.push_back(division_.getOpenGMVariableId());
-        constraintShape.push_back(2);
+    	addOpenGMVariableToConstraint(outgoingConsistencyConstraint, division_.getOpenGMVariableId(),
+    		1, -1.0, constraintShape, factorVariables, model);
     }
 
     // add appearance with positive coefficient, if any
     if(disappearance_.getOpenGMVariableId() >= 0)
     {
-    	const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(constraintShape.size(), LabelType(1));
-	    outgoingConsistencyConstraint.add(indicatorVariable, 1.0);
-
-	    factorVariables.push_back(disappearance_.getOpenGMVariableId());
-	    constraintShape.push_back(2);
+    	addOpenGMVariableToConstraint(outgoingConsistencyConstraint, disappearance_.getOpenGMVariableId(),
+    		1, 1.0, constraintShape, factorVariables, model);
     }
 
     outgoingConsistencyConstraint.setBound( 0 );
@@ -238,17 +215,11 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 	std::vector<LabelType> constraintShape;
 
 	// add this variable's state with negative coefficient
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType indicatorVariable(0, LabelType(1));
-    divisionConstraint.add(indicatorVariable, -1.0);
+	addOpenGMVariableToConstraint(divisionConstraint, detection_.getOpenGMVariableId(),
+		1, -1.0, constraintShape, factorVariables, model);
 
-    factorVariables.push_back(detection_.getOpenGMVariableId());
-    constraintShape.push_back(2);
-
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(1, LabelType(1));
-    divisionConstraint.add(divisionIndicatorVariable, 1.0);
-
-    factorVariables.push_back(division_.getOpenGMVariableId());
-    constraintShape.push_back(2);
+	addOpenGMVariableToConstraint(divisionConstraint, division_.getOpenGMVariableId(),
+		1, 1.0, constraintShape, factorVariables, model);
 
     divisionConstraint.setBound( 0 );
     divisionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
@@ -268,17 +239,12 @@ void SegmentationHypothesis::addDivisionDisappearanceConstraintToOpenGM(Graphica
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
 
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType divisionIndicatorVariable(0, LabelType(1));
-    divisionDisappearanceConstraint.add(divisionIndicatorVariable, 1.0);
+    // add this variable's state with negative coefficient
+	addOpenGMVariableToConstraint(divisionDisappearanceConstraint, division_.getOpenGMVariableId(),
+		1, 1.0, constraintShape, factorVariables, model);
 
-    factorVariables.push_back(division_.getOpenGMVariableId());
-    constraintShape.push_back(2);
-
-    const LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableType disappearanceIndicatorVariable(1, LabelType(1));
-    divisionDisappearanceConstraint.add(disappearanceIndicatorVariable, 1.0);
-
-    factorVariables.push_back(disappearance_.getOpenGMVariableId());
-    constraintShape.push_back(2);
+	addOpenGMVariableToConstraint(divisionDisappearanceConstraint, disappearance_.getOpenGMVariableId(),
+		1, 1.0, constraintShape, factorVariables, model);
 
     divisionDisappearanceConstraint.setBound( 1 );
     divisionDisappearanceConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
