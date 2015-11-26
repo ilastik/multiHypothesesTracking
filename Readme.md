@@ -13,7 +13,8 @@ Requirements:
 * boost (e.g. `brew install boost`)
 * hdf5 (e.g. `brew tap homebrew/science; brew install hdf5`)
 
-If you want to parse the JSON files with comments, use e.g. [commentjson](https://pypi.python.org/pypi/commentjson/)
+If you want to parse the JSON files with comments, use e.g. [commentjson](https://pypi.python.org/pypi/commentjson/) for python, or [Jackson](https://github.com/FasterXML/jackson-core/wiki/JsonParser-Features) for Java.
+
 
 ## Binaries
 
