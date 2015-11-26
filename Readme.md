@@ -13,6 +13,7 @@ Requirements:
 * boost (e.g. `brew install boost`)
 * hdf5 (e.g. `brew tap homebrew/science; brew install hdf5`)
 
+If you want to parse the JSON files with comments, use e.g. [commentjson](https://pypi.python.org/pypi/commentjson/)
 
 ## Binaries
 

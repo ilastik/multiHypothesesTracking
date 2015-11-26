@@ -48,19 +48,19 @@
 		{ "src" : 45, "dest" : 13, "value": false}
 	]
 
-/*Frame 1
-1
-2
+// Frame 1
+// 1
+// 2
 
-Frame 2
-3 (=2)
-4 (daughter of 1)
-5 (daughter of 1)
+// Frame 2
+// 3 (=2)
+// 4 (daughter of 1)
+// 5 (daughter of 1)
 
-Frame 3
-6 (=5)
-7 (=4)
-8 (daughter of 3)
-9 (daughter of 3)*/
+// Frame 3
+// 6 (=5)
+// 7 (=4)
+// 8 (daughter of 3)
+// 9 (daughter of 3)
 
 }
