@@ -3,6 +3,9 @@
 	"author" : "virginie",
 	"date" : "19-nov-2015",
 
+	// we want to learn one weight per feature and state, and not just per feature
+	"statesShareWeights" : false,
+
 	// in square brackets is a list
 	"segmentationHypotheses" : [
 		{ "id" : 1, "features" : [0.053649107483225, 100.982, 108.904], "divisionFeatures" : [1.5], "appearanceFeatures" : [0]},

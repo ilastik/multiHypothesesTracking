@@ -19,6 +19,7 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::AppearanceFeatures, "appearanceFeatures"},
 	{JsonTypes::DisappearanceFeatures, "disappearanceFeatures"},
 	{JsonTypes::Weights, "weights"},
+	{JsonTypes::StatesShareWeights, "statesShareWeights"}
 };
 
 void saveWeightsToJson(
@@ -72,6 +73,43 @@ std::vector<ValueType> readWeightsFromJson(const std::string& filename)
 		weights.push_back(entry[i].asDouble());
 	}
 	return weights;
+}
+
+StateFeatureVector extractFeatures(const Json::Value& entry, JsonTypes type)
+{
+	StateFeatureVector stateFeatVec;
+	if(!entry.isMember(JsonTypeNames[type]))
+		throw std::runtime_error("Could not find Json tags for " + JsonTypeNames[type]);
+
+	const Json::Value featuresPerState = entry[JsonTypeNames[type]];
+
+	if(!featuresPerState.isArray())
+		throw std::runtime_error(JsonTypeNames[type] + " must be an array");
+
+	if(!featuresPerState.size() > 0)
+		throw std::runtime_error("Features may not be empty for " + JsonTypeNames[type]);
+
+	// get the features per state
+	for(int i = 0; i < (int)featuresPerState.size(); i++)
+	{
+		// get features for the specific state
+		FeatureVector featVec;
+		const Json::Value& featuresForState = featuresPerState[i];
+
+		if(!featuresForState.isArray())
+			throw std::runtime_error("Expected to find a list of features for each state");
+
+		if(!featuresForState.size() > 0)
+		throw std::runtime_error("Features for state may not be empty for " + JsonTypeNames[type]);
+
+		for(int j = 0; j < (int)featuresPerState.size(); j++)
+		{
+			featVec.push_back(featuresForState[j].asDouble());
+		}
+
+		stateFeatVec.push_back(featVec);
+	}
+	return stateFeatVec;
 }
 
 void addOpenGMVariableToConstraint(

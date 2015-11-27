@@ -14,6 +14,8 @@
 #include <opengm/learning/dataset/editabledataset.hxx>
 #include <opengm/learning/loss/hammingloss.hxx>
 
+// json
+#include <json/json.h>
 
 namespace helpers
 {
@@ -41,6 +43,7 @@ typedef LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableTyp
 
 // other stuff
 typedef std::vector<ValueType> FeatureVector;
+typedef std::vector<FeatureVector> StateFeatureVector;
 
 // --------------------------------------------------------------
 // functions
@@ -123,7 +126,8 @@ enum class JsonTypes {Segmentations,
 	DivisionFeatures,
 	AppearanceFeatures,
 	DisappearanceFeatures,
-	Weights
+	Weights,
+	StatesShareWeights
 };
 
 /// mapping from JsonTypes to strings which are used in the Json files
@@ -148,6 +152,16 @@ void saveWeightsToJson(
  * @return a vector of weights
  */
 std::vector<ValueType> readWeightsFromJson(const std::string& filename);
+
+/**
+ * @brief Extract a list of detection/division/disapperance/appearance features for each state from a given entry
+ * 
+ * @param entry the json root to extract the features from
+ * @param type the type of feature to extract (checks for the respectively named member!)
+ * 
+ * @return a vector of FeatureVectors, one for each state the variable can take
+ */
+StateFeatureVector extractFeatures(const Json::Value& entry, JsonTypes type);
 
 }
 

@@ -14,10 +14,10 @@ SegmentationHypothesis::SegmentationHypothesis():
 
 SegmentationHypothesis::SegmentationHypothesis(
 	int id, 
-	const helpers::FeatureVector& detectionFeatures, 
-	const helpers::FeatureVector& divisionFeatures,
-	const helpers::FeatureVector& appearanceFeatures,
-	const helpers::FeatureVector& disappearanceFeatures):
+	const helpers::StateFeatureVector& detectionFeatures, 
+	const helpers::StateFeatureVector& divisionFeatures,
+	const helpers::StateFeatureVector& appearanceFeatures,
+	const helpers::StateFeatureVector& disappearanceFeatures):
 	id_(id),
 	detection_(detectionFeatures),
 	division_(divisionFeatures),
@@ -35,36 +35,17 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 
 	id_ = entry[JsonTypeNames[JsonTypes::Id]].asInt();
 
-	// define helper lambda function used below
-	auto extractFeatures = [&](JsonTypes type)
-	{
-		helpers::FeatureVector featVec;
-		if(!entry.isMember(JsonTypeNames[type]))
-			throw std::runtime_error("Could not find Json tags for " + JsonTypeNames[type]);
+	detection_ = Variable(extractFeatures(entry, JsonTypes::Features));
 
-		const Json::Value features = entry[JsonTypeNames[type]];
-
-		if(!features.size() > 0)
-			throw std::runtime_error("Features may not be empty for " + JsonTypeNames[type]);
-
-		for(int i = 0; i < (int)features.size(); i++)
-		{
-			featVec.push_back(features[i].asDouble());
-		}
-		return featVec;
-	};
-
-	detection_ = Variable(extractFeatures(JsonTypes::Features));
 	if(entry.isMember(JsonTypeNames[JsonTypes::DivisionFeatures]))
-		division_ = Variable(extractFeatures(JsonTypes::DivisionFeatures));
+		division_ = Variable(extractFeatures(entry, JsonTypes::DivisionFeatures));
 
 	// read appearance and disappearance if present
 	if(entry.isMember(JsonTypeNames[JsonTypes::AppearanceFeatures]))
-		appearance_ = Variable(extractFeatures(JsonTypes::AppearanceFeatures));
+		appearance_ = Variable(extractFeatures(entry, JsonTypes::AppearanceFeatures));
+	
 	if(entry.isMember(JsonTypeNames[JsonTypes::DisappearanceFeatures]))
-		disappearance_ = Variable(extractFeatures(JsonTypes::DisappearanceFeatures));
-
-	// std::cout << "Found segmentation hypothesis with id " << id_ << std::endl;
+		disappearance_ = Variable(extractFeatures(entry, JsonTypes::DisappearanceFeatures));
 
 	return id_;
 }
@@ -87,42 +68,6 @@ void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) co
 	stream <<  "]; \n" << std::flush;
 }
 
-void SegmentationHypothesis::Variable::addToOpenGM(
-	GraphicalModelType& model, 
-	WeightsType& weights, 
-	const std::vector<size_t>& weightIds)
-{
-	// only add variable if there are any features
-	if(features_.size() == 0)
-		return;
-
-	// Add variable to model. All Variables are binary!
-	model.addVariable(2);
-	size_t variableId = model.numberOfVariables() - 1;
-
-	// add unary factor to model
-	std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
-	size_t numFeatures = features_.size();
-	assert(weightIds.size() == numFeatures * 2);
-
-	for(size_t l = 0; l < 2; l++)
-	{
-		FeaturesAndIndicesType featureAndIndex;
-
-		featureAndIndex.features = features_;
-		for(size_t i = 0; i < numFeatures; ++i)
-			featureAndIndex.weightIds.push_back(weightIds[l * numFeatures + i]);
-
-		featuresAndWeightsPerLabel.push_back(featureAndIndex);
-	}
-
-	LearnableUnaryFuncType unary(weights, featuresAndWeightsPerLabel);
-	GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
-	model.addFactor(fid, &variableId, &variableId+1);
-
-	opengmVariableId_ = variableId;
-}
-
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)
 {
 	if(incomingLinks_.size() == 0 && appearance_.getOpenGMVariableId() < 0)
@@ -138,7 +83,7 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < incomingLinks_.size(); ++i)
     {
     	// indicator variable references the i+1'th argument of the constraint function, and its state 1
-    	addOpenGMVariableStateToConstraint(incomingConsistencyConstraint, incomingLinks_[i]->getOpenGMVariableId(),
+    	addOpenGMVariableStateToConstraint(incomingConsistencyConstraint, incomingLinks_[i]->getVariable().getOpenGMVariableId(),
     		1.0, constraintShape, factorVariables, model);
     }
 
@@ -176,7 +121,7 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
     	// indicator variable references the i+2'nd argument of the constraint function, and its state 1
-        addOpenGMVariableStateToConstraint(outgoingConsistencyConstraint, outgoingLinks_[i]->getOpenGMVariableId(),
+        addOpenGMVariableStateToConstraint(outgoingConsistencyConstraint, outgoingLinks_[i]->getVariable().getOpenGMVariableId(),
     		1.0, constraintShape, factorVariables, model);
     }
 
@@ -262,18 +207,19 @@ void SegmentationHypothesis::addExclusionConstraintToOpenGM(GraphicalModelType& 
 void SegmentationHypothesis::addToOpenGMModel(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
+	bool statesShareWeights,
 	const std::vector<size_t>& detectionWeightIds,
 	const std::vector<size_t>& divisionWeightIds,
 	const std::vector<size_t>& appearanceWeightIds,
 	const std::vector<size_t>& disappearanceWeightIds)
 {
-	detection_.addToOpenGM(model, weights, detectionWeightIds);
+	detection_.addToOpenGM(model, statesShareWeights, weights, detectionWeightIds);
 	if(detection_.getOpenGMVariableId() < 0)
 		throw std::runtime_error("Detection variable must have some features!");
 
-	division_.addToOpenGM(model, weights, divisionWeightIds);
-	appearance_.addToOpenGM(model, weights, appearanceWeightIds);
-	disappearance_.addToOpenGM(model, weights, disappearanceWeightIds);
+	division_.addToOpenGM(model, statesShareWeights, weights, divisionWeightIds);
+	appearance_.addToOpenGM(model, statesShareWeights, weights, appearanceWeightIds);
+	disappearance_.addToOpenGM(model, statesShareWeights, weights, disappearanceWeightIds);
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model);
@@ -282,13 +228,13 @@ void SegmentationHypothesis::addToOpenGMModel(
 	if(appearance_.getOpenGMVariableId() >= 0)
 	{
 		for(auto link : incomingLinks_)
-			addExclusionConstraintToOpenGM(model, appearance_.getOpenGMVariableId(), link->getOpenGMVariableId());
+			addExclusionConstraintToOpenGM(model, appearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
 	}
 
 	if(disappearance_.getOpenGMVariableId() >= 0)
 	{
 		for(auto link : outgoingLinks_)
-			addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), link->getOpenGMVariableId());
+			addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
 
 		if(division_.getOpenGMVariableId() >= 0)
 			addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), division_.getOpenGMVariableId());
@@ -316,9 +262,9 @@ size_t SegmentationHypothesis::getNumActiveIncomingLinks(const Solution& sol) co
 	size_t sum = 0;
 	for(auto link : incomingLinks_)
 	{
-		if(link->getOpenGMVariableId() < 0)
+		if(link->getVariable().getOpenGMVariableId() < 0)
 			throw std::runtime_error("Cannot compute sum of active links if they have not been added to opengm");
-		sum += sol[link->getOpenGMVariableId()];
+		sum += sol[link->getVariable().getOpenGMVariableId()];
 	}
 	return sum;
 }
@@ -328,9 +274,9 @@ size_t SegmentationHypothesis::getNumActiveOutgoingLinks(const Solution& sol) co
 	size_t sum = 0;
 	for(auto link : outgoingLinks_)
 	{
-		if(link->getOpenGMVariableId() < 0)
+		if(link->getVariable().getOpenGMVariableId() < 0)
 			throw std::runtime_error("Cannot compute sum of active links if they have not been added to opengm");
-		sum += sol[link->getOpenGMVariableId()];
+		sum += sol[link->getVariable().getOpenGMVariableId()];
 	}
 	return sum;
 }
@@ -345,9 +291,15 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 	size_t sumIncoming = getNumActiveIncomingLinks(sol);
 
 	if(appearance_.getOpenGMVariableId() >= 0)
+	{
+		if(sol[appearance_.getOpenGMVariableId()] > 0 && sumIncoming > 0)
+		{
+			std::cout << "At node " << id_ << ": there are active incoming transitions and active appearances!" << std::endl;
+			return false;
+		}
 		sumIncoming += sol[appearance_.getOpenGMVariableId()];
+	}
 
-	// TODO: how are we dealing with appearance / disappearance?
 	if(incomingLinks_.size() > 0 && sumIncoming != ownValue)
 	{
 		std::cout << "At node " << id_ << ": incoming=" << sumIncoming << " is NOT EQUAL to " << ownValue << std::endl;
@@ -359,9 +311,15 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 	size_t sumOutgoing = getNumActiveOutgoingLinks(sol);
 
 	if(disappearance_.getOpenGMVariableId() >= 0)
+	{
+		if(sol[disappearance_.getOpenGMVariableId()] > 0 && sumOutgoing > 0)
+		{
+			std::cout << "At node " << id_ << ": there are active outgoing transitions and active disappearances!" << std::endl;
+			return false;
+		}
 		sumOutgoing += sol[disappearance_.getOpenGMVariableId()];
+	}
 
-	// TODO: how are we dealing with appearance / disappearance?
 	if(outgoingLinks_.size() > 0 && sumOutgoing != ownValue + divisionValue)
 	{
 		std::cout << "At node " << id_ << ": outgoing=" << sumOutgoing << " is NOT EQUAL to " << ownValue << " + " << divisionValue << " (own+div)" << std::endl;

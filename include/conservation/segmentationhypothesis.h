@@ -5,6 +5,7 @@
 
 #include <json/json.h>
 #include "../helpers.h"
+#include "variable.h"
 
 namespace constracking
 {
@@ -18,49 +19,6 @@ class LinkingHypothesis;
  */
 class SegmentationHypothesis
 {
-public: // nested classes
-	/**
-	 * @brief A segmentation hypothesis comprises of several variables: detection, division, appearance and disappearance.
-	 * 		  This class wraps their most important functionality
-	 */
-	class Variable{
-	public:
-		/**
-		 * @brief Construct with the given feature vector
-		 */
-		Variable(const helpers::FeatureVector& features = {}):
-			features_(features),
-			opengmVariableId_(-1)
-		{}
-
-		/**
-		 * @brief Add this variable with given unary features and corresponding weights to opengm
-		 * 
-		 * @param model OpenGM Model
-		 * @param weights opengm dataset weight object
-		 * @param weightIds ids into the weight vector that correspond to features
-		 * @return the new opengm variable id
-		 */
-		void addToOpenGM(
-			helpers::GraphicalModelType& model, 
-			helpers::WeightsType& weights, 
-			const std::vector<size_t>& weightIds);
-
-		/**
-		 * @return number of features
-		 */
-		const size_t getNumFeatures() const { return features_.size(); }
-
-		/**
-		 * @return the opengm variable id of this variable
-		 */
-		int getOpenGMVariableId() const { return opengmVariableId_; }
-
-	private:
-		helpers::FeatureVector features_;
-		int opengmVariableId_;
-	};
-
 public: // API
 	SegmentationHypothesis();
 
@@ -69,10 +27,10 @@ public: // API
 	 */
 	SegmentationHypothesis(
 		int id, 
-		const helpers::FeatureVector& detectionFeatures, 
-		const helpers::FeatureVector& divisionFeatures,
-		const helpers::FeatureVector& appearanceFeatures = {},
-		const helpers::FeatureVector& disappearanceFeatures = {});
+		const helpers::StateFeatureVector& detectionFeatures, 
+		const helpers::StateFeatureVector& divisionFeatures,
+		const helpers::StateFeatureVector& appearanceFeatures = {},
+		const helpers::StateFeatureVector& disappearanceFeatures = {});
 
 	/**
 	 * @brief read segmentation hypothesis from Json
@@ -113,12 +71,16 @@ public: // API
 	 * 
 	 * @param model OpenGM model
 	 * @param weights OpenGM weight object (if you are running learning this must be a reference to the weight object of the dataset)
-	 * @param detectionWeightIds indices of the weights that are meant to be used together with the detection features (size must match 2*numFeatures)
-	 * @param divisionWeightIds indices of the weights that are meant to be used together with the division features (size must match 2*numFeatures)
+	 * @param statesShareWeights whether there is one weight per feature for all states, or a separate weight for each feature and state
+	 * @param detectionWeightIds indices of the weights that are meant to be used together with the detection features
+	 * @param divisionWeightIds indices of the weights that are meant to be used together with the division features
+	 * @param appearanceWeightIds indices of the weights that are meant to be used together with the division features
+	 * @param disappearanceWeightIds indices of the weights that are meant to be used together with the division features
 	 */
 	void addToOpenGMModel(
 		helpers::GraphicalModelType& model, 
 		helpers::WeightsType& weights,
+		bool statesShareWeights,
 		const std::vector<size_t>& detectionWeightIds,
 		const std::vector<size_t>& divisionWeightIds = {},
 		const std::vector<size_t>& appearanceWeightIds = {},

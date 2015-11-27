@@ -101,12 +101,15 @@ private:
 	// OpenGM stuff
 	helpers::GraphicalModelType model_;
 
-	// numbers of features
-	size_t numDetFeatures_;
-	size_t numDivFeatures_;
-	size_t numAppFeatures_;
-	size_t numDisFeatures_;
-	size_t numLinkFeatures_;
+	// model settings
+	bool statesShareWeights_;
+
+	// numbers of weights
+	size_t numDetWeights_;
+	size_t numDivWeights_;
+	size_t numAppWeights_;
+	size_t numDisWeights_;
+	size_t numLinkWeights_;
 };
 
 } // end namespace constracking

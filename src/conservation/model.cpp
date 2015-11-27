@@ -34,6 +34,13 @@ void Model::readFromJson(const std::string& filename)
 	Json::Value root;
 	input >> root;
 
+	// read weight configuration
+	if(root.isMember(JsonTypeNames[JsonTypes::StatesShareWeights]))
+		statesShareWeights_ = root[JsonTypeNames[JsonTypes::StatesShareWeights]].asBool();
+	else
+		statesShareWeights_ = false;
+
+	// read segmentation hypotheses
 	const Json::Value segmentationHypotheses = root[JsonTypeNames[JsonTypes::Segmentations]];
 	std::cout << "\tcontains " << segmentationHypotheses.size() << " segmentation hypotheses" << std::endl;
 	
@@ -45,6 +52,7 @@ void Model::readFromJson(const std::string& filename)
 		segmentationHypotheses_[id] = hyp;
 	}
 
+	// read linking hypotheses
 	const Json::Value linkingHypotheses = root[JsonTypeNames[JsonTypes::Links]];
 	std::cout << "\tcontains " << linkingHypotheses.size() << " linking hypotheses" << std::endl;
 	for(int i = 0; i < (int)linkingHypotheses.size(); i++)
@@ -59,47 +67,47 @@ void Model::readFromJson(const std::string& filename)
 
 size_t Model::computeNumWeights()
 {
-	int numDetFeatures = -1;
-	int numDivFeatures = -1;
-	int numAppFeatures = -1;
-	int numDisFeatures = -1;
-	int numLinkFeatures = -1;
+	int numDetWeights = -1;
+	int numDivWeights = -1;
+	int numAppWeights = -1;
+	int numDisWeights = -1;
+	int numLinkWeights = -1;
 
-	auto checkNumFeatures = [](const SegmentationHypothesis::Variable& var, int& previousNumFeats, const std::string& name)
+	auto checkNumWeights = [&](const Variable& var, int& previousNumWeights, const std::string& name)
 	{
-		if(previousNumFeats < 0 && var.getNumFeatures() > 0)
-			previousNumFeats = var.getNumFeatures();
+		int numWeights = var.getNumWeights(statesShareWeights_);
+		if(previousNumWeights < 0 && numWeights > 0)
+			previousNumWeights = numWeights;
 		else
-			if(var.getNumFeatures() > 0 && var.getNumFeatures() != previousNumFeats)
-				throw std::runtime_error(name + " do not have the same number of features!");
+			if(numWeights > 0 && numWeights != previousNumWeights)
+				throw std::runtime_error(name + " do not have the same number of features/weights!");
 	};
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		checkNumFeatures(iter->second.getDetectionVariable(), numDetFeatures, "Detections");
-		checkNumFeatures(iter->second.getDivisionVariable(), numDivFeatures, "Divisions");
-		checkNumFeatures(iter->second.getAppearanceVariable(), numAppFeatures, "Appearances");
-		checkNumFeatures(iter->second.getDisappearanceVariable(), numDisFeatures, "Disappearances");
+		checkNumWeights(iter->second.getDetectionVariable(), numDetWeights, "Detections");
+		checkNumWeights(iter->second.getDivisionVariable(), numDivWeights, "Divisions");
+		checkNumWeights(iter->second.getAppearanceVariable(), numAppWeights, "Appearances");
+		checkNumWeights(iter->second.getDisappearanceVariable(), numDisWeights, "Disappearances");
 	}
 
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		if(numLinkFeatures < 0)
-			numLinkFeatures = iter->second->getNumFeatures();
+		if(numLinkWeights < 0)
+			numLinkWeights = iter->second->getVariable().getNumWeights(statesShareWeights_);
 		else
-			if(iter->second->getNumFeatures() != numLinkFeatures)
+			if(iter->second->getVariable().getNumWeights(statesShareWeights_) != numLinkWeights)
 				throw std::runtime_error("Links do not have the same number of features!");
 	}
 
 	// we don't want -1 weights
-	numDetFeatures_ = std::max((int)0, numDetFeatures);
-	numDivFeatures_ = std::max((int)0, numDivFeatures);
-	numAppFeatures_ = std::max((int)0, numAppFeatures);
-	numDisFeatures_ = std::max((int)0, numDisFeatures);
-	numLinkFeatures_ = std::max((int)0, numLinkFeatures);
+	numDetWeights_ = std::max((int)0, numDetWeights);
+	numDivWeights_ = std::max((int)0, numDivWeights);
+	numAppWeights_ = std::max((int)0, numAppWeights);
+	numDisWeights_ = std::max((int)0, numDisWeights);
+	numLinkWeights_ = std::max((int)0, numLinkWeights);
 
-	// we need two sets of weights for all features to represent state "on" and "off"!
-	return 2 * (numDetFeatures_ + numDivFeatures_ + numLinkFeatures_ + numAppFeatures_ + numDisFeatures_);
+	return numDetWeights_ + numDivWeights_ + numAppWeights_ + numDisWeights_ + numLinkWeights_;
 }
 
 void Model::initializeOpenGMModel(WeightsType& weights)
@@ -109,35 +117,30 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 
 	std::cout << "Initializing opengm model..." << std::endl;
 	// we need two sets of weights for all features to represent state "on" and "off"!
-	size_t numLinkWeights = 2 * numLinkFeatures_;
-	std::vector<size_t> linkWeightIds(numLinkWeights);
+	std::vector<size_t> linkWeightIds(numLinkWeights_);
 	std::iota(linkWeightIds.begin(), linkWeightIds.end(), 0); // fill with increasing values starting at 0
 
 	// first add all link variables, because segmentations will use them when defining constraints
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		iter->second->addToOpenGMModel(model_, weights, linkWeightIds);
+		iter->second->addToOpenGMModel(model_, weights, statesShareWeights_, linkWeightIds);
 	}
 
-	size_t numDetWeights = 2 * numDetFeatures_;
-	std::vector<size_t> detWeightIds(numDetWeights);
-	std::iota(detWeightIds.begin(), detWeightIds.end(), numLinkWeights); // fill with increasing values starting at 0
+	std::vector<size_t> detWeightIds(numDetWeights_);
+	std::iota(detWeightIds.begin(), detWeightIds.end(), numLinkWeights_); // fill with increasing values starting at the next valid index
 
-	size_t numDivWeights = 2 * numDivFeatures_;
-	std::vector<size_t> divWeightIds(numDivWeights);
-	std::iota(divWeightIds.begin(), divWeightIds.end(), numLinkWeights + numDetWeights);
+	std::vector<size_t> divWeightIds(numDivWeights_);
+	std::iota(divWeightIds.begin(), divWeightIds.end(), numLinkWeights_ + numDetWeights_);
 
-	size_t numAppWeights = 2 * numAppFeatures_;
-	std::vector<size_t> appWeightIds(numAppWeights);
-	std::iota(appWeightIds.begin(), appWeightIds.end(), numLinkWeights + numDetWeights + numDivWeights);
+	std::vector<size_t> appWeightIds(numAppWeights_);
+	std::iota(appWeightIds.begin(), appWeightIds.end(), numLinkWeights_ + numDetWeights_ + numDivWeights_);
 
-	size_t numDisWeights = 2 * numDisFeatures_;
-	std::vector<size_t> disWeightIds(numDisWeights);
-	std::iota(disWeightIds.begin(), disWeightIds.end(), numLinkWeights + numDetWeights + numDivWeights + numAppWeights);
+	std::vector<size_t> disWeightIds(numDisWeights_);
+	std::iota(disWeightIds.begin(), disWeightIds.end(), numLinkWeights_ + numDetWeights_ + numDivWeights_ + numAppWeights_);
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		iter->second.addToOpenGMModel(model_, weights, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
+		iter->second.addToOpenGMModel(model_, weights, statesShareWeights_, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
 	}
 }
 
@@ -246,7 +249,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 			
 			// set link active
 			std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[std::make_pair(srcId, destId)];
-			solution[hyp->getOpenGMVariableId()] = value;
+			solution[hyp->getVariable().getOpenGMVariableId()] = value;
 
 			// set source active, if it was active already then this is a division
 			if(solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] == 1)
@@ -347,10 +350,9 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		bool value = false;
-		if(sol[iter->second->getOpenGMVariableId()] > 0)
-			value = true;
-		linksJson.append(iter->second->toJson(value));
+		size_t value = sol[iter->second->getVariable().getOpenGMVariableId()];
+		if(value > 0)
+			linksJson.append(iter->second->toJson(value));
 	}
 
 	if(!linksJson.isArray())
@@ -386,26 +388,22 @@ std::vector<std::string> Model::getWeightDescriptions()
 	std::vector<std::string> descriptions;
 	computeNumWeights();
 
-	auto addVariableWeightDescriptions = [&](size_t numFeatures, const std::string& name)
+	auto addVariableWeightDescriptions = [&](size_t numWeights, const std::string& name)
 	{
-		// each variable has duplicate features for state 0 and state 1
-		for(size_t state = 0; state < 2; ++state)
+		for(size_t f = 0; f < numWeights; ++f)
 		{
-			for(size_t f = 0; f < numFeatures; ++f)
-			{
-				// append this variable's state/feature combination description
-				std::stringstream d;
-				d << name << " = " << state << " - feature " << f;
-				descriptions.push_back(d.str());
-			}
+			// append this variable's state/feature combination description
+			std::stringstream d;
+			d << name << " - feature " << f;
+			descriptions.push_back(d.str());
 		}
 	};
 
-	addVariableWeightDescriptions(numDetFeatures_, "Detection");
-	addVariableWeightDescriptions(numDivFeatures_, "Division");
-	addVariableWeightDescriptions(numAppFeatures_, "Appearance");
-	addVariableWeightDescriptions(numDisFeatures_, "Disappearance");
-	addVariableWeightDescriptions(numLinkFeatures_, "Link");
+	addVariableWeightDescriptions(numDetWeights_, "Detection");
+	addVariableWeightDescriptions(numDivWeights_, "Division");
+	addVariableWeightDescriptions(numAppWeights_, "Appearance");
+	addVariableWeightDescriptions(numDisWeights_, "Disappearance");
+	addVariableWeightDescriptions(numLinkWeights_, "Link");
 
 	return descriptions;
 }
