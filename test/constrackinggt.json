@@ -1,14 +1,20 @@
 {
 	// specifies how many cells travelled along a link (may not exceed the number of link states given in the model)
 	"linkingResults" : [
+		// the dividing cell and its offsprings ship 1 cell along each link
 		{ "src" : 1, "dest" : 2, "value": 1},
 		{ "src" : 2, "dest" : 3, "value": 1},
-		{ "src" : 2, "dest" : 4, "value": 1}
+		{ "src" : 2, "dest" : 4, "value": 1},
+		// the merger link contains two cells!
+		{ "src" : 5, "dest" : 6, "value": 2},
+		{ "src" : 6, "dest" : 7, "value": 1},
+		{ "src" : 6, "dest" : 8, "value": 1}
 	],
 
 	// specifies explicitly which segmentation hypotheses did divide
 	"divisionResults" : [
-		{"id" : 2, "value" : true}
+		{"id" : 2, "value" : true},
+		{"id" : 6, "value" : false}
 		// if an id is not listed here, it is implicitly set to false = not dividing!
 	]
 }

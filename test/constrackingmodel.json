@@ -6,6 +6,7 @@
 
 	// for each detection
 	"segmentationHypotheses" : [
+		// lineage of one dividing cell
 		{ 
 			"id" : 1, // the globally unique detection id
 			"features" : [[4.0], [1.0], [4.0]], // a list of features per state - so this detection has 3 states (0,1,2 cells)
@@ -15,7 +16,13 @@
 		},
 		{ "id" : 2, "features" : [[4.0], [1.0], [4.0]], "divisionFeatures" : [[3], [0.5]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
 		{ "id" : 3, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
-		{ "id" : 4, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]}
+		{ "id" : 4, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+
+		// second "tree" of cells, which look more like a merger splitting up
+		{ "id" : 5, "features" : [[5.0], [4.0], [1.0]], "appearanceFeatures" : [[0], [0], [0]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 6, "features" : [[5.0], [4.0], [1.0]], "divisionFeatures" : [[0.5], [3]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 7, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+		{ "id" : 8, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]}
 	],
 
 	// links
@@ -25,6 +32,9 @@
 		// So below, sending 0 cells along the link has feature value 4, but sending at least one cell gives feature 0.1
 		{ "src" : 1, "dest" : 2, "features" : [[4], [1], [1]]},
 		{ "src" : 2, "dest" : 3, "features" : [[4], [1], [1]]},
-		{ "src" : 2, "dest" : 4, "features" : [[4], [1], [1]]}
+		{ "src" : 2, "dest" : 4, "features" : [[4], [1], [1]]},
+		{ "src" : 5, "dest" : 6, "features" : [[4], [1], [1]]},
+		{ "src" : 6, "dest" : 7, "features" : [[4], [1], [1]]},
+		{ "src" : 6, "dest" : 8, "features" : [[4], [1], [1]]}
 	]
 }
