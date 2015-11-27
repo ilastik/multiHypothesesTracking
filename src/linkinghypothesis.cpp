@@ -40,8 +40,17 @@ void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
 	stream << "\t" << srcId_ << " -> " << destId_;
 
-	if(sol != nullptr && variable_.getOpenGMVariableId() > 0 && sol->at(variable_.getOpenGMVariableId()) > 0)
-		stream << "[ color=\"blue\" fontcolor=\"blue\" ]";
+	size_t value = 0;
+	if(sol != nullptr && variable_.getOpenGMVariableId() >= 0)
+	{
+		value = sol->at(variable_.getOpenGMVariableId());
+		stream << "[ label=\"value=" << value << "\" ";
+
+		if(value > 0)
+			stream << "color=\"blue\" fontcolor=\"blue\" ]";	
+		else
+			stream << "]";
+	}
 
 	stream << "; \n" << std::flush;
 }

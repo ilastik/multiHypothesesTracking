@@ -58,17 +58,24 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 
 void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
-	stream << "\t" << id_ << " [ label=\"" << id_ << ", div=";
+	stream << "\t" << id_ << " [ label=\"id=" << id_ << ", div=";
 
-	if(sol != nullptr && division_.getOpenGMVariableId() > 0 && sol->at(division_.getOpenGMVariableId()) > 0)
+	if(sol != nullptr && division_.getOpenGMVariableId() >= 0 && sol->at(division_.getOpenGMVariableId()) > 0)
 		stream << "yes";
 	else
 		stream << "no";
 
+	size_t value = 0;
+	if(sol != nullptr && detection_.getOpenGMVariableId() >= 0)
+	{
+		value = sol->at(detection_.getOpenGMVariableId());
+		stream << ", value=" << value;
+	}
+
 	stream << "\" ";
 
 	// highlight active nodes in blue
-	if(sol != nullptr && detection_.getOpenGMVariableId() > 0 && sol->at(detection_.getOpenGMVariableId()) > 0)
+	if(value > 0)
 		stream << "color=\"blue\" fontcolor=\"blue\" ";
 
 	stream <<  "]; \n" << std::flush;
