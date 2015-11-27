@@ -1,4 +1,4 @@
-#include "multihypothesis/linkinghypothesis.h"
+#include "linkinghypothesis.h"
 #include <stdexcept>
 
 using namespace helpers;
@@ -8,15 +8,13 @@ namespace mht
 
 LinkingHypothesis::LinkingHypothesis():
 	srcId_(-1),
-	destId_(-1),
-	openGMVariableId_(-1)
+	destId_(-1)
 {}
 
-LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const helpers::FeatureVector& features):
+LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const helpers::StateFeatureVector& features):
 	srcId_(srcId),
 	destId_(destId),
-	features_(features),
-	openGMVariableId_(-1)
+	variable_(features)
 {}
 
 const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& entry)
@@ -31,12 +29,8 @@ const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& ent
 	srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asInt();
 	destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asInt();
 
-	features_.clear();
-	const Json::Value features = entry[JsonTypeNames[JsonTypes::Features]];
-	for(int i = 0; i < (int)features.size(); i++)
-	{
-		features_.push_back(features[i].asDouble());
-	}
+	// get transition features
+	variable_ = Variable(extractFeatures(entry, JsonTypes::Features));
 
 	// std::cout << "Found linking hypothesis between " << srcId_ << " and " << destId_ << std::endl;
 	return std::make_pair(srcId_, destId_);
@@ -46,7 +40,7 @@ void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
 	stream << "\t" << srcId_ << " -> " << destId_;
 
-	if(sol != nullptr && openGMVariableId_ > 0 && sol->at(openGMVariableId_) > 0)
+	if(sol != nullptr && variable_.getOpenGMVariableId() > 0 && sol->at(variable_.getOpenGMVariableId()) > 0)
 		stream << "[ color=\"blue\" fontcolor=\"blue\" ]";
 
 	stream << "; \n" << std::flush;
@@ -66,42 +60,20 @@ void LinkingHypothesis::registerWithSegmentations(std::map<int, SegmentationHypo
 void LinkingHypothesis::addToOpenGMModel(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
+	bool statesShareWeights,
 	const std::vector<size_t>& weightIds)
 {
 	// std::cout << "Adding linking hypothesis between " << srcId_ << " and " << destId_ << " to opengm" << std::endl;
 
-	// Add variable to model. All Variables are binary!
-	size_t numLabels = 2;
-	model.addVariable(numLabels);
-	openGMVariableId_ = model.numberOfVariables() - 1;
-
-	// add unary factor to model
-	std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
-	size_t numFeatures = features_.size();
-	assert(weightIds.size() == numFeatures * 2);
-
-	for(size_t l = 0; l < numLabels; l++)
-	{
-		FeaturesAndIndicesType featureAndIndex;
-
-		featureAndIndex.features = features_;
-		for(size_t i = 0; i < numFeatures; ++i)
-			featureAndIndex.weightIds.push_back(weightIds[l * numFeatures + i]);
-
-		featuresAndWeightsPerLabel.push_back(featureAndIndex);
-	}
-
-	LearnableUnaryFuncType unary(weights, featuresAndWeightsPerLabel);
-	GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
-	model.addFactor(fid, &openGMVariableId_, &openGMVariableId_+1);
+	variable_.addToOpenGM(model, statesShareWeights, weights, weightIds);
 }
 
-const Json::Value LinkingHypothesis::toJson(bool state) const
+const Json::Value LinkingHypothesis::toJson(size_t state) const
 {
 	Json::Value val;
 	val[JsonTypeNames[JsonTypes::SrcId]] = Json::Value(srcId_);
 	val[JsonTypeNames[JsonTypes::DestId]] = Json::Value(destId_);
-	val[JsonTypeNames[JsonTypes::Value]] = Json::Value(state);
+	val[JsonTypeNames[JsonTypes::Value]] = Json::Value((unsigned int)state);
 	return val;
 }
 

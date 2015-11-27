@@ -1,5 +1,5 @@
-#ifndef MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H
-#define MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H
+#ifndef EXCLUSION_CONSTRAINT_H
+#define EXCLUSION_CONSTRAINT_H
 
 #include <json/json.h>
 #include "segmentationhypothesis.h"
@@ -55,4 +55,4 @@ private:
 
 } // end namespace mht
 
-#endif // MULTIHYPOTHESIS_EXCLUSION_CONSTRAINT_H
+#endif // EXCLUSION_CONSTRAINT_H

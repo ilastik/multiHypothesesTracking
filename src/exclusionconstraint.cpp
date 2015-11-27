@@ -1,4 +1,4 @@
-#include "multihypothesis/exclusionconstraint.h"
+#include "exclusionconstraint.h"
 #include <algorithm>
 
 using namespace helpers;

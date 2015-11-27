@@ -2,7 +2,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "multihypothesis/model.h"
+#include "model.h"
 #include "helpers.h"
 
 using namespace mht;

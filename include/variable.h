@@ -1,9 +1,9 @@
-#ifndef CONSERVATION_VARIABLE_H
-#define CONSERVATION_VARIABLE_H 
+#ifndef VARIABLE_H
+#define VARIABLE_H 
 
-#include "../helpers.h"
+#include "helpers.h"
 
-namespace constracking
+namespace mht
 {
 
 /**
@@ -77,4 +77,4 @@ private:
 
 }
 
-#endif // CONSERVATION_VARIABLE_H
+#endif // VARIABLE_H

@@ -1,11 +1,11 @@
-#include "conservation/segmentationhypothesis.h"
-#include "conservation/linkinghypothesis.h"
+#include "segmentationhypothesis.h"
+#include "linkinghypothesis.h"
 
 #include <stdexcept>
 
 using namespace helpers;
 
-namespace constracking
+namespace mht
 {
 
 SegmentationHypothesis::SegmentationHypothesis():
@@ -346,4 +346,4 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 	return true;
 }
 
-} // end namespace constracking
+} // end namespace mht

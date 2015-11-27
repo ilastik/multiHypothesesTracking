@@ -1,16 +1,13 @@
-#include "conservation/model.h"
+#include "model.h"
 #include <json/json.h>
 #include <fstream>
 #include <stdexcept>
 #include <numeric>
 #include <sstream>
 
-#define OPENGM_UNSIGNED_INTEGER_POW_HXX_
-
 // include the LPDef symbols only once!
 #undef OPENGM_LPDEF_NO_SYMBOLS
 #include <opengm/inference/auxiliary/lpdef.hxx>
-
 
 #ifdef WITH_CPLEX
 #include <opengm/inference/lpcplex2.hxx>
@@ -22,7 +19,7 @@
 
 using namespace helpers;
 
-namespace constracking
+namespace mht
 {
 
 void Model::readFromJson(const std::string& filename)
@@ -408,4 +405,4 @@ std::vector<std::string> Model::getWeightDescriptions()
 	return descriptions;
 }
 
-} // end namespace constracking
+} // end namespace mht

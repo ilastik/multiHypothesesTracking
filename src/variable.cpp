@@ -1,9 +1,9 @@
-#include "conservation/variable.h"
+#include "variable.h"
 #include "helpers.h"
 
 using namespace helpers;
 
-namespace constracking
+namespace mht
 {
 
 void Variable::addToOpenGM(

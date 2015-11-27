@@ -1,5 +1,5 @@
-#ifndef CONSERVATION_MODEL_H
-#define CONSERVATION_MODEL_H
+#ifndef MODEL_H
+#define MODEL_H
 
 #include <memory>
 #include <vector>
@@ -7,9 +7,9 @@
 
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
-#include "../helpers.h"
+#include "helpers.h"
 
-namespace constracking
+namespace mht
 {
 
 /**
@@ -112,6 +112,6 @@ private:
 	size_t numLinkWeights_;
 };
 
-} // end namespace constracking
+} // end namespace mht
 
-#endif // CONSERVATION_MODEL_H
+#endif // MODEL_H

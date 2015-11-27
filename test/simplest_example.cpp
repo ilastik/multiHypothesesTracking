@@ -6,9 +6,9 @@
 #include <boost/test/unit_test.hpp>
 
 #include "helpers.h"
-#include "multihypothesis/segmentationhypothesis.h"
-#include "multihypothesis/linkinghypothesis.h"
-#include "multihypothesis/model.h"
+#include "segmentationhypothesis.h"
+#include "linkinghypothesis.h"
+#include "model.h"
 
 using namespace mht;
 using namespace helpers;
