@@ -75,45 +75,55 @@ void Model::readFromJson(const std::string& filename)
 
 size_t Model::computeNumWeights()
 {
-	int numDetWeights = -1;
-	int numDivWeights = -1;
-	int numAppWeights = -1;
-	int numDisWeights = -1;
-	int numLinkWeights = -1;
-
-	auto checkNumWeights = [&](const Variable& var, int& previousNumWeights, const std::string& name)
+	// only compute if it wasn't initialized yet
+	if(numDetWeights_ == 0)
 	{
-		int numWeights = var.getNumWeights(statesShareWeights_);
-		if(previousNumWeights < 0 && numWeights > 0)
-			previousNumWeights = numWeights;
-		else
-			if(numWeights > 0 && numWeights != previousNumWeights)
-				throw std::runtime_error(name + " do not have the same number of features/weights!");
-	};
+		int numDetWeights = -1;
+		int numDivWeights = -1;
+		int numAppWeights = -1;
+		int numDisWeights = -1;
+		int numLinkWeights = -1;
 
-	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
-	{
-		checkNumWeights(iter->second.getDetectionVariable(), numDetWeights, "Detections");
-		checkNumWeights(iter->second.getDivisionVariable(), numDivWeights, "Divisions");
-		checkNumWeights(iter->second.getAppearanceVariable(), numAppWeights, "Appearances");
-		checkNumWeights(iter->second.getDisappearanceVariable(), numDisWeights, "Disappearances");
+		auto checkNumWeights = [&](const Variable& var, int& previousNumWeights, const std::string& name)
+		{
+			int numWeights = var.getNumWeights(statesShareWeights_);
+			if(previousNumWeights < 0 && numWeights > 0)
+				previousNumWeights = numWeights;
+			else
+				if(numWeights > 0 && numWeights != previousNumWeights)
+					throw std::runtime_error(name + " do not have the same number of features/weights!");
+		};
+
+		for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+		{
+			checkNumWeights(iter->second.getDetectionVariable(), numDetWeights, "Detections");
+			checkNumWeights(iter->second.getDivisionVariable(), numDivWeights, "Divisions");
+			checkNumWeights(iter->second.getAppearanceVariable(), numAppWeights, "Appearances");
+			checkNumWeights(iter->second.getDisappearanceVariable(), numDisWeights, "Disappearances");
+		}
+
+		for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
+		{
+			if(numLinkWeights < 0)
+				numLinkWeights = iter->second->getVariable().getNumWeights(statesShareWeights_);
+			else
+				if(iter->second->getVariable().getNumWeights(statesShareWeights_) != numLinkWeights)
+					throw std::runtime_error("Links do not have the same number of features!");
+		}
+
+		// we don't want -1 weights
+		numDetWeights_ = std::max((int)0, numDetWeights);
+		numDivWeights_ = std::max((int)0, numDivWeights);
+		numAppWeights_ = std::max((int)0, numAppWeights);
+		numDisWeights_ = std::max((int)0, numDisWeights);
+		numLinkWeights_ = std::max((int)0, numLinkWeights);
+
+		// std::cout << "need " << numDetWeights_ << " detection weights" << std::endl;
+		// std::cout << "need " << numDivWeights_ << " division weights" << std::endl;
+		// std::cout << "need " << numAppWeights_ << " appearance weights" << std::endl;
+		// std::cout << "need " << numDisWeights_ << " disappearance weights" << std::endl;
+		// std::cout << "need " << numLinkWeights_ << " link weights" << std::endl;
 	}
-
-	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
-	{
-		if(numLinkWeights < 0)
-			numLinkWeights = iter->second->getVariable().getNumWeights(statesShareWeights_);
-		else
-			if(iter->second->getVariable().getNumWeights(statesShareWeights_) != numLinkWeights)
-				throw std::runtime_error("Links do not have the same number of features!");
-	}
-
-	// we don't want -1 weights
-	numDetWeights_ = std::max((int)0, numDetWeights);
-	numDivWeights_ = std::max((int)0, numDivWeights);
-	numAppWeights_ = std::max((int)0, numAppWeights);
-	numDisWeights_ = std::max((int)0, numDisWeights);
-	numLinkWeights_ = std::max((int)0, numLinkWeights);
 
 	return numDetWeights_ + numDivWeights_ + numAppWeights_ + numDisWeights_ + numLinkWeights_;
 }

@@ -102,7 +102,7 @@ StateFeatureVector extractFeatures(const Json::Value& entry, JsonTypes type)
 		if(!featuresForState.size() > 0)
 		throw std::runtime_error("Features for state may not be empty for " + JsonTypeNames[type]);
 
-		for(int j = 0; j < (int)featuresPerState.size(); j++)
+		for(int j = 0; j < (int)featuresForState.size(); j++)
 		{
 			featVec.push_back(featuresForState[j].asDouble());
 		}

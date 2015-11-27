@@ -66,6 +66,7 @@ const int Variable::getNumWeights(bool statesShareWeights) const
 		}
 		else
 		{
+			numWeights = 0;
 			for(size_t i = 0; i < features_.size(); ++i)
 				numWeights += features_.at(i).size();
 		}
