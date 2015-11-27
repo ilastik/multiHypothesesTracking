@@ -50,12 +50,14 @@ $ open mygraph.pdf
 ## JSON file formats
 
 * Graph description: [test/magic.json](test/magic.json)
-	- arbitrary number of features allowed (in `[]`)
-	- there will be two weights per feature (one to generate a linear combination of features and weights for the "on" state, and one for "off")
+	- there are two ways how weights and features work together: the same weight can be used as multiplier on the i'th feature but for different states, or different weights are used for each and every feature and state. This is controlled by specifying `"statesShareWeights"`.
+	- each feature vector is supposed to be a list of lists, where there are as many inner lists as the variable can take states
+	- an arbitrary number of features allowed inside the inner list `[]` per state
 	- it can help to add a constant feature (=1) to the list, so one weight can act as a bias (the other weights define the normal vector of a decision plane in hyperspace)
 	- each segmentation hypothesis can have the optional attributes `divisionFeatures`, `appearanceFeatures` and `disappearanceFeatures`. For each of the given attributes, a special variable will be added to the optimization problem. If these features are not given, then the segmentation hypothesis is not allowed to divide, appear or disappear, respectively.
 * Tracking Result = Ground Truth format: [test/gt.json](test/gt.json)
 	- only positive links are required to be set, omitted links are assumed to be "false"
+	- same for divisions, only active divisions need to be recorded
 * Weight format: [test/weights.json](test/weights.json)
 
 ## Dot output
