@@ -107,6 +107,11 @@ public: // API
 	void toDot(std::ostream& stream, const helpers::Solution* sol) const;
 
 	/**
+	 * @brief Create json value containing the state of this division, linked to this detection's id
+	 */
+	const Json::Value divisionToJson(size_t value) const;
+
+	/**
 	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions
 	 * 
 	 * @param sol the opengm solution vector

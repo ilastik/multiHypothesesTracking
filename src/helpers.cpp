@@ -10,6 +10,7 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::Links, "linkingHypotheses"}, 
 	{JsonTypes::Exclusions, "exclusions"},
 	{JsonTypes::LinkResults, "linkingResults"},
+	{JsonTypes::DivisionResults, "divisionResults"},
 	{JsonTypes::SrcId, "src"}, 
 	{JsonTypes::DestId, "dest"}, 
 	{JsonTypes::Value, "value"},
@@ -89,6 +90,8 @@ StateFeatureVector extractFeatures(const Json::Value& entry, JsonTypes type)
 	if(!featuresPerState.size() > 0)
 		throw std::runtime_error("Features may not be empty for " + JsonTypeNames[type]);
 
+	// std::cout << "\tReading features for: " << JsonTypeNames[type] << std::endl;
+
 	// get the features per state
 	for(int i = 0; i < (int)featuresPerState.size(); i++)
 	{
@@ -107,8 +110,11 @@ StateFeatureVector extractFeatures(const Json::Value& entry, JsonTypes type)
 			featVec.push_back(featuresForState[j].asDouble());
 		}
 
+		// std::cout << "\t\tfound " << featVec.size() << " features for state " << i << std::endl;
+
 		stateFeatVec.push_back(featVec);
 	}
+
 	return stateFeatVec;
 }
 

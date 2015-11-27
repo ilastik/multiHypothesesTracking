@@ -47,6 +47,12 @@ const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
 	if(entry.isMember(JsonTypeNames[JsonTypes::DisappearanceFeatures]))
 		disappearance_ = Variable(extractFeatures(entry, JsonTypes::DisappearanceFeatures));
 
+	// std::cout << "Found detection with: "
+	// 	<< "\n\tdet: " << detection_.getNumStates() << " states and " <<  detection_.getNumFeatures() << " features, needs " << detection_.getNumWeights(false) << " weights"
+	// 	<< "\n\tdiv: " << division_.getNumStates() << " states and " <<  division_.getNumFeatures() << " features, needs " << division_.getNumWeights(false) << " weights"
+	// 	<< "\n\tapp: " << appearance_.getNumStates() << " states and " <<  appearance_.getNumFeatures() << " features, needs " << appearance_.getNumWeights(false) << " weights"
+	// 	<< "\n\tdis: " << disappearance_.getNumStates() << " states and " <<  disappearance_.getNumFeatures() << " features, needs " << disappearance_.getNumWeights(false) << " weights" << std::endl;
+
 	return id_;
 }
 
@@ -66,6 +72,14 @@ void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) co
 		stream << "color=\"blue\" fontcolor=\"blue\" ";
 
 	stream <<  "]; \n" << std::flush;
+}
+
+const Json::Value SegmentationHypothesis::divisionToJson(size_t value) const
+{
+	Json::Value val;
+	val[JsonTypeNames[JsonTypes::Id]] = Json::Value(id_);
+	val[JsonTypeNames[JsonTypes::Value]] = Json::Value((bool)(value > 0));
+	return val;
 }
 
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)
@@ -284,7 +298,9 @@ size_t SegmentationHypothesis::getNumActiveOutgoingLinks(const Solution& sol) co
 bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 {
 	size_t ownValue = sol[detection_.getOpenGMVariableId()];
-	size_t divisionValue = sol[division_.getOpenGMVariableId()];
+	size_t divisionValue = 0;
+	if(division_.getOpenGMVariableId() >=0) 
+		divisionValue = sol[division_.getOpenGMVariableId()];
 	
 	//--------------------------------
 	// check incoming
@@ -337,7 +353,7 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 
 	//--------------------------------
 	// check division vs disappearance
-	if(disappearance_.getOpenGMVariableId() >= 0 && divisionValue + sol[disappearance_.getOpenGMVariableId()] > 1)
+	if(disappearance_.getOpenGMVariableId() >= 0 && (divisionValue > 0 && sol[disappearance_.getOpenGMVariableId()] > 0))
 	{
 		std::cout << "At node " << id_ << ": division and disappearance are BOTH active -> INVALID!" << std::endl;
 		return false;

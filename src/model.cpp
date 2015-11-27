@@ -253,7 +253,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	// create a solution vector that holds a value for each segmentation / detection / link
 	Solution solution(model_.numberOfVariables(), 0);
 
-	// first set all source nodes to active. If a node is already active, this means a division
+	// first set all links and the respective source nodes to active
 	for(int i = 0; i < linkingResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = linkingResults[i];
@@ -274,32 +274,49 @@ Solution Model::readGTfromJson(const std::string& filename)
 			std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[std::make_pair(srcId, destId)];
 			solution[hyp->getVariable().getOpenGMVariableId()] = value;
 
-			// set source active, if it was active already then this is a division
-			if(solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] == 1)
-				solution[segmentationHypotheses_[srcId].getDivisionVariable().getOpenGMVariableId()] = 1;
-			else
-			{
-				if(solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] == 1)
-					throw std::runtime_error("A source node has been used more than once!");
-				solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] = 1;
-			}
+			// accumulate the value for the source node
+			solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] += value;
+			// std::cout << "increased source node " << srcId << " to value " << solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] << std::endl;
 		}
 	}
 
-	// enable target nodes so that the last node of each track is also active
+	// enable target nodes with no active outgoing arcs so that the last node of each track is also active
 	for(int i = 0; i < linkingResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = linkingResults[i];
 		int srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asInt();
 		int destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asInt();
+		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
+
+		if(value > 0 && segmentationHypotheses_[destId].getNumActiveOutgoingLinks(solution) == 0)
+		{
+			solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] += value;
+			// std::cout << "increased destination node " << destId << " to value " << solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] << std::endl;
+		}
+	}
+
+	// read division variable states
+	const Json::Value divisionResults = root[JsonTypeNames[JsonTypes::DivisionResults]];
+	for(int i = 0; i < divisionResults.size(); ++i)
+	{
+		const Json::Value jsonHyp = divisionResults[i];
+		int id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asInt();
 		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
 
 		if(value)
 		{
-			solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] = 1;
+			if(segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
+				throw std::runtime_error("Trying to set division active but the variable had no division features!");
+			if(solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] == 0)
+				throw std::runtime_error("Cannot activate division of a node that is not active!");
+
+			solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
+			solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] -= 1;
+			// std::cout << "setting division of variable " << id << " to true" << std::endl;
 		}
 	}
 
+	// deduce states of appearance and disappearance variables
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
 		size_t detValue = solution[iter->second.getDetectionVariable().getOpenGMVariableId()];
@@ -317,6 +334,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 				}
 				else
 				{
+					// std::cout << "deducing appearance value " << detValue << " for node " << iter->first << std::endl;
 					solution[iter->second.getAppearanceVariable().getOpenGMVariableId()] = detValue;
 				}
 			}
@@ -332,6 +350,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 				}
 				else
 				{
+					// std::cout << "deducing disappearance value " << detValue << " for node " << iter->first << std::endl;
 					solution[iter->second.getDisappearanceVariable().getOpenGMVariableId()] = detValue;
 				}
 			}
@@ -379,8 +398,9 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 		throw std::runtime_error("Could not open JSON result file for saving: " + filename);
 
 	Json::Value root;
-	Json::Value& linksJson = root[JsonTypeNames[JsonTypes::LinkResults]];
 
+	// save links
+	Json::Value& linksJson = root[JsonTypeNames[JsonTypes::LinkResults]];
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
 		size_t value = sol[iter->second->getVariable().getOpenGMVariableId()];
@@ -388,8 +408,17 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 			linksJson.append(iter->second->toJson(value));
 	}
 
-	if(!linksJson.isArray())
-		throw std::runtime_error("Cannot save results to non-array JSON entry");
+	// save divisions
+	Json::Value& divisionsJson = root[JsonTypeNames[JsonTypes::DivisionResults]];
+	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+	{
+		if(iter->second.getDivisionVariable().getOpenGMVariableId() >= 0)
+		{
+			size_t value = sol[iter->second.getDivisionVariable().getOpenGMVariableId()];
+			if(value > 0)
+				divisionsJson.append(iter->second.divisionToJson(value));
+		}
+	}
 
 	output << root << std::endl;
 }
