@@ -8,19 +8,23 @@
 	"segmentationHypotheses" : [
 		{ 
 			"id" : 1, // the globally unique detection id
-			"features" : [[0.0], [0.7], [0.3]], // a list of features per state - so this detection has 3 states (0,1,2 cells)
-			"divisionFeatures" : [[0.3], [0.7]],  // a list of features for active / inactive divisions
-			"appearanceFeatures" : [[0], [20], [20]], // a list of features for each number of cells that are appearing
-			"disappearanceFeatures" : [[0], [20], [20]], // a list of features for each number of cells that are disappearing
+			"features" : [[4.0], [1.0], [4.0]], // a list of features per state - so this detection has 3 states (0,1,2 cells)
+			"divisionFeatures" : [[0.0], [1000.0]],  // a list of features for active / inactive divisions
+			"appearanceFeatures" : [[0], [0], [0]], // a list of features for each number of cells that are appearing
+			"disappearanceFeatures" : [[0], [50], [50]] // a list of features for each number of cells that are disappearing
 		},
-		{ "id" : 2, "features" : [[0.0], [0.7], [0.3]], "divisionFeatures" : [[0.8], [0.2]], "appearanceFeatures" : [[0], [20], [20]], "disappearanceFeatures" : [[0], [20], [20]]},
+		{ "id" : 2, "features" : [[4.0], [1.0], [4.0]], "divisionFeatures" : [[3], [0.5]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 3, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+		{ "id" : 4, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]}
 	],
 
 	// links
 	"linkingHypotheses" : [
 		// Link features are lists of lists, where there are as many inner lists as max-num-objects,
 		// each inner list must contain the same number of features, and represents the features for a respective state (=num cells).
-		// So below, sending 0 cells along the link has feature value 0.3, but sending at least one cell gives feature 0.7
-		{ "src" : 1, "dest" : 3, "features" : [[0.3], [0.7], [0.7]]}
+		// So below, sending 0 cells along the link has feature value 4, but sending at least one cell gives feature 0.1
+		{ "src" : 1, "dest" : 2, "features" : [[4], [1], [1]]},
+		{ "src" : 2, "dest" : 3, "features" : [[4], [1], [1]]},
+		{ "src" : 2, "dest" : 4, "features" : [[4], [1], [1]]}
 	]
 }

@@ -1,0 +1,14 @@
+{
+	// specifies how many cells travelled along a link (may not exceed the number of link states given in the model)
+	"linkingResults" : [
+		{ "src" : 1, "dest" : 2, "value": 1},
+		{ "src" : 2, "dest" : 3, "value": 1},
+		{ "src" : 2, "dest" : 4, "value": 1}
+	],
+
+	// specifies explicitly which segmentation hypotheses did divide
+	"divisionResults" : [
+		{"id" : 2, "value" : true}
+		// if an id is not listed here, it is implicitly set to false = not dividing!
+	]
+}

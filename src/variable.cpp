@@ -1,6 +1,8 @@
 #include "variable.h"
 #include "helpers.h"
 
+#include <opengm/datastructures/marray/marray.hxx>
+
 using namespace helpers;
 
 namespace mht
@@ -20,33 +22,59 @@ void Variable::addToOpenGM(
 	size_t numStates = getNumStates();
 	model.addVariable(numStates);
 	openGMVariableId_ = model.numberOfVariables() - 1;
-
-	// add unary factor to model
-	std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
 	assert(weightIds.size() == getNumWeights(statesShareWeights));
 
-	// if weights are not shared over states, we need to keep track how many weights have been used before
-	size_t weightIdx = 0;
-
-	for(size_t state = 0; state < numStates; state++)
+	if(statesShareWeights)
 	{
-		FeaturesAndIndicesType featureAndIndex;
+		// if we want to use the weights more than once, the construction is a bit more involved than in the else-branch
+		size_t numFeatures = features_[0].size();
+		std::vector<marray::Marray<double>> features;
+		std::vector<size_t> coords(1, 0); // coordinate into a feature column
 
-		featureAndIndex.features = features_[state];
-		for(size_t i = 0; i < features_[state].size(); ++i)
+		for(size_t i = 0; i < numFeatures; ++i)
 		{
-			if(statesShareWeights)
-				featureAndIndex.weightIds.push_back(weightIds[i]);
-			else
+			std::vector<size_t> shape(1, numStates);
+	        marray::Marray<double> featureColumn(shape.begin(), shape.end(), 0);
+
+	        for(size_t state = 0; state < numStates; ++state)
+	        {
+	        	coords[0] = state;
+	        	featureColumn(coords.begin()) = features_[state][i];
+	        }
+
+	        features.push_back(featureColumn);
+	    }
+
+	    std::vector<size_t> functionShape(1, numStates);
+	    LearnableWeightedSumOfFuncType unary(functionShape, weights, weightIds, features);
+		GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
+		model.addFactor(fid, &openGMVariableId_, &openGMVariableId_+1);
+	}
+	else
+	{
+		// add unary factor to model
+		std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
+
+		// if weights are not shared over states, we need to keep track how many weights have been used before
+		size_t weightIdx = 0;
+
+		for(size_t state = 0; state < numStates; ++state)
+		{
+			FeaturesAndIndicesType featureAndIndex;
+
+			featureAndIndex.features = features_[state];
+			for(size_t i = 0; i < features_[state].size(); ++i)
+			{
 				featureAndIndex.weightIds.push_back(weightIds[weightIdx++]);
+			}
+
+			featuresAndWeightsPerLabel.push_back(featureAndIndex);
 		}
 
-		featuresAndWeightsPerLabel.push_back(featureAndIndex);
+		LearnableUnaryFuncType unary(weights, featuresAndWeightsPerLabel);
+		GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
+		model.addFactor(fid, &openGMVariableId_, &openGMVariableId_+1);
 	}
-
-	LearnableUnaryFuncType unary(weights, featuresAndWeightsPerLabel);
-	GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
-	model.addFactor(fid, &openGMVariableId_, &openGMVariableId_+1);
 }
 
 const int Variable::getNumWeights(bool statesShareWeights) const
