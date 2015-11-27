@@ -118,7 +118,7 @@ void SegmentationHypothesis::Variable::addToOpenGM(
 	GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
 	model.addFactor(fid, &variableId, &variableId+1);
 
-	opengmVariableId_ = variableId;
+	openGMVariableId_ = variableId;
 }
 
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)

@@ -9,14 +9,14 @@ namespace mht
 LinkingHypothesis::LinkingHypothesis():
 	srcId_(-1),
 	destId_(-1),
-	opengmVariableId_(-1)
+	openGMVariableId_(-1)
 {}
 
 LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const helpers::FeatureVector& features):
 	srcId_(srcId),
 	destId_(destId),
 	features_(features),
-	opengmVariableId_(-1)
+	openGMVariableId_(-1)
 {}
 
 const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& entry)
@@ -46,7 +46,7 @@ void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
 	stream << "\t" << srcId_ << " -> " << destId_;
 
-	if(sol != nullptr && opengmVariableId_ > 0 && sol->at(opengmVariableId_) > 0)
+	if(sol != nullptr && openGMVariableId_ > 0 && sol->at(openGMVariableId_) > 0)
 		stream << "[ color=\"blue\" fontcolor=\"blue\" ]";
 
 	stream << "; \n" << std::flush;
@@ -73,7 +73,7 @@ void LinkingHypothesis::addToOpenGMModel(
 	// Add variable to model. All Variables are binary!
 	size_t numLabels = 2;
 	model.addVariable(numLabels);
-	opengmVariableId_ = model.numberOfVariables() - 1;
+	openGMVariableId_ = model.numberOfVariables() - 1;
 
 	// add unary factor to model
 	std::vector<FeaturesAndIndicesType> featuresAndWeightsPerLabel;
@@ -93,7 +93,7 @@ void LinkingHypothesis::addToOpenGMModel(
 
 	LearnableUnaryFuncType unary(weights, featuresAndWeightsPerLabel);
 	GraphicalModelType::FunctionIdentifier fid = model.addFunction(unary);
-	model.addFactor(fid, &opengmVariableId_, &opengmVariableId_+1);
+	model.addFactor(fid, &openGMVariableId_, &openGMVariableId_+1);
 }
 
 const Json::Value LinkingHypothesis::toJson(bool state) const

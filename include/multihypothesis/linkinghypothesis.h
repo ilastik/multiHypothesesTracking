@@ -73,13 +73,13 @@ public:
 	/**
 	 * @return the opengm variable id of the transition variable
 	 */
-	int getOpenGMVariableId() const { return opengmVariableId_; }
+	int getOpenGMVariableId() const { return openGMVariableId_; }
 
 private:
 	int srcId_;
 	int destId_;
 	helpers::FeatureVector features_;
-	int opengmVariableId_;
+	int openGMVariableId_;
 };
 
 } // end namespace mht

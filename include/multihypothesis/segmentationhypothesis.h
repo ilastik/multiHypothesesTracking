@@ -30,7 +30,7 @@ public: // nested classes
 		 */
 		Variable(const helpers::FeatureVector& features = {}):
 			features_(features),
-			opengmVariableId_(-1)
+			openGMVariableId_(-1)
 		{}
 
 		/**
@@ -54,11 +54,11 @@ public: // nested classes
 		/**
 		 * @return the opengm variable id of this variable
 		 */
-		int getOpenGMVariableId() const { return opengmVariableId_; }
+		int getOpenGMVariableId() const { return openGMVariableId_; }
 
 	private:
 		helpers::FeatureVector features_;
-		int opengmVariableId_;
+		int openGMVariableId_;
 	};
 
 public: // API
