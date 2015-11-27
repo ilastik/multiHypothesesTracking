@@ -4,7 +4,7 @@
 	"date" : "19-nov-2015",
 
 	// in square brackets is a list
-	"segmentation-hypotheses" : [
+	"segmentationHypotheses" : [
 		{ "id" : 1, "features" : [0.053649107483225, 100.982, 108.904], "divisionFeatures" : [1.5], "appearanceFeatures" : [0]},
 		{ "id" : 2, "features" : [0.06847623060458811, 78.774, 108.462], "divisionFeatures" : [0.2], "appearanceFeatures" : [0]},
 		{ "id" : 21, "features" : [0.059754965446018805, 166.035, 215.028], "divisionFeatures" : [1]},
@@ -23,7 +23,7 @@
 	],
 
 	// links
-	"linking-hypotheses" : [
+	"linkingHypotheses" : [
 		{ "src" : 1, "dest" : 3, "features" : [75.05303502, 2.053977273, 60]},
 		{ "src" : 1, "dest" : 4, "features" : [44.8232819, 6.398230088, 330]},
 		{ "src" : 1, "dest" : 5, "features" : [141.5467388, 1.183306056, 150]},

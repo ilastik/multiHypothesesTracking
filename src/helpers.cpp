@@ -6,10 +6,10 @@ namespace helpers
 {
 
 std::map<JsonTypes, std::string> JsonTypeNames = {
-	{JsonTypes::Segmentations, "segmentation-hypotheses"}, 
-	{JsonTypes::Links, "linking-hypotheses"}, 
+	{JsonTypes::Segmentations, "segmentationHypotheses"}, 
+	{JsonTypes::Links, "linkingHypotheses"}, 
 	{JsonTypes::Exclusions, "exclusions"},
-	{JsonTypes::LinkResults, "linking-results"},
+	{JsonTypes::LinkResults, "linkingResults"},
 	{JsonTypes::SrcId, "src"}, 
 	{JsonTypes::DestId, "dest"}, 
 	{JsonTypes::Value, "value"},
