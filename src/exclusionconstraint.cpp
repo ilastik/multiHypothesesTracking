@@ -37,11 +37,11 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
     {
     	// indicator variable references the i'th argument of the constraint function, and its state 1
     	addOpenGMVariableToConstraint(exclusionConstraint, segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId(),
-			1, 1.0, constraintShape, factorVariables, model);
+			0, 1.0, constraintShape, factorVariables, model);
     }
 
     exclusionConstraint.setBound( 1 );
-    exclusionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
+    exclusionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::GreaterEqual);
 
     LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &exclusionConstraint, &exclusionConstraint + 1);
     GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
@@ -54,7 +54,7 @@ bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<int
 
 	for(size_t i = 0; i < ids_.size(); ++i)
     {
-        sum += sol[segmentationHypotheses.at(ids_[i]).getDetectionVariable().getOpenGMVariableId()];
+        sum += (sol[segmentationHypotheses.at(ids_[i]).getDetectionVariable().getOpenGMVariableId()] > 0 ? 1 : 0);
     }
 
     if(sum > 1)

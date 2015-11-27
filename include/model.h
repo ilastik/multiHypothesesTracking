@@ -7,13 +7,14 @@
 
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
+#include "exclusionconstraint.h"
 #include "helpers.h"
 
 namespace mht
 {
 
 /**
- * @brief The model holds all detections and their links
+ * @brief The model holds all detections and their links, as well as exclusion constraints between detections
  * @detail WARNING: at the moment you can only run either learn or infer once on the model. 
  * 		   Build a new one if you need it multiple times
  */
@@ -65,7 +66,7 @@ public:
 
 	/**
 	 * @brief check that the solution does not violate any constraints
-	 * @detail WARNING: may only be used after calling learn() or infer() because it needs an initialized opengm model!
+	 * @detail WARNING: may only be used after calling initializeOpenGMModel(), learn() or infer() because it needs an initialized opengm model!
 	 * 
 	 * @param sol solution vector
 	 * @return boolean value describing whether this solution is valid
@@ -94,9 +95,12 @@ public:
 	std::vector<std::string> getWeightDescriptions();
 
 private:
+	// segmentation hypotheses
 	std::map<int, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around
 	std::map<std::pair<int, int>, std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
+	// exclusion constraints
+	std::vector<ExclusionConstraint> exclusionConstraints_;
 
 	// OpenGM stuff
 	helpers::GraphicalModelType model_;

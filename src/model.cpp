@@ -60,6 +60,17 @@ void Model::readFromJson(const std::string& filename)
 		hyp->registerWithSegmentations(segmentationHypotheses_);
 		linkingHypotheses_[ids] = hyp;
 	}
+
+	// read exclusion constraints between detections
+	const Json::Value exclusions = root[JsonTypeNames[JsonTypes::Exclusions]];
+	std::cout << "\tcontains " << exclusions.size() << " exclusions" << std::endl;
+	for(int i = 0; i < (int)exclusions.size(); i++)
+	{
+		const Json::Value jsonExc = exclusions[i];
+		exclusionConstraints_.push_back(ExclusionConstraint());
+		ExclusionConstraint& exclusion = exclusionConstraints_.back();
+		exclusion.readFromJson(jsonExc);
+	}
 }
 
 size_t Model::computeNumWeights()
@@ -138,6 +149,11 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
 		iter->second.addToOpenGMModel(model_, weights, statesShareWeights_, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
+	}
+
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+	{
+		iter->addToOpenGMModel(model_, segmentationHypotheses_);
 	}
 }
 
@@ -323,6 +339,16 @@ bool Model::verifySolution(const Solution& sol) const
 
 	bool valid = true;
 
+	// check that all exclusions are obeyed
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+	{
+		if(!iter->verifySolution(sol, segmentationHypotheses_))
+		{
+			std::cout << "\tFound violated exclusion constraint " << std::endl;
+			valid = false;
+		}
+	}
+
 	// check that flow-conservation + division constraints are satisfied
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
@@ -376,6 +402,10 @@ void Model::toDot(const std::string& filename, const Solution* sol) const
 	// links
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 		iter->second->toDot(out_file, sol);
+
+	// exclusions
+	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
+		iter->toDot(out_file);
 	
     out_file << "}";
 }
