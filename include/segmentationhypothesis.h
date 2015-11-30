@@ -149,6 +149,11 @@ private:
 	 */
 	void addExclusionConstraintToOpenGM(helpers::GraphicalModelType& model, int openGmVarA, int openGmVarB);
 
+	/**
+	 * @brief Sort the linking hypotheses by their opengm variable ids
+	 */
+	void sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links);
+
 private:
 	int id_;
 	

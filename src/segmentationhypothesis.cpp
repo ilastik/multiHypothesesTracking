@@ -225,6 +225,13 @@ void SegmentationHypothesis::addExclusionConstraintToOpenGM(GraphicalModelType& 
     model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
 }
 
+void SegmentationHypothesis::sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links)
+{
+	std::sort(links.begin(), links.end(), [](const std::shared_ptr<LinkingHypothesis>& a, const std::shared_ptr<LinkingHypothesis>& b){
+		return b->getVariable().getOpenGMVariableId() > a->getVariable().getOpenGMVariableId();
+	});
+}
+
 void SegmentationHypothesis::addToOpenGMModel(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
@@ -241,6 +248,10 @@ void SegmentationHypothesis::addToOpenGMModel(
 	division_.addToOpenGM(model, statesShareWeights, weights, divisionWeightIds);
 	appearance_.addToOpenGM(model, statesShareWeights, weights, appearanceWeightIds);
 	disappearance_.addToOpenGM(model, statesShareWeights, weights, disappearanceWeightIds);
+
+	sortByOpenGMVariableId(incomingLinks_);
+	sortByOpenGMVariableId(outgoingLinks_);
+
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model);
@@ -268,6 +279,7 @@ void SegmentationHypothesis::addIncomingLink(std::shared_ptr<LinkingHypothesis> 
 		throw std::runtime_error("Links must be added before the segmentation hypothesis is added to the OpenGM model");
 	if(link)
 		incomingLinks_.push_back(link);
+
 }
 
 void SegmentationHypothesis::addOutgoingLink(std::shared_ptr<LinkingHypothesis> link)
