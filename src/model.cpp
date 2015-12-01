@@ -197,7 +197,7 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	optimizer.arg(solution);
 	std::cout << "solution has energy: " << optimizer.value() << std::endl;
 
-	std::cout << " found solution: " << solution << std::endl;
+	// std::cout << " found solution: " << solution << std::endl;
 
 	return solution;
 }
@@ -357,7 +357,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 		}
 	}
 
-	std::cout << "found gt solution: " << solution << std::endl;
+	// std::cout << "found gt solution: " << solution << std::endl;
 
 	return solution;
 }
