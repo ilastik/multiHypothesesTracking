@@ -112,6 +112,11 @@ public: // API
 	const Json::Value divisionToJson(size_t value) const;
 
 	/**
+	 * @brief Create json value containing the state of this detection
+	 */
+	const Json::Value detectionToJson(size_t value) const;
+
+	/**
 	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions
 	 * 
 	 * @param sol the opengm solution vector

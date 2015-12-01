@@ -11,6 +11,7 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::Exclusions, "exclusions"},
 	{JsonTypes::LinkResults, "linkingResults"},
 	{JsonTypes::DivisionResults, "divisionResults"},
+	{JsonTypes::DetectionResults, "detectionResults"},
 	{JsonTypes::SrcId, "src"}, 
 	{JsonTypes::DestId, "dest"}, 
 	{JsonTypes::Value, "value"},

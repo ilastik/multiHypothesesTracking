@@ -420,6 +420,18 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 		}
 	}
 
+	// save detections
+	Json::Value& detectionsJson = root[JsonTypeNames[JsonTypes::DetectionResults]];
+	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
+	{
+		if(iter->second.getDetectionVariable().getOpenGMVariableId() >= 0)
+		{
+			size_t value = sol[iter->second.getDetectionVariable().getOpenGMVariableId()];
+			if(value > 0)
+				detectionsJson.append(iter->second.detectionToJson(value));
+		}
+	}
+
 	output << root << std::endl;
 }
 
