@@ -152,7 +152,22 @@ private:
 	/**
 	 * @brief Add constraint that ensures that at most one of the two given opengm variables takes a state > 0
 	 */
-	void addExclusionConstraintToOpenGM(helpers::GraphicalModelType& model, int openGmVarA, int openGmVarB);
+	void addExclusionConstraintToOpenGM(
+		helpers::GraphicalModelType& model, 
+		int openGmVarA, 
+		int openGmVarB);
+
+	/**
+	 * Add a constraint between two variables and constraints with given bound and operator
+	 */
+	void addConstraintToOpenGM(
+		helpers::GraphicalModelType& model, 
+		int openGMVarA, 
+		int openGMVarB, 
+		size_t stateA, 
+		size_t stateB, 
+		size_t bound, 
+		opengm::LinearConstraintTraits::LinearConstraintOperator::ValueType op);
 
 	/**
 	 * @brief Sort the linking hypotheses by their opengm variable ids
