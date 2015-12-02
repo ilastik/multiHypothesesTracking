@@ -188,6 +188,8 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
 	optimizerParam.verbose_ = true;
 	optimizerParam.useSoftConstraints_ = false;
+	optimizerParam.epGap_ = 0.05;
+	optimizerParam.numberOfThreads_ = 1;
 
 	OptimizerType optimizer(model_, optimizerParam);
 
@@ -227,6 +229,8 @@ std::vector<ValueType> Model::learn(const std::string& gt_filename)
 	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
 	optimizerParam.verbose_ = true;
 	optimizerParam.useSoftConstraints_ = false;
+	optimizerParam.epGap_ = 0.05;
+	optimizerParam.numberOfThreads_ = 1;
 
 	std::cout << "Calling learn()..." << std::endl;
 	learner.learn<OptimizerType>(optimizerParam); 
