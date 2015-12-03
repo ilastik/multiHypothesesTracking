@@ -27,21 +27,23 @@ void ExclusionConstraint::readFromJson(const Json::Value& entry)
 
 void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses)
 {
-	// add constraint for sum of ougoing = this label + division
 	LinearConstraintFunctionType::LinearConstraintType exclusionConstraint;
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
     
-    // sum of all participating variables must not exceed 1
+    // sum of all participating indicator variables for states > 0 must not exceed 1
     for(size_t i = 0; i < ids_.size(); ++i)
     {
-    	// indicator variable references the i'th argument of the constraint function, and its state 1
-    	addOpenGMVariableToConstraint(exclusionConstraint, segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId(),
-			0, 1.0, constraintShape, factorVariables, model);
+    	// indicator variable references the i'th argument of the constraint function, and its states > 0
+    	for(size_t state = 1; state < model.numberOfLabels(segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId()); ++state)
+    	{
+	    	addOpenGMVariableToConstraint(exclusionConstraint, segmentationHypotheses[ids_[i]].getDetectionVariable().getOpenGMVariableId(),
+				state, 1.0, constraintShape, factorVariables, model);
+	    }
     }
 
     exclusionConstraint.setBound( 1 );
-    exclusionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::GreaterEqual);
+    exclusionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
 
     LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &exclusionConstraint, &exclusionConstraint + 1);
     GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
