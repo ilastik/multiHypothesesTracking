@@ -31,11 +31,14 @@ void Model::readFromJson(const std::string& filename)
 	Json::Value root;
 	input >> root;
 
-	// read weight configuration
-	if(root.isMember(JsonTypeNames[JsonTypes::StatesShareWeights]))
-		statesShareWeights_ = root[JsonTypeNames[JsonTypes::StatesShareWeights]].asBool();
+	// read settings:
+	Json::Value settingsJson;
+	if(!root.isMember(JsonTypeNames[JsonTypes::Settings]))
+		std::cout << "WARNING: JSON Model has no settings specified, using defaults" << std::endl;
 	else
-		statesShareWeights_ = false;
+		settingsJson = root[JsonTypeNames[JsonTypes::Settings]];
+	settings_ = std::make_shared<helpers::Settings>(settingsJson);
+	settings_->print();
 
 	// read segmentation hypotheses
 	const Json::Value segmentationHypotheses = root[JsonTypeNames[JsonTypes::Segmentations]];
@@ -86,7 +89,7 @@ size_t Model::computeNumWeights()
 
 		auto checkNumWeights = [&](const Variable& var, int& previousNumWeights, const std::string& name)
 		{
-			int numWeights = var.getNumWeights(statesShareWeights_);
+			int numWeights = var.getNumWeights(settings_->statesShareWeights_);
 			if(previousNumWeights < 0 && numWeights > 0)
 				previousNumWeights = numWeights;
 			else
@@ -105,9 +108,9 @@ size_t Model::computeNumWeights()
 		for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 		{
 			if(numLinkWeights < 0)
-				numLinkWeights = iter->second->getVariable().getNumWeights(statesShareWeights_);
+				numLinkWeights = iter->second->getVariable().getNumWeights(settings_->statesShareWeights_);
 			else
-				if(iter->second->getVariable().getNumWeights(statesShareWeights_) != numLinkWeights)
+				if(iter->second->getVariable().getNumWeights(settings_->statesShareWeights_) != numLinkWeights)
 					throw std::runtime_error("Links do not have the same number of features!");
 		}
 
@@ -141,7 +144,7 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 	// first add all link variables, because segmentations will use them when defining constraints
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 	{
-		iter->second->addToOpenGMModel(model_, weights, statesShareWeights_, linkWeightIds);
+		iter->second->addToOpenGMModel(model_, weights, settings_->statesShareWeights_, linkWeightIds);
 	}
 
 	std::vector<size_t> detWeightIds(numDetWeights_);
@@ -158,7 +161,7 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		iter->second.addToOpenGMModel(model_, weights, statesShareWeights_, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
+		iter->second.addToOpenGMModel(model_, weights, settings_, detWeightIds, divWeightIds, appWeightIds, disWeightIds);
 	}
 
 	for(auto iter = exclusionConstraints_.begin(); iter != exclusionConstraints_.end() ; ++iter)
@@ -186,10 +189,10 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	OptimizerType::Parameter optimizerParam;
 	optimizerParam.integerConstraintNodeVar_ = true;
 	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
-	optimizerParam.verbose_ = true;
+	optimizerParam.verbose_ = settings_->optimizerVerbose_;
 	optimizerParam.useSoftConstraints_ = false;
-	optimizerParam.epGap_ = 0.05;
-	optimizerParam.numberOfThreads_ = 1;
+	optimizerParam.epGap_ = settings_->optimizerEpGap_;
+	optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
 	OptimizerType optimizer(model_, optimizerParam);
 
@@ -227,10 +230,10 @@ std::vector<ValueType> Model::learn(const std::string& gt_filename)
 	OptimizerType::Parameter optimizerParam;
 	optimizerParam.integerConstraintNodeVar_ = true;
 	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
-	optimizerParam.verbose_ = true;
+	optimizerParam.verbose_ = settings_->optimizerVerbose_;
 	optimizerParam.useSoftConstraints_ = false;
-	optimizerParam.epGap_ = 0.05;
-	optimizerParam.numberOfThreads_ = 1;
+	optimizerParam.epGap_ = settings_->optimizerEpGap_;
+	optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
 	std::cout << "Calling learn()..." << std::endl;
 	learner.learn<OptimizerType>(optimizerParam); 

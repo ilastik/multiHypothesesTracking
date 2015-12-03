@@ -3,8 +3,16 @@
 	"author" : "virginie",
 	"date" : "19-nov-2015",
 
-	// we want to learn one weight per feature and state, and not just per feature
-	"statesShareWeights" : false,
+	"settings" : {
+		// we want to learn one weight per feature and state, and not just per feature
+		"statesShareWeights" : false,
+
+		// we want to get informed about all the nasty details
+		"optimizerVerbose" : true,
+
+		// solve to high precision, but do not enforce global optimality (which would be 0.0)
+		"optimizerEpGap" : 0.05
+	},
 
 	// in square brackets is a list
 	"segmentationHypotheses" : [

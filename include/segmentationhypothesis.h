@@ -7,6 +7,12 @@
 #include "helpers.h"
 #include "variable.h"
 
+// settings forward declaration
+namespace helpers
+{
+	class Settings;
+}
+
 namespace mht
 {
 
@@ -80,7 +86,7 @@ public: // API
 	void addToOpenGMModel(
 		helpers::GraphicalModelType& model, 
 		helpers::WeightsType& weights,
-		bool statesShareWeights,
+		std::shared_ptr<helpers::Settings> settings,
 		const std::vector<size_t>& detectionWeightIds,
 		const std::vector<size_t>& divisionWeightIds = {},
 		const std::vector<size_t>& appearanceWeightIds = {},
@@ -147,7 +153,7 @@ private:
 	/**
 	 * @brief Add division constraints to OpenGM
 	 */
-	void addDivisionConstraintToOpenGM(helpers::GraphicalModelType& model);
+	void addDivisionConstraintToOpenGM(helpers::GraphicalModelType& model, bool requireSeparateChildren);
 
 	/**
 	 * @brief Add constraint that ensures that at most one of the two given opengm variables takes a state > 0

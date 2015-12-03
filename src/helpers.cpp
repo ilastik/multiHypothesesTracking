@@ -21,7 +21,13 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::AppearanceFeatures, "appearanceFeatures"},
 	{JsonTypes::DisappearanceFeatures, "disappearanceFeatures"},
 	{JsonTypes::Weights, "weights"},
-	{JsonTypes::StatesShareWeights, "statesShareWeights"}
+	{JsonTypes::StatesShareWeights, "statesShareWeights"},
+	{JsonTypes::Settings, "settings"},
+	{JsonTypes::OptimizerEpGap, "optimizerEpGap"},
+	{JsonTypes::OptimizerVerbose, "optimizerVerbose"},
+	{JsonTypes::OptimizerNumThreads, "optimizerNumThreads"},
+	{JsonTypes::AllowPartialMergerAppearance, "allowPartialMergerAppearance"},
+	{JsonTypes::RequireSeparateChildrenOfDivision, "requireSeparateChildrenOfDivision"}
 };
 
 void saveWeightsToJson(

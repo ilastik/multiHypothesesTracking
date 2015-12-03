@@ -9,6 +9,7 @@
 #include "linkinghypothesis.h"
 #include "exclusionconstraint.h"
 #include "helpers.h"
+#include "settings.h"
 
 namespace mht
 {
@@ -106,7 +107,7 @@ private:
 	helpers::GraphicalModelType model_;
 
 	// model settings
-	bool statesShareWeights_;
+	std::shared_ptr<helpers::Settings> settings_;
 
 	// numbers of weights
 	size_t numDetWeights_;

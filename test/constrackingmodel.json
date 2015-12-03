@@ -1,8 +1,17 @@
 {
 	"author" : "carsten",
 
-	// we want to use the same weight for the i-th feature of each state
-	"statesShareWeights" : true,
+	"settings" : {
+		// we want to use the same weight for the i-th feature of each state
+		"statesShareWeights" : true,
+
+		// the optimizer should be quiet,
+		"optimizerVerbose" : false,
+
+		// to be consistent with ConservationTracking we need additional constraints:
+		"requireSeparateChildrenOfDivision" : true,
+		"allowPartialMergerAppearance" : false,
+	},
 
 	// for each detection
 	"segmentationHypotheses" : [

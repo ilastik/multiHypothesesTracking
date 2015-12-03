@@ -131,7 +131,14 @@ enum class JsonTypes {Segmentations,
 	AppearanceFeatures,
 	DisappearanceFeatures,
 	Weights,
-	StatesShareWeights
+	// settings-related
+	Settings,
+	StatesShareWeights,
+	OptimizerEpGap,
+	OptimizerVerbose,
+	OptimizerNumThreads,
+	AllowPartialMergerAppearance,
+	RequireSeparateChildrenOfDivision
 };
 
 /// mapping from JsonTypes to strings which are used in the Json files
