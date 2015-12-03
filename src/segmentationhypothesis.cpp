@@ -321,20 +321,23 @@ void SegmentationHypothesis::addToOpenGMModel(
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model);
 
-	// add exclusion constraints:
-	if(appearance_.getOpenGMVariableId() >= 0)
+	// add exclusion constraints in the multilabel case:
+	if(detection_.getNumStates() > 1)
 	{
-		for(auto link : incomingLinks_)
-			addExclusionConstraintToOpenGM(model, appearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
-	}
+		if(appearance_.getOpenGMVariableId() >= 0)
+		{
+			for(auto link : incomingLinks_)
+				addExclusionConstraintToOpenGM(model, appearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
+		}
 
-	if(disappearance_.getOpenGMVariableId() >= 0)
-	{
-		for(auto link : outgoingLinks_)
-			addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
+		if(disappearance_.getOpenGMVariableId() >= 0)
+		{
+			for(auto link : outgoingLinks_)
+				addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), link->getVariable().getOpenGMVariableId());
 
-		if(division_.getOpenGMVariableId() >= 0)
-			addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), division_.getOpenGMVariableId());
+			if(division_.getOpenGMVariableId() >= 0)
+				addExclusionConstraintToOpenGM(model, disappearance_.getOpenGMVariableId(), division_.getOpenGMVariableId());
+		}
 	}
 }
 

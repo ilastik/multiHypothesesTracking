@@ -28,7 +28,7 @@ void Variable::addToOpenGM(
 	{
 		// if we want to use the weights more than once, the construction is a bit more involved than in the else-branch
 		size_t numFeatures = features_[0].size();
-		std::vector<marray::Marray<double>> features;
+		std::vector<marray::Marray<double>> features; // for each feature, there will be its own Marray (which is a column for a unary)
 		std::vector<size_t> coords(1, 0); // coordinate into a feature column
 
 		for(size_t i = 0; i < numFeatures; ++i)
