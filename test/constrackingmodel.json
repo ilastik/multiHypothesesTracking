@@ -10,7 +10,7 @@
 
 		// to be consistent with ConservationTracking we need additional constraints:
 		"requireSeparateChildrenOfDivision" : true,
-		"allowPartialMergerAppearance" : false,
+		"allowPartialMergerAppearance" : false
 	},
 
 	// for each detection
