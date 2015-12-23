@@ -110,11 +110,11 @@ private:
 	std::shared_ptr<helpers::Settings> settings_;
 
 	// numbers of weights
-	size_t numDetWeights_;
-	size_t numDivWeights_;
-	size_t numAppWeights_;
-	size_t numDisWeights_;
-	size_t numLinkWeights_;
+	size_t numDetWeights_ = 0;
+	size_t numDivWeights_ = 0;
+	size_t numAppWeights_ = 0;
+	size_t numDisWeights_ = 0;
+	size_t numLinkWeights_ = 0;
 };
 
 } // end namespace mht
