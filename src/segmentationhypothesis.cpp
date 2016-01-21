@@ -328,7 +328,7 @@ void SegmentationHypothesis::addToOpenGMModel(
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model, settings->requireSeparateChildrenOfDivision_);
 
-	// add exclusion constraints in the multilabel case:
+	// add transition exclusion constraints in the multilabel case:
 	if(detection_.getNumStates() > 1)
 	{
 		if(appearance_.getOpenGMVariableId() >= 0 && settings->allowPartialMergerAppearance_ == false)
@@ -416,6 +416,7 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 	if(incomingLinks_.size() > 0 && sumIncoming != ownValue)
 	{
 		std::cout << "At node " << id_ << ": incoming=" << sumIncoming << " is NOT EQUAL to " << ownValue << std::endl;
+		std::cout << "(division = " << divisionValue << ")" << std::endl;
 		return false;
 	}
 
