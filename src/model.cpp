@@ -368,6 +368,11 @@ Solution Model::readGTfromJson(const std::string& filename)
 	return solution;
 }
 
+double Model::evaluateSolution(const Solution& sol) const
+{
+	return model_.evaluate(sol);
+}
+
 bool Model::verifySolution(const Solution& sol) const
 {
 	std::cout << "Checking solution..." << std::endl;

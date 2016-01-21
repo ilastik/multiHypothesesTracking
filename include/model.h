@@ -75,6 +75,15 @@ public:
 	bool verifySolution(const helpers::Solution& sol) const;
 
 	/**
+	 * @brief Return the energy of the given solution vector
+	 * @detail WARNING: may only be used after calling initializeOpenGMModel(), learn() or infer() because it needs an initialized opengm model!
+	 * 
+	 * @param sol solution vector
+	 * @return energy of the system in this solution
+	 */
+	double evaluateSolution(const helpers::Solution& sol) const;
+
+	/**
 	 * @brief Create a graphviz dot output of the full graph, showing used nodes/links in blue and exclusion constraints in red
 	 * 
 	 * @param filename output filename

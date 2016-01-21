@@ -13,6 +13,7 @@ int main(int argc, char** argv) {
 
 	std::string modelFilename;
 	std::string solutionFilename;
+	std::string weightsFilename;
 
 	// Declare the supported options.
 	po::options_description description("Allowed options");
@@ -20,6 +21,7 @@ int main(int argc, char** argv) {
 	    ("help", "produce help message")
 	    ("model,m", po::value<std::string>(&modelFilename), "filename of model stored as Json file")
 	    ("solution,s", po::value<std::string>(&solutionFilename), "filename where the tracking solution (as links) is stored as Json file")
+	    ("weights,w", po::value<std::string>(&weightsFilename), "filename of the weights stored as Json file")
 	;
 
 	po::variables_map variableMap;
@@ -38,9 +40,25 @@ int main(int argc, char** argv) {
 	    Model model;
 		model.readFromJson(modelFilename);
 		WeightsType weights(model.computeNumWeights());
+		
+		if(variableMap.count("weights") > 0)
+		{
+			std::vector<double> weightVec = readWeightsFromJson(weightsFilename);
+			for(size_t i = 0; i < weightVec.size(); i++)
+				weights.setWeight(i, weightVec[i]);
+		}
+		
 		model.initializeOpenGMModel(weights);
 		Solution solution = model.readGTfromJson(solutionFilename);
 		bool valid = model.verifySolution(solution);
 		std::cout << "Is solution valid? " << (valid? "yes" : "no") << std::endl;
+
+		if(valid && variableMap.count("weights") > 0)
+		{
+			std::cout << "Solution has energy: " << model.evaluateSolution(solution) << std::endl;
+			Solution zeros(solution.size(), 0);
+			std::cout << "(state zero has energy: " << model.evaluateSolution(zeros) << ")" << std::endl;
+		}
 	}
+	return 0;
 }
