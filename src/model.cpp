@@ -313,9 +313,17 @@ Solution Model::readGTfromJson(const std::string& filename)
 		if(value)
 		{
 			if(segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
-				throw std::runtime_error("Trying to set division active but the variable had no division features!");
+			{
+				std::stringstream error;
+				error << "Trying to set division of " << id << " active but the variable had no division features!";
+				throw std::runtime_error(error.str());
+			}
 			if(solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] == 0)
-				throw std::runtime_error("Cannot activate division of a node that is not active!");
+			{
+				std::stringstream error;
+				error << "Cannot activate division of node " << id << " that is not active!";
+				throw std::runtime_error(error.str());
+			}
 
 			solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
 			solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] -= 1;
