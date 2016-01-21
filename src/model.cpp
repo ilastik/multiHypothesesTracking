@@ -319,8 +319,6 @@ Solution Model::readGTfromJson(const std::string& filename)
 			}
 
 			solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
-			solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] -= 1;
-			// std::cout << "setting division of variable " << id << " to true" << std::endl;
 		}
 	}
 
