@@ -280,26 +280,19 @@ Solution Model::readGTfromJson(const std::string& filename)
 			// set link active
 			std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[std::make_pair(srcId, destId)];
 			solution[hyp->getVariable().getOpenGMVariableId()] = value;
-
-			// accumulate the value for the source node
-			solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] += value;
-			// std::cout << "increased source node " << srcId << " to value " << solution[segmentationHypotheses_[srcId].getDetectionVariable().getOpenGMVariableId()] << std::endl;
 		}
 	}
 
-	// enable target nodes with no active outgoing arcs so that the last node of each track is also active
-	for(int i = 0; i < linkingResults.size(); ++i)
+	// read segmentation variables
+	const Json::Value segmentationResults = root[JsonTypeNames[JsonTypes::DetectionResults]];
+	std::cout << "\tcontains " << segmentationResults.size() << " detection annotations" << std::endl;
+	for(int i = 0; i < segmentationResults.size(); ++i)
 	{
-		const Json::Value jsonHyp = linkingResults[i];
-		int srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asInt();
-		int destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asInt();
-		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
+		const Json::Value jsonHyp = segmentationResults[i];
+		int id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asInt();
+		size_t value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
 
-		if(value > 0 && segmentationHypotheses_[destId].getNumActiveOutgoingLinks(solution) == 0)
-		{
-			solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] += value;
-			// std::cout << "increased destination node " << destId << " to value " << solution[segmentationHypotheses_[destId].getDetectionVariable().getOpenGMVariableId()] << std::endl;
-		}
+		solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] = value;
 	}
 
 	// read division variable states
