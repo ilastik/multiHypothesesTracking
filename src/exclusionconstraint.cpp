@@ -20,10 +20,6 @@ void ExclusionConstraint::readFromJson(const Json::Value& entry)
 	{
 		ids_.push_back(entry[i].asString());
 	}
-
-	// sort because OpenGM likes to have variable ids in order
-	// FIXME: sort according to OpenGM ids!
-	std::sort(ids_.begin(), ids_.end());
 }
 
 void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses)
@@ -32,6 +28,11 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<h
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
     
+	// sort because OpenGM likes to have variable ids in order
+	std::sort(ids_.begin(), ids_.end(), [&](const helpers::IdLabelType& a, const helpers::IdLabelType& b){
+		return segmentationHypotheses[b].getDetectionVariable().getOpenGMVariableId() > segmentationHypotheses[a].getDetectionVariable().getOpenGMVariableId();
+	});
+
     // sum of all participating indicator variables for states > 0 must not exceed 1
     for(size_t i = 0; i < ids_.size(); ++i)
     {
