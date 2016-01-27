@@ -1,6 +1,19 @@
 {
 
-	// specifies how many cells travelled along a link (may not exceed the number of link states given in the model)
+	"detectionResults" : [
+		// tells how many objects were present in each segmentation hypotheses. defaults to zero if an object is not listed here
+		{ "id": 1, "value" : 1},
+		{ "id": 2, "value" : 1},
+		{ "id": 3, "value" : 1},
+		{ "id": 4, "value" : 1},
+		{ "id": 5, "value" : 1},
+		{ "id": 6, "value" : 1},
+		{ "id": 7, "value" : 1},
+		{ "id": 8, "value" : 1},
+		{ "id": 9, "value" : 1},
+	],
+
+	// specifies how many cells travelled along a link (may not exceed the number of link states given in the model), defaults to zero if not given
 	"linkingResults" : [
 		{ "src" : 1, "dest" : 3, "value": 0},
 		{ "src" : 1, "dest" : 4, "value": 1},
