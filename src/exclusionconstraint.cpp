@@ -6,7 +6,7 @@ using namespace helpers;
 namespace mht
 {
 
-ExclusionConstraint::ExclusionConstraint(const std::vector<int>& ids):
+ExclusionConstraint::ExclusionConstraint(const std::vector<helpers::IdLabelType>& ids):
 	ids_(ids)
 {}
 
@@ -18,14 +18,15 @@ void ExclusionConstraint::readFromJson(const Json::Value& entry)
 	ids_.clear();
 	for(int i = 0; i < (int)entry.size(); i++)
 	{
-		ids_.push_back(entry[i].asInt());
+		ids_.push_back(entry[i].asString());
 	}
 
 	// sort because OpenGM likes to have variable ids in order
+	// FIXME: sort according to OpenGM ids!
 	std::sort(ids_.begin(), ids_.end());
 }
 
-void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses)
+void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses)
 {
 	LinearConstraintFunctionType::LinearConstraintType exclusionConstraint;
 	std::vector<LabelType> factorVariables;
@@ -50,7 +51,7 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<i
     model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
 }
 
-bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const
+bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses) const
 {
 	size_t sum = 0;
 

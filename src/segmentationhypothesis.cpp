@@ -10,11 +10,11 @@ namespace mht
 {
 
 SegmentationHypothesis::SegmentationHypothesis():
-	id_(-1)
+	id_("")
 {}
 
 SegmentationHypothesis::SegmentationHypothesis(
-	int id, 
+	helpers::IdLabelType id, 
 	const helpers::StateFeatureVector& detectionFeatures, 
 	const helpers::StateFeatureVector& divisionFeatures,
 	const helpers::StateFeatureVector& appearanceFeatures,
@@ -26,15 +26,15 @@ SegmentationHypothesis::SegmentationHypothesis(
 	disappearance_(disappearanceFeatures)
 {}
 
-const int SegmentationHypothesis::readFromJson(const Json::Value& entry)
+const helpers::IdLabelType SegmentationHypothesis::readFromJson(const Json::Value& entry)
 {
 	if(!entry.isObject())
 		throw std::runtime_error("Cannot extract SegmentationHypothesis from non-object JSON entry");
-	if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isInt() 
+	if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isString() 
 		|| !entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
 		throw std::runtime_error("JSON entry for SegmentationHytpohesis is invalid");
 
-	id_ = entry[JsonTypeNames[JsonTypes::Id]].asInt();
+	id_ = entry[JsonTypeNames[JsonTypes::Id]].asString();
 
 	detection_ = Variable(extractFeatures(entry, JsonTypes::Features));
 

@@ -18,7 +18,7 @@ public:
 	/**
 	 * @brief Manually create an exclusion constraint disallowing the two hypotheses to be active at the same time
 	 */
-	ExclusionConstraint(const std::vector<int>& ids);
+	ExclusionConstraint(const std::vector<helpers::IdLabelType>& ids);
 	
 	/**
 	 * @brief read exclusion constraint from Json
@@ -34,7 +34,7 @@ public:
 	 * @param model OpenGM model
 	 * @param segmentationHypotheses the map of all segmentation hypotheses by id
 	 */
-	void addToOpenGMModel(helpers::GraphicalModelType& model, std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+	void addToOpenGMModel(helpers::GraphicalModelType& model, std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses);
 
 	/**
 	 * @brief Check that the given solution vector obeys this exclusion constraint
@@ -42,7 +42,7 @@ public:
 	 * @param sol the opengm solution vector
 	 * @param segmentationHypotheses the map or all segmentation hypotheses by id
 	 */
-	bool verifySolution(const helpers::Solution& sol, const std::map<int, SegmentationHypothesis>& segmentationHypotheses) const;
+	bool verifySolution(const helpers::Solution& sol, const std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses) const;
 
 	/**
 	 * @brief Save this constraint as red edges in a graphviz dot graph
@@ -50,7 +50,7 @@ public:
 	void toDot(std::ostream& stream) const;
 
 private:
-	std::vector<int> ids_;
+	std::vector<helpers::IdLabelType> ids_;
 };
 
 } // end namespace mht

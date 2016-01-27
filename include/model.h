@@ -106,9 +106,9 @@ public:
 
 private:
 	// segmentation hypotheses
-	std::map<int, SegmentationHypothesis> segmentationHypotheses_;
+	std::map<helpers::IdLabelType, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around
-	std::map<std::pair<int, int>, std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
+	std::map<std::pair<helpers::IdLabelType, helpers::IdLabelType>, std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
 	// exclusion constraints
 	std::vector<ExclusionConstraint> exclusionConstraints_;
 

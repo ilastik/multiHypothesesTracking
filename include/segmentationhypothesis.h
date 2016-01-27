@@ -32,7 +32,7 @@ public: // API
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
 	SegmentationHypothesis(
-		int id, 
+		helpers::IdLabelType id, 
 		const helpers::StateFeatureVector& detectionFeatures, 
 		const helpers::StateFeatureVector& divisionFeatures,
 		const helpers::StateFeatureVector& appearanceFeatures = {},
@@ -40,7 +40,7 @@ public: // API
 
 	/**
 	 * @brief read segmentation hypothesis from Json
-	 * @details expects the json value to contain attributes "id"(int) and "features"(list of double),
+	 * @details expects the json value to contain attributes "id"(helpers::IdLabelType) and "features"(list of double),
 	 * 			as well as "divisionFeatures", "appearanceFeatures" and "disappearanceFeatures", where
 	 * 			the presence of the latter two toggles the presence of an appearance or disappearance node.
 	 * 			Hypotheses which do not have these, are not allowed to appear/disappear!
@@ -48,7 +48,7 @@ public: // API
 	 * @param entry json object for this hypothesis
 	 * @return the found id of this hypothesis
 	 */
-	const int readFromJson(const Json::Value& entry);
+	const helpers::IdLabelType readFromJson(const Json::Value& entry);
 
 	/**
 	 * @return detection variable
@@ -181,7 +181,7 @@ private:
 	void sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links);
 
 private:
-	int id_;
+	helpers::IdLabelType id_;
 	
 	Variable detection_;
 	Variable division_;

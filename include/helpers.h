@@ -47,6 +47,8 @@ typedef LinearConstraintFunctionType::LinearConstraintType::IndicatorVariableTyp
 typedef std::vector<ValueType> FeatureVector;
 typedef std::vector<FeatureVector> StateFeatureVector;
 
+typedef std::string IdLabelType;
+
 // --------------------------------------------------------------
 // functions
 // --------------------------------------------------------------

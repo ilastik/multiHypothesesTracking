@@ -7,29 +7,29 @@ namespace mht
 {
 
 LinkingHypothesis::LinkingHypothesis():
-    srcId_(-1),
-    destId_(-1)
+    srcId_(""),
+    destId_("")
 {}
 
-LinkingHypothesis::LinkingHypothesis(int srcId, int destId, const helpers::StateFeatureVector& features):
+LinkingHypothesis::LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabelType destId, const helpers::StateFeatureVector& features):
     srcId_(srcId),
     destId_(destId),
     variable_(features)
 {}
 
-const std::pair<int, int> LinkingHypothesis::readFromJson(const Json::Value& entry)
+const std::pair<helpers::IdLabelType, helpers::IdLabelType> LinkingHypothesis::readFromJson(const Json::Value& entry)
 {
     if(!entry.isObject())
         throw std::runtime_error("Cannot extract LinkingHypothesis from non-object JSON entry");
-    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isInt())
+    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isString())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing srcId"); 
-    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isInt())
+    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isString())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing destId");
     if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing features");
 
-    srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asInt();
-    destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asInt();
+    srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asString();
+    destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asString();
 
     // get transition features
     variable_ = Variable(extractFeatures(entry, JsonTypes::Features));
@@ -42,10 +42,9 @@ void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
     stream << "\t" << srcId_ << " -> " << destId_;
 
-    size_t value = 0;
     if(sol != nullptr && variable_.getOpenGMVariableId() >= 0)
     {
-        value = sol->at(variable_.getOpenGMVariableId());
+        size_t value = sol->at(variable_.getOpenGMVariableId());
         stream << "[ label=\"value=" << value << "\" ";
 
         if(value > 0)
@@ -57,7 +56,7 @@ void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
     stream << "; \n" << std::flush;
 }
 
-void LinkingHypothesis::registerWithSegmentations(std::map<int, SegmentationHypothesis>& segmentationHypotheses)
+void LinkingHypothesis::registerWithSegmentations(std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses)
 {
     assert(segmentationHypotheses.find(srcId_) != segmentationHypotheses.end());
     assert(segmentationHypotheses.find(destId_) != segmentationHypotheses.end());

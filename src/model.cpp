@@ -48,7 +48,7 @@ void Model::readFromJson(const std::string& filename)
 	{
 		const Json::Value jsonHyp = segmentationHypotheses[i];
 		SegmentationHypothesis hyp;
-		int id = hyp.readFromJson(jsonHyp);
+		helpers::IdLabelType id = hyp.readFromJson(jsonHyp);
 		segmentationHypotheses_[id] = hyp;
 	}
 
@@ -59,7 +59,7 @@ void Model::readFromJson(const std::string& filename)
 	{
 		const Json::Value jsonHyp = linkingHypotheses[i];
 		std::shared_ptr<LinkingHypothesis> hyp = std::make_shared<LinkingHypothesis>();
-		std::pair<int, int> ids = hyp->readFromJson(jsonHyp);
+		std::pair<helpers::IdLabelType, helpers::IdLabelType> ids = hyp->readFromJson(jsonHyp);
 		hyp->registerWithSegmentations(segmentationHypotheses_);
 		linkingHypotheses_[ids] = hyp;
 	}
@@ -264,8 +264,8 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < linkingResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = linkingResults[i];
-		int srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asInt();
-		int destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asInt();
+		helpers::IdLabelType srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asString();
+		helpers::IdLabelType destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asString();
 		size_t value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
 		if(value > 0)
 		{
@@ -289,7 +289,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < segmentationResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = segmentationResults[i];
-		int id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asInt();
+		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asString();
 		size_t value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
 
 		solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] = value;
@@ -300,7 +300,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < divisionResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = divisionResults[i];
-		int id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asInt();
+		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asString();
 		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
 
 		if(value)

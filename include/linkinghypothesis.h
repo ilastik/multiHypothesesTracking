@@ -25,16 +25,16 @@ public:
 	/**
 	 * @brief Construct this hypothesis manually - mainly needed for testing
 	 */
-	LinkingHypothesis(int srcId, int destId, const helpers::StateFeatureVector& features);
+	LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabelType destId, const helpers::StateFeatureVector& features);
 
 	/**
 	 * @brief read linking hypothesis from Json
-	 * @details expects the json value to contain attributes "src"(int), "dest"(int), and "features"(list of double)
+	 * @details expects the json value to contain attributes "src"(helpers::IdLabelType), "dest"(helpers::IdLabelType), and "features"(list of double)
 	 * 
 	 * @param entry json object for this hypothesis
 	 * @returns a pair of (src, dest) segmentation hypotheses ids
 	 */
-	const std::pair<int, int> readFromJson(const Json::Value& entry);
+	const std::pair<helpers::IdLabelType, helpers::IdLabelType> readFromJson(const Json::Value& entry);
 
 	/**
 	 * @brief Create a json string describing this link with its value (for result saving)
@@ -64,7 +64,7 @@ public:
 	 * 
 	 * @param segmentationHypotheses the map of all segmentation hypotheses
 	 */
-	void registerWithSegmentations(std::map<int, SegmentationHypothesis>& segmentationHypotheses);
+	void registerWithSegmentations(std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses);
 
 	/**
 	 * @brief Save this node to an open ostream in the graphviz dot format
@@ -77,8 +77,8 @@ public:
 	const Variable& getVariable() const { return variable_; }
 
 private:
-	int srcId_;
-	int destId_;
+	helpers::IdLabelType srcId_;
+	helpers::IdLabelType destId_;
 	
 	Variable variable_;
 };
