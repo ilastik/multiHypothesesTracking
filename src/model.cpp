@@ -488,11 +488,11 @@ std::vector<std::string> Model::getWeightDescriptions()
 		}
 	};
 
+	addVariableWeightDescriptions(numLinkWeights_, "Link");
 	addVariableWeightDescriptions(numDetWeights_, "Detection");
 	addVariableWeightDescriptions(numDivWeights_, "Division");
 	addVariableWeightDescriptions(numAppWeights_, "Appearance");
 	addVariableWeightDescriptions(numDisWeights_, "Disappearance");
-	addVariableWeightDescriptions(numLinkWeights_, "Link");
 
 	return descriptions;
 }
