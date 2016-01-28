@@ -18,7 +18,7 @@ void ExclusionConstraint::readFromJson(const Json::Value& entry)
 	ids_.clear();
 	for(int i = 0; i < (int)entry.size(); i++)
 	{
-		ids_.push_back(entry[i].asString());
+		ids_.push_back(entry[i].asLabelType());
 	}
 }
 

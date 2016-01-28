@@ -6,9 +6,7 @@ using namespace helpers;
 namespace mht
 {
 
-LinkingHypothesis::LinkingHypothesis():
-    srcId_(""),
-    destId_("")
+LinkingHypothesis::LinkingHypothesis()
 {}
 
 LinkingHypothesis::LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabelType destId, const helpers::StateFeatureVector& features):
@@ -21,15 +19,15 @@ const std::pair<helpers::IdLabelType, helpers::IdLabelType> LinkingHypothesis::r
 {
     if(!entry.isObject())
         throw std::runtime_error("Cannot extract LinkingHypothesis from non-object JSON entry");
-    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isString())
+    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isLabelType())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing srcId"); 
-    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isString())
+    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isLabelType())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing destId");
     if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
         throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing features");
 
-    srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asString();
-    destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asString();
+    srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asLabelType();
+    destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asLabelType();
 
     // get transition features
     variable_ = Variable(extractFeatures(entry, JsonTypes::Features));

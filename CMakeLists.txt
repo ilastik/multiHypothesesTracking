@@ -32,6 +32,13 @@ endif()
 ADD_DEFINITIONS(-DOPENGM_LPDEF_NO_SYMBOLS)
 
 # --------------------------------------------------------------
+# other config
+OPTION(USE_STRING_IDS "Use std::string as Id datatype, otherwise unsigned int is used" OFF)
+IF(USE_STRING_IDS)
+	ADD_DEFINITIONS(-DUSE_STRING_IDS)
+ENDIF()
+
+# --------------------------------------------------------------
 # check for C++ 11 support:
 include(CheckCXXCompilerFlag)
 CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)

@@ -9,8 +9,7 @@ using namespace helpers;
 namespace mht
 {
 
-SegmentationHypothesis::SegmentationHypothesis():
-	id_("")
+SegmentationHypothesis::SegmentationHypothesis()
 {}
 
 SegmentationHypothesis::SegmentationHypothesis(
@@ -30,11 +29,11 @@ const helpers::IdLabelType SegmentationHypothesis::readFromJson(const Json::Valu
 {
 	if(!entry.isObject())
 		throw std::runtime_error("Cannot extract SegmentationHypothesis from non-object JSON entry");
-	if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isString() 
+	if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isLabelType() 
 		|| !entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
 		throw std::runtime_error("JSON entry for SegmentationHytpohesis is invalid");
 
-	id_ = entry[JsonTypeNames[JsonTypes::Id]].asString();
+	id_ = entry[JsonTypeNames[JsonTypes::Id]].asLabelType();
 
 	detection_ = Variable(extractFeatures(entry, JsonTypes::Features));
 

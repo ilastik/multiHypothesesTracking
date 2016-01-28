@@ -264,8 +264,8 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < linkingResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = linkingResults[i];
-		helpers::IdLabelType srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asString();
-		helpers::IdLabelType destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asString();
+		helpers::IdLabelType srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asLabelType();
+		helpers::IdLabelType destId = jsonHyp[JsonTypeNames[JsonTypes::DestId]].asLabelType();
 		size_t value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
 		if(value > 0)
 		{
@@ -289,7 +289,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < segmentationResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = segmentationResults[i];
-		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asString();
+		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asLabelType();
 		size_t value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asUInt();
 
 		solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] = value;
@@ -300,7 +300,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < divisionResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = divisionResults[i];
-		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asString();
+		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asLabelType();
 		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
 
 		if(value)
