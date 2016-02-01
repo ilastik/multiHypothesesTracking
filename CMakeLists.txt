@@ -60,6 +60,7 @@ include_directories(
 	${Opengm_INCLUDE_DIR} 
 	${OPTIMIZER_INCLUDE_DIRS}
 	${Boost_INCLUDE_DIRS}
+	${HDF5_INCLUDE_DIR}
 )
 
 add_library(multiHypoTracking SHARED ${LIB_SOURCES} ${HEADERS})
