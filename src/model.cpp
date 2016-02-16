@@ -64,6 +64,18 @@ void Model::readFromJson(const std::string& filename)
 		linkingHypotheses_[ids] = hyp;
 	}
 
+	// read division hypotheses
+	const Json::Value divisionHypotheses = root[JsonTypeNames[JsonTypes::Divisions]];
+	std::cout << "\tcontains " << divisionHypotheses.size() << " division hypotheses" << std::endl;
+	for(int i = 0; i < (int)divisionHypotheses.size(); i++)
+	{
+		const Json::Value jsonHyp = divisionHypotheses[i];
+		std::shared_ptr<DivisionHypothesis> hyp = std::make_shared<DivisionHypothesis>();
+		std::tuple<helpers::IdLabelType, helpers::IdLabelType, helpers::IdLabelType> ids = hyp->readFromJson(jsonHyp);
+		hyp->registerWithSegmentations(segmentationHypotheses_);
+		divisionHypotheses_[ids] = hyp;
+	}
+
 	// read exclusion constraints between detections
 	const Json::Value exclusions = root[JsonTypeNames[JsonTypes::Exclusions]];
 	std::cout << "\tcontains " << exclusions.size() << " exclusions" << std::endl;
@@ -430,6 +442,15 @@ void Model::saveResultToJson(const std::string& filename, const Solution& sol) c
 				divisionsJson.append(iter->second.divisionToJson(value));
 		}
 	}
+	for(auto iter = divisionHypotheses_.begin(); iter != divisionHypotheses_.end() ; ++iter)
+	{
+		if(iter->second->getVariable().getOpenGMVariableId() >= 0)
+		{
+			size_t value = sol[iter->second->getVariable().getOpenGMVariableId()];
+			if(value > 0)
+				divisionsJson.append(iter->second->toJson(value));
+		}
+	}
 
 	// save detections
 	Json::Value& detectionsJson = root[JsonTypeNames[JsonTypes::DetectionResults]];
@@ -463,6 +484,10 @@ void Model::toDot(const std::string& filename, const Solution* sol) const
 
 	// links
 	for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
+		iter->second->toDot(out_file, sol);
+
+	// divisions
+	for(auto iter = divisionHypotheses_.begin(); iter != divisionHypotheses_.end() ; ++iter)
 		iter->second->toDot(out_file, sol);
 
 	// exclusions

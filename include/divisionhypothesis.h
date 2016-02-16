@@ -21,6 +21,9 @@ namespace mht
 class DivisionHypothesis : public std::enable_shared_from_this<DivisionHypothesis>
 {
 public:
+	typedef std::tuple<helpers::IdLabelType, helpers::IdLabelType, helpers::IdLabelType> IdType;
+	
+public:
 	DivisionHypothesis();
 
 	/**
@@ -35,7 +38,7 @@ public:
 	 * @param entry json object for this hypothesis
 	 * @returns a tuple of (parent, child1, child2) segmentation hypotheses ids
 	 */
-	const std::tuple<helpers::IdLabelType, helpers::IdLabelType, helpers::IdLabelType> readFromJson(const Json::Value& entry);
+	const IdType readFromJson(const Json::Value& entry);
 
 	/**
 	 * @brief Create a json string describing this link with its value (for result saving)

@@ -8,6 +8,7 @@
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
 #include "exclusionconstraint.h"
+#include "divisionHypothesis.h"
 #include "helpers.h"
 #include "settings.h"
 
@@ -109,6 +110,8 @@ private:
 	std::map<helpers::IdLabelType, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around
 	std::map<std::pair<helpers::IdLabelType, helpers::IdLabelType>, std::shared_ptr<LinkingHypothesis> > linkingHypotheses_;
+	// division hypotheses as shared pointers
+	std::map<DivisionHypothesis::IdType, std::shared_ptr<DivisionHypothesis> > divisionHypotheses_;
 	// exclusion constraints
 	std::vector<ExclusionConstraint> exclusionConstraints_;
 

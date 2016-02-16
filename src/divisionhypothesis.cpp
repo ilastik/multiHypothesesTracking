@@ -15,7 +15,7 @@ DivisionHypothesis::DivisionHypothesis(helpers::IdLabelType parent, const std::v
     variable_(features)
 {}
 
-const std::tuple<helpers::IdLabelType, helpers::IdLabelType, helpers::IdLabelType> DivisionHypothesis::readFromJson(const Json::Value& entry)
+const DivisionHypothesis::IdType DivisionHypothesis::readFromJson(const Json::Value& entry)
 {
     if(!entry.isObject())
         throw std::runtime_error("Cannot extract DivisionHypothesis from non-object JSON entry");
