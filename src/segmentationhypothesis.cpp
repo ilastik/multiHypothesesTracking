@@ -132,9 +132,7 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     incomingConsistencyConstraint.setBound( 0 );
     incomingConsistencyConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::Equal);
 
-    LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &incomingConsistencyConstraint, &incomingConsistencyConstraint + 1);
-    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
-    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
+    addConstraintToOpenGMModel(incomingConsistencyConstraint, constraintShape, factorVariables, model);
 }
 
 void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& model)
@@ -147,7 +145,7 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
     
-    // add all incoming transition variables with positive coefficient
+    // add all outgoing transition variables with positive coefficient
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
     	// indicator variable references the i+2'nd argument of the constraint function, and its state 1
@@ -176,9 +174,7 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     outgoingConsistencyConstraint.setBound( 0 );
     outgoingConsistencyConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::Equal);
 
-    LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &outgoingConsistencyConstraint, &outgoingConsistencyConstraint + 1);
-    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
-    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
+    addConstraintToOpenGMModel(outgoingConsistencyConstraint, constraintShape, factorVariables, model);
 }
 
 void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& model, bool requireSeparateChildren)
@@ -201,10 +197,8 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
     divisionConstraint.setBound( 0 );
     divisionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
 
-    LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &divisionConstraint, &divisionConstraint + 1);
-    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
-    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
-
+    addConstraintToOpenGMModel(divisionConstraint, constraintShape, factorVariables, model);
+    
     if(requireSeparateChildren)
     {
 	    // -------------------------------------------------------------------------------------------
@@ -242,9 +236,7 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 	    divisionConstraint2.setBound( 0 );
 	    divisionConstraint2.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
 
-	    LinearConstraintFunctionType linearConstraintFunction2(constraintShape2.begin(), constraintShape2.end(), &divisionConstraint2, &divisionConstraint2 + 1);
-	    GraphicalModelType::FunctionIdentifier linearConstraintFunction2ID = model.addFunction(linearConstraintFunction2);
-	    model.addFactor(linearConstraintFunction2ID, factorVariables2.begin(), factorVariables2.end());
+	    addConstraintToOpenGMModel(divisionConstraint2, constraintShape2, factorVariables2, model);
 	}
 }
 
@@ -286,9 +278,7 @@ void SegmentationHypothesis::addConstraintToOpenGM(
     exclusionConstraint.setBound( bound );
     exclusionConstraint.setConstraintOperator(op);
 
-    LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &exclusionConstraint, &exclusionConstraint + 1);
-    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
-    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
+    addConstraintToOpenGMModel(exclusionConstraint, constraintShape, factorVariables, model);
 }
 
 void SegmentationHypothesis::sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links)

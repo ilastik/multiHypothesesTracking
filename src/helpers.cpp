@@ -164,4 +164,15 @@ void addOpenGMVariableStateToConstraint(
     constraintShape.push_back(numStates);
 }
 
+void addConstraintToOpenGMModel(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model)
+{
+	LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &constraint, &constraint + 1);
+    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
+    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
+}
+
 } // end namespace mht

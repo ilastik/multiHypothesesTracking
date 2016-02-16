@@ -47,9 +47,7 @@ void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<h
     exclusionConstraint.setBound( 1 );
     exclusionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
 
-    LinearConstraintFunctionType linearConstraintFunction(constraintShape.begin(), constraintShape.end(), &exclusionConstraint, &exclusionConstraint + 1);
-    GraphicalModelType::FunctionIdentifier linearConstraintFunctionID = model.addFunction(linearConstraintFunction);
-    model.addFactor(linearConstraintFunctionID, factorVariables.begin(), factorVariables.end());
+    addConstraintToOpenGMModel(exclusionConstraint, constraintShape, factorVariables, model);
 }
 
 bool ExclusionConstraint::verifySolution(const Solution& sol, const std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses) const

@@ -120,6 +120,20 @@ void addOpenGMVariableStateToConstraint(
 	std::vector<LabelType>& factorVariables,
 	GraphicalModelType& model);
 
+/**
+ * @brief add the variable's value to the constraint, not just an indicator variable
+ * 
+ * @param constraint the constraint function to add to the model
+ * @param constraintShape a vector containing the number of labels of all variables of the constraint
+ * @param factorVariables list of opengm variables that this constraint should reason about
+ * @param model the opengm model
+ */
+void addConstraintToOpenGMModel(
+	LinearConstraintFunctionType::LinearConstraintType& constraint, 
+	std::vector<LabelType>& constraintShape,
+	std::vector<LabelType>& factorVariables,
+	GraphicalModelType& model);
+
 // --------------------------------------------------------------
 // json type definitions
 // --------------------------------------------------------------
