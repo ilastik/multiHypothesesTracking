@@ -147,12 +147,13 @@ public: // API
 	bool verifySolution(const helpers::Solution& sol) const;
 
 	/**
-	 * @return the number of incoming links of this detection which are active in the given solution
+	 * @return the number of incoming links and external divisions of this detection which are active in the given solution
+	 * 
 	 */
 	size_t getNumActiveIncomingLinks(const helpers::Solution& sol) const;
 
 	/**
-	 * @return the number of outoing links of this detection which are active in the given solution
+	 * @return the number of outoing links and external divisions of this detection which are active in the given solution
 	 */
 	size_t getNumActiveOutgoingLinks(const helpers::Solution& sol) const;
 
@@ -171,6 +172,11 @@ private:
 	 * @brief Add division constraints to OpenGM
 	 */
 	void addDivisionConstraintToOpenGM(helpers::GraphicalModelType& model, bool requireSeparateChildren);
+
+	/**
+	 * @brief Add constraints of external division nodes (division hypotheses) to OpenGM
+	 */
+	void addExternalDivisionConstraintaToOpenGM(helpers::GraphicalModelType& model);
 
 	/**
 	 * @brief Add constraint that ensures that at most one of the two given opengm variables takes a state > 0
@@ -195,7 +201,8 @@ private:
 	/**
 	 * @brief Sort the linking hypotheses by their opengm variable ids
 	 */
-	void sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links);
+	template<class T>
+	void sortByOpenGMVariableId(std::vector< std::shared_ptr<T> >& links);
 
 private:
 	helpers::IdLabelType id_;
@@ -210,6 +217,14 @@ private:
 	std::vector< std::shared_ptr<DivisionHypothesis> > incomingDivisions_;
 	std::vector< std::shared_ptr<DivisionHypothesis> > outgoingDivisions_;
 };
+
+template<class T>
+void SegmentationHypothesis::sortByOpenGMVariableId(std::vector< std::shared_ptr<T> >& links)
+{
+	std::sort(links.begin(), links.end(), [](const std::shared_ptr<T>& a, const std::shared_ptr<T>& b){
+		return b->getVariable().getOpenGMVariableId() > a->getVariable().getOpenGMVariableId();
+	});
+}
 
 } // end namespace mht
 

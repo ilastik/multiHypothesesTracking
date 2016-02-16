@@ -45,20 +45,24 @@ const DivisionHypothesis::IdType DivisionHypothesis::readFromJson(const Json::Va
 
 void DivisionHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
-    // stream << "\t" << srcId_ << " -> " << destId_;
+    std::stringstream divNodeName;
+    divNodeName << "\"divisionOf" << parentId_ << "To" << childrenIds_[0] << "And" << childrenIds_[1] << "\"";
+    stream << "\t" << parentId_ << " -> " << divNodeName.str();
 
-    // if(sol != nullptr && variable_.getOpenGMVariableId() >= 0)
-    // {
-    //     size_t value = sol->at(variable_.getOpenGMVariableId());
-    //     stream << "[ label=\"value=" << value << "\" ";
+    if(sol != nullptr && variable_.getOpenGMVariableId() >= 0)
+    {
+        size_t value = sol->at(variable_.getOpenGMVariableId());
+        stream << "[ label=\"value=" << value << "\" ";
 
-    //     if(value > 0)
-    //         stream << "color=\"blue\" fontcolor=\"blue\" ]";    
-    //     else
-    //         stream << "]";
-    // }
+        if(value > 0)
+            stream << "color=\"blue\" fontcolor=\"blue\" ]";    
+        else
+            stream << "]";
+    }
 
-    // stream << "; \n" << std::flush;
+    stream << "; \n" << std::flush;
+    stream << divNodeName.str() << " -> " << childrenIds_[0] << "; \n" << std::flush;
+    stream << divNodeName.str() << " -> " << childrenIds_[1] << "; \n" << std::flush;
 }
 
 void DivisionHypothesis::registerWithSegmentations(std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses)
@@ -93,7 +97,7 @@ const Json::Value DivisionHypothesis::toJson(size_t state) const
     for(auto c : childrenIds_)
         children.append(c);
 
-    val[JsonTypeNames[JsonTypes::Value]] = Json::Value((unsigned int)state);
+    val[JsonTypeNames[JsonTypes::Value]] = Json::Value(state==1);
     return val;
 }
 

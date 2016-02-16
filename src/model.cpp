@@ -330,25 +330,71 @@ Solution Model::readGTfromJson(const std::string& filename)
 	for(int i = 0; i < divisionResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = divisionResults[i];
-		helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asLabelType();
 		bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
 
 		if(value)
 		{
-			if(segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
+			// depending on internal or external division node setup, handle both gracefully!
+			helpers::IdLabelType id;
+			if(jsonHyp.isMember(JsonTypeNames[JsonTypes::Id]))
 			{
-				std::stringstream error;
-				error << "Trying to set division of " << id << " active but the variable had no division features!";
-				throw std::runtime_error(error.str());
+				// id is given for internal division
+				id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asLabelType();
 			}
+			else
+			{
+				// parent is given for external
+				if(!jsonHyp.isMember(JsonTypeNames[JsonTypes::Parent]))
+					throw std::runtime_error("Invalid configuration of a JSON division result entry");
+
+				id = jsonHyp[JsonTypeNames[JsonTypes::Parent]].asLabelType();
+			}
+
 			if(solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] == 0)
 			{
+				// in any case the parent must be active!
 				std::stringstream error;
 				error << "Cannot activate division of node " << id << " that is not active!";
 				throw std::runtime_error(error.str());
 			}
 
-			solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
+			if(jsonHyp.isMember(JsonTypeNames[JsonTypes::Id]) && segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
+			{
+				// internal if id is given AND there is a opengm variable for the internal division
+				solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
+			}
+			else if(jsonHyp.isMember(JsonTypeNames[JsonTypes::Parent]) && jsonHyp.isMember(JsonTypeNames[JsonTypes::Children]))
+			{
+				const Json::Value& children = jsonHyp[JsonTypeNames[JsonTypes::Children]];
+
+				if(!children.isArray() || children.size() != 2)
+				{
+					std::stringstream error;
+					error << "Activating an external division of parent " << id << " requires two children!";
+					throw std::runtime_error(error.str());
+				}
+
+				DivisionHypothesis::IdType idx = std::make_tuple(jsonHyp[JsonTypeNames[JsonTypes::Parent]].asLabelType(),
+																children[0].asLabelType(),
+																children[1].asLabelType());
+
+				if(divisionHypotheses_.find(idx) == divisionHypotheses_.end())
+				{
+					std::stringstream error;
+					error << "Parent " << id << " does not have division to " << children[0].asLabelType() << " and " << children[1].asLabelType() << " to set active!";
+					throw std::runtime_error(error.str());
+				}
+
+				auto divHyp = divisionHypotheses_[idx];
+				solution[divHyp->getVariable().getOpenGMVariableId()] = 1;
+			}
+			else
+			{
+				std::stringstream error;
+				error << "Trying to set division of " << id << " active but the variable had no division features and no external divisions!";
+				throw std::runtime_error(error.str());
+			}
+				
 		}
 	}
 
@@ -536,6 +582,7 @@ std::vector<std::string> Model::getWeightDescriptions()
 	addVariableWeightDescriptions(numDivWeights_, "Division");
 	addVariableWeightDescriptions(numAppWeights_, "Appearance");
 	addVariableWeightDescriptions(numDisWeights_, "Disappearance");
+	addVariableWeightDescriptions(numExternalDivWeights_, "External Division");
 
 	return descriptions;
 }

@@ -118,6 +118,14 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
     		1.0, constraintShape, factorVariables, model);
     }
 
+    // add all incoming division variables with positive coefficient
+    for(size_t i = 0; i < incomingDivisions_.size(); ++i)
+    {
+    	// indicator variable references the i+1'th argument of the constraint function, and its state 1
+    	addOpenGMVariableStateToConstraint(incomingConsistencyConstraint, incomingDivisions_[i]->getVariable().getOpenGMVariableId(),
+    		1.0, constraintShape, factorVariables, model);
+    }
+
     // add this variable's state with negative coefficient
 	addOpenGMVariableStateToConstraint(incomingConsistencyConstraint, detection_.getOpenGMVariableId(),
 		-1.0, constraintShape, factorVariables, model);
@@ -240,6 +248,44 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 	}
 }
 
+void SegmentationHypothesis::addExternalDivisionConstraintaToOpenGM(GraphicalModelType& model)
+{
+	LinearConstraintFunctionType::LinearConstraintType onlyOneDivisionConstraint;
+	std::vector<LabelType> onlyOneFactorVariables;
+	std::vector<LabelType> onlyOneConstraintShape;
+
+	for(auto division : outgoingDivisions_)
+	{
+		// add constraint for sum of ougoing = this label + division
+		LinearConstraintFunctionType::LinearConstraintType divisionConstraint;
+		std::vector<LabelType> factorVariables;
+		std::vector<LabelType> constraintShape;
+
+		// add this variable's state with negative coefficient
+		addOpenGMVariableToConstraint(divisionConstraint, division->getVariable().getOpenGMVariableId(),
+			1, 1.0, constraintShape, factorVariables, model);
+
+		addOpenGMVariableToConstraint(divisionConstraint, detection_.getOpenGMVariableId(),
+			1, -1.0, constraintShape, factorVariables, model);
+
+	    divisionConstraint.setBound( 0 );
+	    divisionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
+
+	    addConstraintToOpenGMModel(divisionConstraint, constraintShape, factorVariables, model);
+
+	    // save variable reference for overall constraint
+	    addOpenGMVariableToConstraint(onlyOneDivisionConstraint, division->getVariable().getOpenGMVariableId(),
+			1, 1.0, onlyOneConstraintShape, onlyOneFactorVariables, model);
+	}
+
+	if(onlyOneFactorVariables.size() > 0)
+	{
+		onlyOneDivisionConstraint.setBound(1);
+		onlyOneDivisionConstraint.setConstraintOperator(LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::LessEqual);
+		addConstraintToOpenGMModel(onlyOneDivisionConstraint, onlyOneConstraintShape, onlyOneFactorVariables, model);
+	}
+}
+
 void SegmentationHypothesis::addExclusionConstraintToOpenGM(GraphicalModelType& model, int openGMVarA, int openGMVarB)
 {
 	addConstraintToOpenGM(model, openGMVarA, openGMVarB, 0, 0, 1, LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::GreaterEqual);
@@ -281,13 +327,6 @@ void SegmentationHypothesis::addConstraintToOpenGM(
     addConstraintToOpenGMModel(exclusionConstraint, constraintShape, factorVariables, model);
 }
 
-void SegmentationHypothesis::sortByOpenGMVariableId(std::vector< std::shared_ptr<LinkingHypothesis> >& links)
-{
-	std::sort(links.begin(), links.end(), [](const std::shared_ptr<LinkingHypothesis>& a, const std::shared_ptr<LinkingHypothesis>& b){
-		return b->getVariable().getOpenGMVariableId() > a->getVariable().getOpenGMVariableId();
-	});
-}
-
 void SegmentationHypothesis::addToOpenGMModel(
 	GraphicalModelType& model, 
 	WeightsType& weights, 
@@ -313,10 +352,13 @@ void SegmentationHypothesis::addToOpenGMModel(
 
 	sortByOpenGMVariableId(incomingLinks_);
 	sortByOpenGMVariableId(outgoingLinks_);
+	sortByOpenGMVariableId(incomingDivisions_);
+	sortByOpenGMVariableId(outgoingDivisions_);
 
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model, settings->requireSeparateChildrenOfDivision_);
+	addExternalDivisionConstraintaToOpenGM(model);
 
 	// add transition exclusion constraints in the multilabel case:
 	if(detection_.getNumStates() > 1)
@@ -403,6 +445,14 @@ size_t SegmentationHypothesis::getNumActiveOutgoingLinks(const Solution& sol) co
 			throw std::runtime_error("Cannot compute sum of active links if they have not been added to opengm");
 		sum += sol[link->getVariable().getOpenGMVariableId()];
 	}
+
+	for(auto division : outgoingDivisions_)
+	{
+		if(division->getVariable().getOpenGMVariableId() < 0)
+			throw std::runtime_error("Cannot compute sum of active outgoing divisions if they have not been added to opengm");
+		sum += sol[division->getVariable().getOpenGMVariableId()];
+	}
+
 	return sum;
 }
 
