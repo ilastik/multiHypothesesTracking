@@ -126,6 +126,7 @@ private:
 	size_t numDivWeights_ = 0;
 	size_t numAppWeights_ = 0;
 	size_t numDisWeights_ = 0;
+	size_t numExternalDivWeights_ = 0;
 	size_t numLinkWeights_ = 0;
 };
 

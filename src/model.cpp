@@ -97,6 +97,7 @@ size_t Model::computeNumWeights()
 		int numDivWeights = -1;
 		int numAppWeights = -1;
 		int numDisWeights = -1;
+		int numExternalDivWeights = -1;
 		int numLinkWeights = -1;
 
 		auto checkNumWeights = [&](const Variable& var, int& previousNumWeights, const std::string& name)
@@ -117,6 +118,11 @@ size_t Model::computeNumWeights()
 			checkNumWeights(iter->second.getDisappearanceVariable(), numDisWeights, "Disappearances");
 		}
 
+		for(auto iter = divisionHypotheses_.begin(); iter != divisionHypotheses_.end() ; ++iter)
+		{
+			checkNumWeights(iter->second->getVariable(), numExternalDivWeights, "External Divisions");
+		}
+
 		for(auto iter = linkingHypotheses_.begin(); iter != linkingHypotheses_.end() ; ++iter)
 		{
 			if(numLinkWeights < 0)
@@ -131,7 +137,11 @@ size_t Model::computeNumWeights()
 		numDivWeights_ = std::max((int)0, numDivWeights);
 		numAppWeights_ = std::max((int)0, numAppWeights);
 		numDisWeights_ = std::max((int)0, numDisWeights);
+		numExternalDivWeights_ = std::max((int)0, numExternalDivWeights);
 		numLinkWeights_ = std::max((int)0, numLinkWeights);
+
+		if(numDivWeights_ != 0 && numExternalDivWeights_ != 0)
+			throw std::runtime_error("Model cannot contain divisions within detection nodes and externally at the same time!");
 
 		// std::cout << "need " << numDetWeights_ << " detection weights" << std::endl;
 		// std::cout << "need " << numDivWeights_ << " division weights" << std::endl;
@@ -140,7 +150,7 @@ size_t Model::computeNumWeights()
 		// std::cout << "need " << numLinkWeights_ << " link weights" << std::endl;
 	}
 
-	return numDetWeights_ + numDivWeights_ + numAppWeights_ + numDisWeights_ + numLinkWeights_;
+	return numDetWeights_ + numDivWeights_ + numAppWeights_ + numDisWeights_ + numExternalDivWeights_ + numLinkWeights_;
 }
 
 void Model::initializeOpenGMModel(WeightsType& weights)
@@ -170,6 +180,14 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 
 	std::vector<size_t> disWeightIds(numDisWeights_);
 	std::iota(disWeightIds.begin(), disWeightIds.end(), numLinkWeights_ + numDetWeights_ + numDivWeights_ + numAppWeights_);
+
+	std::vector<size_t> externalDivWeightIds(numExternalDivWeights_);
+	std::iota(externalDivWeightIds.begin(), externalDivWeightIds.end(), numLinkWeights_ + numDetWeights_ + numDivWeights_ + numAppWeights_ + numDisWeights_);
+
+	for(auto iter = divisionHypotheses_.begin(); iter != divisionHypotheses_.end() ; ++iter)
+	{
+		iter->second->addToOpenGMModel(model_, weights, settings_->statesShareWeights_, externalDivWeightIds);
+	}
 
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
