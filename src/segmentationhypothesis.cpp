@@ -1,5 +1,6 @@
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
+#include "divisionhypothesis.h"
 #include "settings.h"
 
 #include <stdexcept>
@@ -367,6 +368,22 @@ void SegmentationHypothesis::addOutgoingLink(std::shared_ptr<LinkingHypothesis> 
 		outgoingLinks_.push_back(link);
 }
 
+void SegmentationHypothesis::addIncomingDivision(std::shared_ptr<DivisionHypothesis> division)
+{
+	if(division_.getOpenGMVariableId() >= 0)
+		throw std::runtime_error("Cannot add external division hypothesis if it is included in detection already!");
+	if(division)
+		incomingDivisions_.push_back(division);
+}
+
+void SegmentationHypothesis::addOutgoingDivision(std::shared_ptr<DivisionHypothesis> division)
+{
+	if(division_.getOpenGMVariableId() >= 0)
+		throw std::runtime_error("Cannot add external division hypothesis if it is included in detection already!");
+	if(division)
+		outgoingDivisions_.push_back(division);
+}
+
 size_t SegmentationHypothesis::getNumActiveIncomingLinks(const Solution& sol) const
 {
 	size_t sum = 0;
@@ -376,6 +393,14 @@ size_t SegmentationHypothesis::getNumActiveIncomingLinks(const Solution& sol) co
 			throw std::runtime_error("Cannot compute sum of active links if they have not been added to opengm");
 		sum += sol[link->getVariable().getOpenGMVariableId()];
 	}
+	
+	for(auto division : incomingDivisions_)
+	{
+		if(division->getVariable().getOpenGMVariableId() < 0)
+			throw std::runtime_error("Cannot compute sum of active incoming divisions if they have not been added to opengm");
+		sum += sol[division->getVariable().getOpenGMVariableId()];
+	}
+
 	return sum;
 }
 

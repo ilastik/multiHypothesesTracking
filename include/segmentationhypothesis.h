@@ -18,6 +18,7 @@ namespace mht
 
 // forward declaration
 class LinkingHypothesis;
+class DivisionHypothesis;
 
 /**
  * @brief A segmentation hypothesis is a detection of a target in a frame.
@@ -108,6 +109,22 @@ public: // API
 	void addOutgoingLink(std::shared_ptr<LinkingHypothesis> link);
 
 	/**
+	 * @brief Add an incoming division, which will be handled the same as incoming links
+	 * @details must be added before calling addToOpenGMModel
+	 * 
+	 * @param division the division hypothesis
+	 */
+	void addIncomingDivision(std::shared_ptr<DivisionHypothesis> division);
+
+	/**
+	 * @brief Add an outgoing division - of which always only one may be active
+	 * @details must be added before calling addToOpenGMModel
+	 * 
+	 * @param division the division hypothesis
+	 */
+	void addOutgoingDivision(std::shared_ptr<DivisionHypothesis> division);
+
+	/**
 	 * @brief Save this node to an open ostream in the graphviz dot format
 	 */
 	void toDot(std::ostream& stream, const helpers::Solution* sol) const;
@@ -190,6 +207,8 @@ private:
 
 	std::vector< std::shared_ptr<LinkingHypothesis> > incomingLinks_;
 	std::vector< std::shared_ptr<LinkingHypothesis> > outgoingLinks_;
+	std::vector< std::shared_ptr<DivisionHypothesis> > incomingDivisions_;
+	std::vector< std::shared_ptr<DivisionHypothesis> > outgoingDivisions_;
 };
 
 } // end namespace mht
