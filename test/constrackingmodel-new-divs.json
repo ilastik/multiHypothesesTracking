@@ -1,0 +1,55 @@
+{
+	"author" : "carsten",
+
+	"settings" : {
+		// we want to use the same weight for the i-th feature of each state
+		"statesShareWeights" : true,
+
+		// the optimizer should be quiet,
+		"optimizerVerbose" : true,
+
+		// to be consistent with ConservationTracking we need additional constraints:
+		"requireSeparateChildrenOfDivision" : true,
+		"allowPartialMergerAppearance" : false
+	},
+
+	// for each detection
+	"segmentationHypotheses" : [
+		// lineage of one dividing cell
+		{ 
+			"id" : 1, // the globally unique detection id
+			"features" : [[4.0], [1.0], [4.0]], // a list of features per state - so this detection has 3 states (0,1,2 cells)
+			// "divisionFeatures" : [[0.0], [1000.0]],  // a list of features for active / inactive divisions
+			"appearanceFeatures" : [[0], [0], [0]], // a list of features for each number of cells that are appearing
+			"disappearanceFeatures" : [[0], [50], [50]] // a list of features for each number of cells that are disappearing
+		},
+		{ "id" : 2, "features" : [[4.0], [1.0], [4.0]], /*"divisionFeatures" : [[3], [0.5]],*/ "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 3, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+		{ "id" : 4, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+
+		// second "tree" of cells, which look more like a merger splitting up
+		{ "id" : 5, "features" : [[5.0], [4.0], [1.0]], "appearanceFeatures" : [[0], [0], [0]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 6, "features" : [[5.0], [4.0], [1.0]], /*"divisionFeatures" : [[0.5], [3]],*/ "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 7, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
+		{ "id" : 8, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]}
+	],
+
+	// links
+	"linkingHypotheses" : [
+		// Link features are lists of lists, where there are as many inner lists as max-num-objects,
+		// each inner list must contain the same number of features, and represents the features for a respective state (=num cells).
+		// So below, sending 0 cells along the link has feature value 4, but sending at least one cell gives feature 0.1
+		{ "src" : 1, "dest" : 2, "features" : [[4], [1], [1]]},
+		{ "src" : 2, "dest" : 3, "features" : [[4], [1], [1]]},
+		{ "src" : 2, "dest" : 4, "features" : [[4], [1], [1]]},
+		{ "src" : 5, "dest" : 6, "features" : [[4], [1], [1]]},
+		{ "src" : 6, "dest" : 7, "features" : [[4], [1], [1]]},
+		{ "src" : 6, "dest" : 8, "features" : [[4], [1], [1]]}
+	],
+
+	// explicit divisions
+	"divisions" : [
+		{ "parent" : 2, "children" : [3,4], "features" : [[3], [0.5]]},
+		{ "parent" : 6, "children" : [7,8], "features" : [[0.5], [3]]}
+	]
+}
