@@ -327,6 +327,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 
 	// read division variable states
 	const Json::Value divisionResults = root[JsonTypeNames[JsonTypes::DivisionResults]];
+	std::cout << "\tcontains " << divisionResults.size() << " division annotations" << std::endl;
 	for(int i = 0; i < divisionResults.size(); ++i)
 	{
 		const Json::Value jsonHyp = divisionResults[i];
@@ -358,8 +359,14 @@ Solution Model::readGTfromJson(const std::string& filename)
 				throw std::runtime_error(error.str());
 			}
 
-			if(jsonHyp.isMember(JsonTypeNames[JsonTypes::Id]) && segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
+			if(jsonHyp.isMember(JsonTypeNames[JsonTypes::Id]))
 			{
+				if(segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
+				{
+					std::stringstream error;
+					error << "Trying to set division of " << id << " active but the variable had no division features!";
+					throw std::runtime_error(error.str());
+				}
 				// internal if id is given AND there is a opengm variable for the internal division
 				solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
 			}
@@ -385,6 +392,7 @@ Solution Model::readGTfromJson(const std::string& filename)
 					throw std::runtime_error(error.str());
 				}
 
+				std::cout << "Setting external division to active! " << std::endl;
 				auto divHyp = divisionHypotheses_[idx];
 				solution[divHyp->getVariable().getOpenGMVariableId()] = 1;
 			}

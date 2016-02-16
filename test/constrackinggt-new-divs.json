@@ -24,8 +24,8 @@
 
 	// specifies explicitly which segmentation hypotheses did divide
 	"divisionResults" : [
-		{"id" : 2, "value" : true},
-		{"id" : 6, "value" : false}
+		{"parent" : 2, "children" : [3,4], "value" : true},
+		{"parent" : 6, "children" : [7,8], "value" : false}
 		// if an id is not listed here, it is implicitly set to false = not dividing!
 	]
 }
