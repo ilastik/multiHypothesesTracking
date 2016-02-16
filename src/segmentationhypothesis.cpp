@@ -161,6 +161,14 @@ void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& m
     		1.0, constraintShape, factorVariables, model);
     }
 
+    // outgoing division variables take one unit of flow as well
+    for(size_t i = 0; i < outgoingDivisions_.size(); ++i)
+    {
+    	// indicator variable references the i+1'th argument of the constraint function, and its state 1
+    	addOpenGMVariableStateToConstraint(outgoingConsistencyConstraint, outgoingDivisions_[i]->getVariable().getOpenGMVariableId(),
+    		1.0, constraintShape, factorVariables, model);
+    }
+
     // add this variable's state with negative coefficient
     addOpenGMVariableStateToConstraint(outgoingConsistencyConstraint, detection_.getOpenGMVariableId(),
 		-1.0, constraintShape, factorVariables, model);
