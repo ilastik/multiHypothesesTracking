@@ -1,5 +1,6 @@
 #include "divisionhypothesis.h"
 #include <stdexcept>
+#include <algorithm>
 
 using namespace helpers;
 
@@ -35,6 +36,9 @@ const DivisionHypothesis::IdType DivisionHypothesis::readFromJson(const Json::Va
     {
         childrenIds_.push_back(children[i].asLabelType());
     }
+
+    // always use ordered list of children!
+    std::sort(childrenIds_.begin(), childrenIds_.end());
 
     // get transition features
     variable_ = Variable(extractFeatures(entry, JsonTypes::Features));

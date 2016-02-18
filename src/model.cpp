@@ -381,9 +381,18 @@ Solution Model::readGTfromJson(const std::string& filename)
 					throw std::runtime_error(error.str());
 				}
 
+				std::vector<IdLabelType> childrenIds;
+			    for(int i = 0; i < children.size(); ++i)
+			    {
+			        childrenIds.push_back(children[i].asLabelType());
+			    }
+
+		        // always use ordered list of children!
+			    std::sort(childrenIds.begin(), childrenIds.end());
+
 				DivisionHypothesis::IdType idx = std::make_tuple(jsonHyp[JsonTypeNames[JsonTypes::Parent]].asLabelType(),
-																children[0].asLabelType(),
-																children[1].asLabelType());
+																childrenIds[0],
+																childrenIds[1]);
 
 				if(divisionHypotheses_.find(idx) == divisionHypotheses_.end())
 				{
