@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE simplest_example
 
+#include <iostream>
 #include <fstream>
 #include <json/json.h>
 
