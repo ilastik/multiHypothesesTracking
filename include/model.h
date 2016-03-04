@@ -8,7 +8,7 @@
 #include "segmentationhypothesis.h"
 #include "linkinghypothesis.h"
 #include "exclusionconstraint.h"
-#include "divisionHypothesis.h"
+#include "divisionhypothesis.h"
 #include "helpers.h"
 #include "settings.h"
 
