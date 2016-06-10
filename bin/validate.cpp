@@ -2,7 +2,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "model.h"
+#include "jsonmodel.h"
 #include "helpers.h"
 
 using namespace mht;
@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 	    std::cout << "Model and Solution filenames have to be specified!" << std::endl;
 	    std::cout << description << std::endl;
 	} else {
-	    Model model;
+	    JsonModel model;
 		model.readFromJson(modelFilename);
 		WeightsType weights(model.computeNumWeights());
 		

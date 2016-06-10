@@ -2,7 +2,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "model.h"
+#include "jsonmodel.h"
 #include "helpers.h"
 
 using namespace mht;
@@ -41,9 +41,10 @@ int main(int argc, char** argv) {
 	} 
 	else 
 	{
-	    Model model;
+	    JsonModel model;
 		model.readFromJson(modelFilename);
-		std::vector<double> weights = model.learn(groundtruthFilename);
+		Solution gt = model.readGTfromJson(groundtruthFilename);
+		std::vector<double> weights = model.learn(gt);
 		std::vector<std::string> weightDescriptions = model.getWeightDescriptions();
 		saveWeightsToJson(weights, weightsFilename, weightDescriptions);
 	}

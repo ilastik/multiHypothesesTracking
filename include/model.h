@@ -24,12 +24,6 @@ class Model
 {
 public:	
 	/**
-	 * @brief Read a model consisting of segmentation hypotheses and linking hypotheses from a json file
-	 * @param filename
-	 */
-	void readFromJson(const std::string& filename);
-
-	/**
 	 * @return the number of weights which is estimated by checking how many features are given for detections, links and divisions
 	 */
 	size_t computeNumWeights();
@@ -48,23 +42,7 @@ public:
 	 * @param gt_filename JSON file containing a mapping of "src"(int), "dest"(int) -> "value"(bool)
 	 * @return the vector of learned weights
 	 */
-	std::vector<helpers::ValueType> learn(const std::string& gt_filename);
-
-	/**
-	 * @brief Export a found solution vector as a readable json file
-	 * 
-	 * @param filename where to save the result
-	 * @param sol the labeling to save
-	 */
-	void saveResultToJson(const std::string& filename, const helpers::Solution& sol) const;
-
-	/**
-	 * @brief Read in a ground truth solution (a boolean value per link) from a json file
-	 * 
-	 * @param filename where to find the ground truth
-	 * @return the solution as a vector of per-opengm-variable labelings
-	 */
-	helpers::Solution readGTfromJson(const std::string& filename);
+	std::vector<helpers::ValueType> learn(const helpers::Solution& sol);
 
 	/**
 	 * @brief check that the solution does not violate any constraints
@@ -105,7 +83,7 @@ public:
 	 */
 	std::vector<std::string> getWeightDescriptions();
 
-private:
+protected:
 	// segmentation hypotheses
 	std::map<helpers::IdLabelType, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around

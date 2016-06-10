@@ -2,7 +2,7 @@
 
 #include <boost/program_options.hpp>
 
-#include "model.h"
+#include "jsonmodel.h"
 #include "helpers.h"
 
 using namespace mht;
@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
 	} 
 	else 
 	{
-	    Model model;
+	    JsonModel model;
 		model.readFromJson(modelFilename);
 		std::vector<double> weights = readWeightsFromJson(weightsFilename);
 		Solution solution = model.infer(weights);
