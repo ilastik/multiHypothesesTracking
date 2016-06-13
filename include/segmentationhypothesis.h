@@ -35,21 +35,9 @@ public: // API
 	SegmentationHypothesis(
 		helpers::IdLabelType id, 
 		const helpers::StateFeatureVector& detectionFeatures, 
-		const helpers::StateFeatureVector& divisionFeatures,
+		const helpers::StateFeatureVector& divisionFeatures = {},
 		const helpers::StateFeatureVector& appearanceFeatures = {},
 		const helpers::StateFeatureVector& disappearanceFeatures = {});
-
-	/**
-	 * @brief read segmentation hypothesis from Json
-	 * @details expects the json value to contain attributes "id"(helpers::IdLabelType) and "features"(list of double),
-	 * 			as well as "divisionFeatures", "appearanceFeatures" and "disappearanceFeatures", where
-	 * 			the presence of the latter two toggles the presence of an appearance or disappearance node.
-	 * 			Hypotheses which do not have these, are not allowed to appear/disappear!
-	 * 
-	 * @param entry json object for this hypothesis
-	 * @return the found id of this hypothesis
-	 */
-	const helpers::IdLabelType readFromJson(const Json::Value& entry);
 
 	/**
 	 * @return detection variable

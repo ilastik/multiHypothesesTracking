@@ -21,14 +21,6 @@ public:
 	ExclusionConstraint(const std::vector<helpers::IdLabelType>& ids);
 	
 	/**
-	 * @brief read exclusion constraint from Json
-	 * @details expects the json array to be a list of ints representing ids
-	 * 
-	 * @param entry json object for this hypothesis
-	 */
-	void readFromJson(const Json::Value& entry);
-
-	/**
 	 * @brief Add this constraint to the OpenGM model
 	 * 
 	 * @param model OpenGM model

@@ -37,12 +37,11 @@ public:
 
 	/**
 	 * @brief Run learning using a given ground truth file
-	 * @details Loads the ground truth from another JSON file
+	 * @details Loads the ground truth using getGroundTruth() and learns the best weights using Structured Bundled Risk Minimization
 	 * 
-	 * @param gt_filename JSON file containing a mapping of "src"(int), "dest"(int) -> "value"(bool)
 	 * @return the vector of learned weights
 	 */
-	std::vector<helpers::ValueType> learn(const helpers::Solution& sol);
+	std::vector<helpers::ValueType> learn();
 
 	/**
 	 * @brief check that the solution does not violate any constraints
@@ -82,6 +81,12 @@ public:
 	 * @return a vector of strings describing each entry in the weight vector
 	 */
 	std::vector<std::string> getWeightDescriptions();
+
+	/**
+	 * @brief get the ground truth for learning, needs to be implemented by subclasses
+	 * @return the solution vector that fits the initialized OpenGM model
+	 */
+	virtual helpers::Solution getGroundTruth() = 0;
 
 protected:
 	// segmentation hypotheses

@@ -26,37 +26,6 @@ SegmentationHypothesis::SegmentationHypothesis(
 	disappearance_(disappearanceFeatures)
 {}
 
-const helpers::IdLabelType SegmentationHypothesis::readFromJson(const Json::Value& entry)
-{
-	if(!entry.isObject())
-		throw std::runtime_error("Cannot extract SegmentationHypothesis from non-object JSON entry");
-	if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isLabelType() 
-		|| !entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
-		throw std::runtime_error("JSON entry for SegmentationHytpohesis is invalid");
-
-	id_ = entry[JsonTypeNames[JsonTypes::Id]].asLabelType();
-
-	detection_ = Variable(extractFeatures(entry, JsonTypes::Features));
-
-	if(entry.isMember(JsonTypeNames[JsonTypes::DivisionFeatures]))
-		division_ = Variable(extractFeatures(entry, JsonTypes::DivisionFeatures));
-
-	// read appearance and disappearance if present
-	if(entry.isMember(JsonTypeNames[JsonTypes::AppearanceFeatures]))
-		appearance_ = Variable(extractFeatures(entry, JsonTypes::AppearanceFeatures));
-	
-	if(entry.isMember(JsonTypeNames[JsonTypes::DisappearanceFeatures]))
-		disappearance_ = Variable(extractFeatures(entry, JsonTypes::DisappearanceFeatures));
-
-	// std::cout << "Found detection with: "
-	// 	<< "\n\tdet: " << detection_.getNumStates() << " states and " <<  detection_.getNumFeatures() << " features, needs " << detection_.getNumWeights(false) << " weights"
-	// 	<< "\n\tdiv: " << division_.getNumStates() << " states and " <<  division_.getNumFeatures() << " features, needs " << division_.getNumWeights(false) << " weights"
-	// 	<< "\n\tapp: " << appearance_.getNumStates() << " states and " <<  appearance_.getNumFeatures() << " features, needs " << appearance_.getNumWeights(false) << " weights"
-	// 	<< "\n\tdis: " << disappearance_.getNumStates() << " states and " <<  disappearance_.getNumFeatures() << " features, needs " << disappearance_.getNumWeights(false) << " weights" << std::endl;
-
-	return id_;
-}
-
 void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
 	stream << "\t" << id_ << " [ label=\"id=" << id_ << ", div=";

@@ -178,12 +178,16 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	return solution;
 }
 
-std::vector<ValueType> Model::learn(const Solution& gt)
+std::vector<ValueType> Model::learn()
 {
+	// prepare OpenGM for learning
 	DatasetType dataset;
 	WeightsType initialWeights(computeNumWeights());
 	dataset.setWeights(initialWeights);
 	initializeOpenGMModel(dataset.getWeights());
+
+	// load GT from subclass-specified method
+	Solution gt = getGroundTruth();
 
 	dataset.pushBackInstance(model_, gt);
 	

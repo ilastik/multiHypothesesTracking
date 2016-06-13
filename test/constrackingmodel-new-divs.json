@@ -23,13 +23,13 @@
 			"appearanceFeatures" : [[0], [0], [0]], // a list of features for each number of cells that are appearing
 			"disappearanceFeatures" : [[0], [50], [50]] // a list of features for each number of cells that are disappearing
 		},
-		{ "id" : 2, "features" : [[4.0], [1.0], [4.0]], /*"divisionFeatures" : [[3], [0.5]],*/ "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 2, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
 		{ "id" : 3, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
 		{ "id" : 4, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
 
 		// second "tree" of cells, which look more like a merger splitting up
 		{ "id" : 5, "features" : [[5.0], [4.0], [1.0]], "appearanceFeatures" : [[0], [0], [0]], "disappearanceFeatures" : [[0], [50], [50]]},
-		{ "id" : 6, "features" : [[5.0], [4.0], [1.0]], /*"divisionFeatures" : [[0.5], [3]],*/ "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
+		{ "id" : 6, "features" : [[5.0], [4.0], [1.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [50], [50]]},
 		{ "id" : 7, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]},
 		{ "id" : 8, "features" : [[4.0], [1.0], [4.0]], "appearanceFeatures" : [[0], [50], [50]], "disappearanceFeatures" : [[0], [0], [0]]}
 	],

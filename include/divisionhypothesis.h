@@ -32,15 +32,6 @@ public:
 	DivisionHypothesis(helpers::IdLabelType parent, const std::vector<helpers::IdLabelType>& children, const helpers::StateFeatureVector& features);
 
 	/**
-	 * @brief read linking hypothesis from Json
-	 * @details expects the json value to contain attributes "src"(helpers::IdLabelType), "dest"(helpers::IdLabelType), and "features"(list of double)
-	 * 
-	 * @param entry json object for this hypothesis
-	 * @returns a tuple of (parent, child1, child2) segmentation hypotheses ids
-	 */
-	const IdType readFromJson(const Json::Value& entry);
-
-	/**
 	 * @brief Create a json string describing this link with its value (for result saving)
 	 * 
 	 * @param state the state that this link has (will be saved as "value" in JSON)

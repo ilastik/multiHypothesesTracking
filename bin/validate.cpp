@@ -49,7 +49,8 @@ int main(int argc, char** argv) {
 		}
 		
 		model.initializeOpenGMModel(weights);
-		Solution solution = model.readGTfromJson(solutionFilename);
+		model.setJsonGtFile(solutionFilename);
+		Solution solution = model.getGroundTruth();
 		bool valid = model.verifySolution(solution);
 		std::cout << "Is solution valid? " << (valid? "yes" : "no") << std::endl;
 

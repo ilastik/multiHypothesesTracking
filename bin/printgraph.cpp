@@ -45,7 +45,8 @@ int main(int argc, char** argv) {
 		// print with given solution if any
 		if(solutionFilename.size() > 0)
 		{
-			Solution solution = model.readGTfromJson(solutionFilename);
+			model.setJsonGtFile(solutionFilename);
+			Solution solution = model.getGroundTruth();
 			model.toDot(outputFilename, &solution);
 		}
 		else

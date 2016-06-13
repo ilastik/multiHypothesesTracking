@@ -4,11 +4,117 @@
 #include <stdexcept>
 #include <numeric>
 #include <sstream>
+#include <tuple>
 
 using namespace helpers;
 
 namespace mht
 {
+
+void JsonModel::readLinkingHypothesis(const Json::Value& entry)
+{
+    if(!entry.isObject())
+        throw std::runtime_error("Cannot extract LinkingHypothesis from non-object JSON entry");
+    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isLabelType())
+        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing srcId"); 
+    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isLabelType())
+        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing destId");
+    if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
+        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing features");
+
+    helpers::IdLabelType srcId = entry[JsonTypeNames[JsonTypes::SrcId]].asLabelType();
+    helpers::IdLabelType destId = entry[JsonTypeNames[JsonTypes::DestId]].asLabelType();
+
+    // get transition features
+    helpers::StateFeatureVector features = extractFeatures(entry, JsonTypes::Features);
+
+    // add to list
+    std::shared_ptr<LinkingHypothesis> hyp = std::make_shared<LinkingHypothesis>(srcId, destId, features);
+    std::pair<helpers::IdLabelType, helpers::IdLabelType> ids = std::make_pair(srcId, destId);
+    hyp->registerWithSegmentations(segmentationHypotheses_);
+    linkingHypotheses_[ids] = hyp;
+}
+
+void JsonModel::readSegmentationHypothesis(const Json::Value& entry)
+{
+    if(!entry.isObject())
+        throw std::runtime_error("Cannot extract SegmentationHypothesis from non-object JSON entry");
+    if(!entry.isMember(JsonTypeNames[JsonTypes::Id]) || !entry[JsonTypeNames[JsonTypes::Id]].isLabelType() 
+        || !entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
+        throw std::runtime_error("JSON entry for SegmentationHytpohesis is invalid");
+
+    StateFeatureVector detectionFeatures;
+    StateFeatureVector divisionFeatures;
+    StateFeatureVector appearanceFeatures;
+    StateFeatureVector disappearanceFeatures;
+
+    size_t id = entry[JsonTypeNames[JsonTypes::Id]].asLabelType();
+
+    detectionFeatures = extractFeatures(entry, JsonTypes::Features);
+
+    if(entry.isMember(JsonTypeNames[JsonTypes::DivisionFeatures]))
+        divisionFeatures = extractFeatures(entry, JsonTypes::DivisionFeatures);
+
+    // read appearance and disappearance if present
+    if(entry.isMember(JsonTypeNames[JsonTypes::AppearanceFeatures]))
+        appearanceFeatures = extractFeatures(entry, JsonTypes::AppearanceFeatures);
+    
+    if(entry.isMember(JsonTypeNames[JsonTypes::DisappearanceFeatures]))
+        disappearanceFeatures = extractFeatures(entry, JsonTypes::DisappearanceFeatures);
+
+    // add to list
+    SegmentationHypothesis hyp(id, detectionFeatures, divisionFeatures, appearanceFeatures, disappearanceFeatures);
+    segmentationHypotheses_[id] = hyp;
+}
+
+void JsonModel::readDivisionHypotheses(const Json::Value& entry)
+{
+    if(!entry.isObject())
+        throw std::runtime_error("Cannot extract DivisionHypothesis from non-object JSON entry");
+    if(!entry.isMember(JsonTypeNames[JsonTypes::Parent]) || !entry[JsonTypeNames[JsonTypes::Parent]].isLabelType())
+        throw std::runtime_error("JSON entry for DivisionHypothesis is invalid: missing srcId"); 
+    if(!entry.isMember(JsonTypeNames[JsonTypes::Children]) || !entry[JsonTypeNames[JsonTypes::Children]].isArray() 
+            || entry[JsonTypeNames[JsonTypes::Children]].size() != 2)
+        throw std::runtime_error("JSON entry for DivisionHypothesis is invalid: must have two children as array");
+    if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
+        throw std::runtime_error("JSON entry for DivisionHypothesis is invalid: missing features");
+
+    size_t parentId = entry[JsonTypeNames[JsonTypes::Parent]].asLabelType();
+    std::vector<helpers::IdLabelType> childrenIds;
+
+    const Json::Value children = entry[JsonTypeNames[JsonTypes::Children]];
+    for(int i = 0; i < children.size(); ++i)
+    {
+        childrenIds.push_back(children[i].asLabelType());
+    }
+
+    // always use ordered list of children!
+    std::sort(childrenIds.begin(), childrenIds.end());
+
+    // get transition features
+    StateFeatureVector features = extractFeatures(entry, JsonTypes::Features);
+
+    // add to list
+    std::shared_ptr<DivisionHypothesis> hyp = std::make_shared<DivisionHypothesis>(parentId, childrenIds, features);
+    hyp->registerWithSegmentations(segmentationHypotheses_);
+    auto ids = std::make_tuple(parentId, childrenIds[0], childrenIds[1]);
+    divisionHypotheses_[ids] = hyp;
+}
+
+void JsonModel::readExclusionConstraints(const Json::Value& entry)
+{
+    if(!entry.isArray())
+        throw std::runtime_error("Cannot extract Constraint from non-array JSON entry");
+
+    std::vector<helpers::IdLabelType> ids;
+    for(int i = 0; i < (int)entry.size(); i++)
+    {
+        ids.push_back(entry[i].asLabelType());
+    }
+
+    // add to list
+    exclusionConstraints_.push_back(ExclusionConstraint(ids));
+}
 
 void JsonModel::readFromJson(const std::string& filename)
 {
@@ -35,9 +141,7 @@ void JsonModel::readFromJson(const std::string& filename)
     for(int i = 0; i < (int)segmentationHypotheses.size(); i++)
     {
         const Json::Value jsonHyp = segmentationHypotheses[i];
-        SegmentationHypothesis hyp;
-        helpers::IdLabelType id = hyp.readFromJson(jsonHyp);
-        segmentationHypotheses_[id] = hyp;
+        readSegmentationHypothesis(jsonHyp);
     }
 
     // read linking hypotheses
@@ -46,10 +150,7 @@ void JsonModel::readFromJson(const std::string& filename)
     for(int i = 0; i < (int)linkingHypotheses.size(); i++)
     {
         const Json::Value jsonHyp = linkingHypotheses[i];
-        std::shared_ptr<LinkingHypothesis> hyp = std::make_shared<LinkingHypothesis>();
-        std::pair<helpers::IdLabelType, helpers::IdLabelType> ids = hyp->readFromJson(jsonHyp);
-        hyp->registerWithSegmentations(segmentationHypotheses_);
-        linkingHypotheses_[ids] = hyp;
+        readLinkingHypothesis(jsonHyp);
     }
 
     // read division hypotheses
@@ -58,10 +159,7 @@ void JsonModel::readFromJson(const std::string& filename)
     for(int i = 0; i < (int)divisionHypotheses.size(); i++)
     {
         const Json::Value jsonHyp = divisionHypotheses[i];
-        std::shared_ptr<DivisionHypothesis> hyp = std::make_shared<DivisionHypothesis>();
-        std::tuple<helpers::IdLabelType, helpers::IdLabelType, helpers::IdLabelType> ids = hyp->readFromJson(jsonHyp);
-        hyp->registerWithSegmentations(segmentationHypotheses_);
-        divisionHypotheses_[ids] = hyp;
+        readDivisionHypotheses(jsonHyp);
     }
 
     // read exclusion constraints between detections
@@ -70,17 +168,23 @@ void JsonModel::readFromJson(const std::string& filename)
     for(int i = 0; i < (int)exclusions.size(); i++)
     {
         const Json::Value jsonExc = exclusions[i];
-        exclusionConstraints_.push_back(ExclusionConstraint());
-        ExclusionConstraint& exclusion = exclusionConstraints_.back();
-        exclusion.readFromJson(jsonExc);
+        readExclusionConstraints(jsonExc);
     }
 }
 
-Solution JsonModel::readGTfromJson(const std::string& filename)
+void JsonModel::setJsonGtFile(const std::string& filename)
 {
-    std::ifstream input(filename.c_str());
+    groundTruthFilename_ = filename;
+}
+
+Solution JsonModel::getGroundTruth()
+{
+    std::ifstream input(groundTruthFilename_.c_str());
     if(!input.good())
-        throw std::runtime_error("Could not open JSON ground truth file " + filename);
+        throw std::runtime_error("Could not open JSON ground truth file " + groundTruthFilename_);
+
+    if(!model_.numberOfVariables() > 0)
+        throw std::runtime_error("OpenGM model must be initialized before reading a ground truth file!");
 
     Json::Value root;
     input >> root;

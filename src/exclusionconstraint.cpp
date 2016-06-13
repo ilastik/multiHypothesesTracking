@@ -10,18 +10,6 @@ ExclusionConstraint::ExclusionConstraint(const std::vector<helpers::IdLabelType>
 	ids_(ids)
 {}
 
-void ExclusionConstraint::readFromJson(const Json::Value& entry)
-{
-	if(!entry.isArray())
-		throw std::runtime_error("Cannot extract Constraint from non-array JSON entry");
-
-	ids_.clear();
-	for(int i = 0; i < (int)entry.size(); i++)
-	{
-		ids_.push_back(entry[i].asLabelType());
-	}
-}
-
 void ExclusionConstraint::addToOpenGMModel(GraphicalModelType& model, std::map<helpers::IdLabelType, SegmentationHypothesis>& segmentationHypotheses)
 {
 	LinearConstraintFunctionType::LinearConstraintType exclusionConstraint;

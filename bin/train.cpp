@@ -43,8 +43,8 @@ int main(int argc, char** argv) {
 	{
 	    JsonModel model;
 		model.readFromJson(modelFilename);
-		Solution gt = model.readGTfromJson(groundtruthFilename);
-		std::vector<double> weights = model.learn(gt);
+		model.setJsonGtFile(groundtruthFilename);
+		std::vector<double> weights = model.learn();
 		std::vector<std::string> weightDescriptions = model.getWeightDescriptions();
 		saveWeightsToJson(weights, weightsFilename, weightDescriptions);
 	}

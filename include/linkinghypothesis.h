@@ -28,15 +28,6 @@ public:
 	LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabelType destId, const helpers::StateFeatureVector& features);
 
 	/**
-	 * @brief read linking hypothesis from Json
-	 * @details expects the json value to contain attributes "src"(helpers::IdLabelType), "dest"(helpers::IdLabelType), and "features"(list of double)
-	 * 
-	 * @param entry json object for this hypothesis
-	 * @returns a pair of (src, dest) segmentation hypotheses ids
-	 */
-	const std::pair<helpers::IdLabelType, helpers::IdLabelType> readFromJson(const Json::Value& entry);
-
-	/**
 	 * @brief Create a json string describing this link with its value (for result saving)
 	 * 
 	 * @param state the state that this link has (will be saved as "value" in JSON)

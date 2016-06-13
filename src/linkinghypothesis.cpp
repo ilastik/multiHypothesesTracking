@@ -15,27 +15,6 @@ LinkingHypothesis::LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabe
     variable_(features)
 {}
 
-const std::pair<helpers::IdLabelType, helpers::IdLabelType> LinkingHypothesis::readFromJson(const Json::Value& entry)
-{
-    if(!entry.isObject())
-        throw std::runtime_error("Cannot extract LinkingHypothesis from non-object JSON entry");
-    if(!entry.isMember(JsonTypeNames[JsonTypes::SrcId]) || !entry[JsonTypeNames[JsonTypes::SrcId]].isLabelType())
-        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing srcId"); 
-    if(!entry.isMember(JsonTypeNames[JsonTypes::DestId]) || !entry[JsonTypeNames[JsonTypes::DestId]].isLabelType())
-        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing destId");
-    if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
-        throw std::runtime_error("JSON entry for LinkingHypothesis is invalid: missing features");
-
-    srcId_ = entry[JsonTypeNames[JsonTypes::SrcId]].asLabelType();
-    destId_ = entry[JsonTypeNames[JsonTypes::DestId]].asLabelType();
-
-    // get transition features
-    variable_ = Variable(extractFeatures(entry, JsonTypes::Features));
-
-    // std::cout << "Found linking hypothesis between " << srcId_ << " and " << destId_ << std::endl;
-    return std::make_pair(srcId_, destId_);
-}
-
 void LinkingHypothesis::toDot(std::ostream& stream, const Solution* sol) const
 {
     stream << "\t" << srcId_ << " -> " << destId_;
