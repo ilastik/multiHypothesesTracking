@@ -51,24 +51,6 @@ void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) co
 	stream <<  "]; \n" << std::flush;
 }
 
-const Json::Value SegmentationHypothesis::divisionToJson(size_t value) const
-{
-	// save as bool
-	Json::Value val;
-	val[JsonTypeNames[JsonTypes::Id]] = Json::Value(id_);
-	val[JsonTypeNames[JsonTypes::Value]] = Json::Value((bool)(value > 0));
-	return val;
-}
-
-const Json::Value SegmentationHypothesis::detectionToJson(size_t value) const
-{
-	// save as int
-	Json::Value val;
-	val[JsonTypeNames[JsonTypes::Id]] = Json::Value(id_);
-	val[JsonTypeNames[JsonTypes::Value]] = Json::Value((int)(value));
-	return val;
-}
-
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)
 {
 	if(incomingLinks_.size() == 0 && appearance_.getOpenGMVariableId() < 0)

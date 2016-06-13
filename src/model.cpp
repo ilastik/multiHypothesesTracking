@@ -1,5 +1,4 @@
 #include "model.h"
-#include <json/json.h>
 #include <fstream>
 #include <stdexcept>
 #include <numeric>

@@ -380,7 +380,7 @@ void JsonModel::saveResultToJson(const std::string& filename, const Solution& so
     {
         size_t value = sol[iter->second->getVariable().getOpenGMVariableId()];
         if(value > 0)
-            linksJson.append(iter->second->toJson(value));
+            linksJson.append(linkToJson(iter->second, value));
     }
 
     // save divisions
@@ -391,7 +391,7 @@ void JsonModel::saveResultToJson(const std::string& filename, const Solution& so
         {
             size_t value = sol[iter->second.getDivisionVariable().getOpenGMVariableId()];
             if(value > 0)
-                divisionsJson.append(iter->second.divisionToJson(value));
+                divisionsJson.append(divisionToJson(iter->second, value));
         }
     }
     for(auto iter = divisionHypotheses_.begin(); iter != divisionHypotheses_.end() ; ++iter)
@@ -400,7 +400,7 @@ void JsonModel::saveResultToJson(const std::string& filename, const Solution& so
         {
             size_t value = sol[iter->second->getVariable().getOpenGMVariableId()];
             if(value > 0)
-                divisionsJson.append(iter->second->toJson(value));
+                divisionsJson.append(divisionToJson(iter->second, value));
         }
     }
 
@@ -412,11 +412,51 @@ void JsonModel::saveResultToJson(const std::string& filename, const Solution& so
         {
             size_t value = sol[iter->second.getDetectionVariable().getOpenGMVariableId()];
             if(value > 0)
-                detectionsJson.append(iter->second.detectionToJson(value));
+                detectionsJson.append(detectionToJson(iter->second, value));
         }
     }
 
     output << root << std::endl;
 }
+
+const Json::Value JsonModel::linkToJson(const std::shared_ptr<LinkingHypothesis>& link, size_t state) const
+{
+    Json::Value val;
+    val[JsonTypeNames[JsonTypes::SrcId]] = Json::Value(link->getSrcId());
+    val[JsonTypeNames[JsonTypes::DestId]] = Json::Value(link->getDestId());
+    val[JsonTypeNames[JsonTypes::Value]] = Json::Value((unsigned int)state);
+    return val;
+}
+
+const Json::Value JsonModel::divisionToJson(const std::shared_ptr<DivisionHypothesis>& division, size_t state) const
+{
+    Json::Value val;
+    val[JsonTypeNames[JsonTypes::Parent]] = Json::Value(division->getParentId());
+    Json::Value& children = val[JsonTypeNames[JsonTypes::Children]];
+    for(auto c : division->getChildrenIds())
+        children.append(c);
+
+    val[JsonTypeNames[JsonTypes::Value]] = Json::Value(state==1);
+    return val;
+}
+
+const Json::Value JsonModel::divisionToJson(const SegmentationHypothesis& segmentation, size_t value) const
+{
+    // save as bool
+    Json::Value val;
+    val[JsonTypeNames[JsonTypes::Id]] = Json::Value(segmentation.getId());
+    val[JsonTypeNames[JsonTypes::Value]] = Json::Value((bool)(value > 0));
+    return val;
+}
+
+const Json::Value JsonModel::detectionToJson(const SegmentationHypothesis& segmentation, size_t value) const
+{
+    // save as int
+    Json::Value val;
+    val[JsonTypeNames[JsonTypes::Id]] = Json::Value(segmentation.getId());
+    val[JsonTypeNames[JsonTypes::Value]] = Json::Value((int)(value));
+    return val;
+}
+
 
 } // end namespace mht

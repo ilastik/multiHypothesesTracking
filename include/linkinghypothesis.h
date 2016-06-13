@@ -27,13 +27,8 @@ public:
 	 */
 	LinkingHypothesis(helpers::IdLabelType srcId, helpers::IdLabelType destId, const helpers::StateFeatureVector& features);
 
-	/**
-	 * @brief Create a json string describing this link with its value (for result saving)
-	 * 
-	 * @param state the state that this link has (will be saved as "value" in JSON)
-	 * @return the Json value to put in an array into the result file
-	 */
-	const Json::Value toJson(size_t state) const;
+	const helpers::IdLabelType getSrcId() const { return srcId_; }
+	const helpers::IdLabelType getDestId() const { return destId_; }
 
 	/**
 	 * @brief Add this hypothesis to the OpenGM model

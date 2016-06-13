@@ -64,16 +64,4 @@ void DivisionHypothesis::addToOpenGMModel(
     variable_.addToOpenGM(model, statesShareWeights, weights, weightIds);
 }
 
-const Json::Value DivisionHypothesis::toJson(size_t state) const
-{
-    Json::Value val;
-    val[JsonTypeNames[JsonTypes::Parent]] = Json::Value(parentId_);
-    Json::Value& children = val[JsonTypeNames[JsonTypes::Children]];
-    for(auto c : childrenIds_)
-        children.append(c);
-
-    val[JsonTypeNames[JsonTypes::Value]] = Json::Value(state==1);
-    return val;
-}
-
 } // end namespace mht

@@ -6,6 +6,7 @@
 #include <map>
 #include <tuple>
 
+#include <json/json.h>
 #include "model.h"
 
 namespace mht
@@ -82,6 +83,32 @@ private:
      * @param entry json object for this hypothesis
      */
     void readExclusionConstraints(const Json::Value& entry);
+
+    /**
+     * @brief Create a json string describing this link with its value (for result saving)
+     * 
+     * @param state the state that this link has (will be saved as "value" in JSON)
+     * @return the Json value to put in an array into the result file
+     */
+    const Json::Value linkToJson(const std::shared_ptr<LinkingHypothesis>& link, size_t state) const;
+
+    /**
+     * @brief Create a json string describing this division with its value (for result saving)
+     * 
+     * @param state the state that this division has (will be saved as "value" in JSON)
+     * @return the Json value to put in an array into the result file
+     */
+    const Json::Value divisionToJson(const std::shared_ptr<DivisionHypothesis>& division, size_t state) const;
+
+    /**
+     * @brief Create json value containing the state of this division, linked to this detection's id
+     */
+    const Json::Value divisionToJson(const SegmentationHypothesis& segmentation, size_t value) const;
+
+    /**
+     * @brief Create json value containing the state of this detection
+     */
+    const Json::Value detectionToJson(const SegmentationHypothesis& segmentation, size_t value) const;
 
 private:
     // ground truth filename

@@ -31,13 +31,8 @@ public:
 	 */
 	DivisionHypothesis(helpers::IdLabelType parent, const std::vector<helpers::IdLabelType>& children, const helpers::StateFeatureVector& features);
 
-	/**
-	 * @brief Create a json string describing this link with its value (for result saving)
-	 * 
-	 * @param state the state that this link has (will be saved as "value" in JSON)
-	 * @return the Json value to put in an array into the result file
-	 */
-	const Json::Value toJson(size_t state) const;
+	const helpers::IdLabelType getParentId() const { return parentId_; }
+	const std::vector<helpers::IdLabelType>& getChildrenIds() const { return childrenIds_; }
 
 	/**
 	 * @brief Add this hypothesis to the OpenGM model

@@ -55,13 +55,4 @@ void LinkingHypothesis::addToOpenGMModel(
     variable_.addToOpenGM(model, statesShareWeights, weights, weightIds);
 }
 
-const Json::Value LinkingHypothesis::toJson(size_t state) const
-{
-    Json::Value val;
-    val[JsonTypeNames[JsonTypes::SrcId]] = Json::Value(srcId_);
-    val[JsonTypeNames[JsonTypes::DestId]] = Json::Value(destId_);
-    val[JsonTypeNames[JsonTypes::Value]] = Json::Value((unsigned int)state);
-    return val;
-}
-
 } // end namespace mht

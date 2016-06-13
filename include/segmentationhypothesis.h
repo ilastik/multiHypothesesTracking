@@ -39,6 +39,8 @@ public: // API
 		const helpers::StateFeatureVector& appearanceFeatures = {},
 		const helpers::StateFeatureVector& disappearanceFeatures = {});
 
+	const helpers::IdLabelType getId() const { return id_; }
+
 	/**
 	 * @return detection variable
 	 */
@@ -116,16 +118,6 @@ public: // API
 	 * @brief Save this node to an open ostream in the graphviz dot format
 	 */
 	void toDot(std::ostream& stream, const helpers::Solution* sol) const;
-
-	/**
-	 * @brief Create json value containing the state of this division, linked to this detection's id
-	 */
-	const Json::Value divisionToJson(size_t value) const;
-
-	/**
-	 * @brief Create json value containing the state of this detection
-	 */
-	const Json::Value detectionToJson(size_t value) const;
 
 	/**
 	 * @brief Check that the given solution vector obeys all flow conservation constraints + divisions

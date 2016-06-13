@@ -1,7 +1,6 @@
 #ifndef EXCLUSION_CONSTRAINT_H
 #define EXCLUSION_CONSTRAINT_H
 
-#include <json/json.h>
 #include "segmentationhypothesis.h"
 
 namespace mht
