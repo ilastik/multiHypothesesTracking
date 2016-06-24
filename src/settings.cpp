@@ -3,6 +3,15 @@
 namespace helpers
 {
 
+Settings::Settings():
+	statesShareWeights_(false),
+	allowPartialMergerAppearance_(true),
+	requireSeparateChildrenOfDivision_(false),
+	optimizerEpGap_(0.01),
+	optimizerVerbose_(true),
+	optimizerNumThreads_(1)
+{}
+
 Settings::Settings(const Json::Value& entry)
 {
 	if(entry.isMember(JsonTypeNames[JsonTypes::StatesShareWeights]))

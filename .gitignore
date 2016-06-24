@@ -10,3 +10,5 @@
 
 # added by GitSavvy
 build/
+buildCplex/
+buildStr/

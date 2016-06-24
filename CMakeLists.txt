@@ -33,10 +33,12 @@ ADD_DEFINITIONS(-DOPENGM_LPDEF_NO_SYMBOLS)
 
 # --------------------------------------------------------------
 # other config
-OPTION(USE_STRING_IDS "Use std::string as Id datatype, otherwise unsigned int is used" OFF)
+OPTION(USE_STRING_IDS "Use std::string as Id datatype, otherwise unsigned int (size_t) is used" OFF)
 IF(USE_STRING_IDS)
 	ADD_DEFINITIONS(-DUSE_STRING_IDS)
 ENDIF()
+
+set(WITH_PYTHON "true" CACHE BOOL "Build python wrapper.")
 
 # --------------------------------------------------------------
 # check for C++ 11 support:
@@ -66,9 +68,19 @@ include_directories(
 add_library(multiHypoTracking SHARED ${LIB_SOURCES} ${HEADERS})
 target_link_libraries(multiHypoTracking ${OPTIMIZER_LIBRARIES})
 
+# installation
+install(TARGETS multiHypoTracking 
+        ARCHIVE DESTINATION lib
+        LIBRARY DESTINATION lib
+        RUNTIME DESTINATION bin)
+
 # --------------------------------------------------------------
 
 add_subdirectory(bin)
+
+if(WITH_PYTHON)
+  add_subdirectory(python)
+endif()
 
 # --------------------------------------------------------------
 enable_testing()

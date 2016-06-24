@@ -11,6 +11,11 @@ class Settings
 {
 public:
 	/**
+	 * @brief Default constructor
+	 */
+	Settings();
+
+	/**
 	 * @brief Create a settings object by loading it from a JSON file
 	 */
 	Settings(const Json::Value& entry);
