@@ -48,7 +48,7 @@ void JsonModel::readSegmentationHypothesis(const Json::Value& entry)
     StateFeatureVector appearanceFeatures;
     StateFeatureVector disappearanceFeatures;
 
-    size_t id = entry[JsonTypeNames[JsonTypes::Id]].asLabelType();
+    IdLabelType id = entry[JsonTypeNames[JsonTypes::Id]].asLabelType();
 
     detectionFeatures = extractFeatures(entry, JsonTypes::Features);
 
@@ -67,7 +67,7 @@ void JsonModel::readSegmentationHypothesis(const Json::Value& entry)
     segmentationHypotheses_[id] = hyp;
 }
 
-void JsonModel::readDivisionHypotheses(const Json::Value& entry)
+void JsonModel::readDivisionHypothesis(const Json::Value& entry)
 {
     if(!entry.isObject())
         throw std::runtime_error("Cannot extract DivisionHypothesis from non-object JSON entry");
@@ -79,7 +79,7 @@ void JsonModel::readDivisionHypotheses(const Json::Value& entry)
     if(!entry.isMember(JsonTypeNames[JsonTypes::Features]) || !entry[JsonTypeNames[JsonTypes::Features]].isArray())
         throw std::runtime_error("JSON entry for DivisionHypothesis is invalid: missing features");
 
-    size_t parentId = entry[JsonTypeNames[JsonTypes::Parent]].asLabelType();
+    IdLabelType parentId = entry[JsonTypeNames[JsonTypes::Parent]].asLabelType();
     std::vector<helpers::IdLabelType> childrenIds;
 
     const Json::Value children = entry[JsonTypeNames[JsonTypes::Children]];
@@ -159,7 +159,7 @@ void JsonModel::readFromJson(const std::string& filename)
     for(int i = 0; i < (int)divisionHypotheses.size(); i++)
     {
         const Json::Value jsonHyp = divisionHypotheses[i];
-        readDivisionHypotheses(jsonHyp);
+        readDivisionHypothesis(jsonHyp);
     }
 
     // read exclusion constraints between detections

@@ -74,7 +74,7 @@ private:
      *
      * @param entry json object for this hypothesis
      */
-    void readDivisionHypotheses(const Json::Value& entry);
+    void readDivisionHypothesis(const Json::Value& entry);
 
     /**
      * @brief read exclusion constraint from Json
