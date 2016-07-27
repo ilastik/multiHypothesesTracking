@@ -112,6 +112,12 @@ void JsonModel::readExclusionConstraints(const Json::Value& entry)
         ids.push_back(entry[i].asLabelType());
     }
 
+    if(ids.size() < 2)
+    {
+        // std::cout << "Ignoring exclusion constraint with less than two elements" << std::endl;
+        return;
+    }
+
     // add to list
     exclusionConstraints_.push_back(ExclusionConstraint(ids));
 }
