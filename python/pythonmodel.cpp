@@ -72,7 +72,7 @@ void PythonModel::readDivisionHypothesis(dict& entry)
     std::vector<helpers::IdLabelType> childrenIds;
 
     list children = extract<list>(entry[JsonTypeNames[JsonTypes::Children]]);
-    for(size_t i = 0; i < len(children); ++i)
+    for(size_t i = 0; (int)i < len(children); ++i)
     {
         childrenIds.push_back(extract<IdLabelType>(children[i]));
     }
@@ -93,7 +93,7 @@ void PythonModel::readDivisionHypothesis(dict& entry)
 void PythonModel::readExclusionConstraints(list& entry)
 {
 	std::vector<helpers::IdLabelType> ids;
-    for(size_t i = 0; i < len(entry); i++)
+    for(size_t i = 0; (int)i < len(entry); i++)
     {
         ids.push_back(extract<IdLabelType>(entry[i]));
     }
@@ -138,7 +138,7 @@ void PythonModel::readFromPython(dict& graphDict)
 	// read segmentation hypotheses and add to flowgraph
 	std::cout << "\tcontains " << len(segmentationHypotheses) << " segmentation hypotheses" << std::endl;
 	
-	for(size_t i = 0; i < len(segmentationHypotheses); i++)
+	for(size_t i = 0; (int)i < len(segmentationHypotheses); i++)
 	{
 		dict jsonHyp = extract<dict>(segmentationHypotheses[i]);
 		readSegmentationHypothesis(jsonHyp);
@@ -146,7 +146,7 @@ void PythonModel::readFromPython(dict& graphDict)
 
 	// read linking hypotheses
 	std::cout << "\tcontains " << len(linkingHypotheses) << " linking hypotheses" << std::endl;
-	for(size_t i = 0; i < len(linkingHypotheses); i++)
+	for(size_t i = 0; (int)i < len(linkingHypotheses); i++)
 	{
 		dict jsonHyp = extract<dict>(linkingHypotheses[i]);
 		readLinkingHypothesis(jsonHyp);
@@ -156,7 +156,7 @@ void PythonModel::readFromPython(dict& graphDict)
 	if(graphDict.has_key(JsonTypeNames[JsonTypes::Divisions]))
 	{
 		list divisionHypotheses = extract<list>(graphDict[JsonTypeNames[JsonTypes::Divisions]]);
-		for(size_t i = 0; i < len(divisionHypotheses); i++)
+		for(size_t i = 0; (int)i < len(divisionHypotheses); i++)
 		{
 			dict jsonHyp = extract<dict>(divisionHypotheses[i]);
 			readDivisionHypothesis(jsonHyp);
@@ -276,7 +276,7 @@ helpers::StateFeatureVector PythonModel::extractFeatures(boost::python::dict& en
 	// std::cout << "\tReading features for: " << JsonTypeNames[type] << std::endl;
 
 	// get the features per state
-	for(size_t i = 0; i < len(featuresPerState); i++)
+	for(size_t i = 0; (int)i < len(featuresPerState); i++)
 	{
 		// get features for the specific state
 		FeatureVector featVec;
@@ -286,7 +286,7 @@ helpers::StateFeatureVector PythonModel::extractFeatures(boost::python::dict& en
 		if(len(featuresForState) ==  0)
 			throw std::runtime_error("Features for state may not be empty for " + JsonTypeNames[type]);
 
-		for(size_t j = 0; j < len(featuresForState); j++)
+		for(size_t j = 0; (int)j < len(featuresForState); j++)
 		{
 			featVec.push_back(extract<ValueType>(featuresForState[j]));
 		}
@@ -308,7 +308,7 @@ helpers::FeatureVector readWeightsFromPython(boost::python::dict& weightsDict)
 {
 	list weightsList = extract<list>(weightsDict[JsonTypeNames[JsonTypes::Weights]]);
 	FeatureVector weights;
-	for(size_t i = 0; i < len(weightsList); i++)
+	for(size_t i = 0; (int)i < len(weightsList); i++)
 	{
 		weights.push_back(extract<ValueType>(weightsList[i]));
 	}

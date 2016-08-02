@@ -22,7 +22,7 @@ void Variable::addToOpenGM(
 	size_t numStates = getNumStates();
 	model.addVariable(numStates);
 	openGMVariableId_ = model.numberOfVariables() - 1;
-	assert(weightIds.size() == getNumWeights(statesShareWeights));
+	assert((int)weightIds.size() == getNumWeights(statesShareWeights));
 
 	if(statesShareWeights)
 	{
@@ -89,7 +89,7 @@ const int Variable::getNumWeights(bool statesShareWeights) const
 
 			// sanity check
 			for(size_t i = 1; i < features_.size(); ++i)
-				if(features_.at(i).size() != numWeights)
+				if((int)features_.at(i).size() != numWeights)
 					throw std::runtime_error("Number of features must be equal for all states!");
 		}
 		else

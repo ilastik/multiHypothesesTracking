@@ -83,7 +83,7 @@ void JsonModel::readDivisionHypothesis(const Json::Value& entry)
     std::vector<helpers::IdLabelType> childrenIds;
 
     const Json::Value children = entry[JsonTypeNames[JsonTypes::Children]];
-    for(int i = 0; i < children.size(); ++i)
+    for(int i = 0; i < (int)children.size(); ++i)
     {
         childrenIds.push_back(children[i].asLabelType());
     }
@@ -202,7 +202,7 @@ Solution JsonModel::getGroundTruth()
     Solution solution(model_.numberOfVariables(), 0);
 
     // first set all links and the respective source nodes to active
-    for(int i = 0; i < linkingResults.size(); ++i)
+    for(int i = 0; i < (int)linkingResults.size(); ++i)
     {
         const Json::Value jsonHyp = linkingResults[i];
         helpers::IdLabelType srcId = jsonHyp[JsonTypeNames[JsonTypes::SrcId]].asLabelType();
@@ -227,7 +227,7 @@ Solution JsonModel::getGroundTruth()
     // read segmentation variables
     const Json::Value segmentationResults = root[JsonTypeNames[JsonTypes::DetectionResults]];
     std::cout << "\tcontains " << segmentationResults.size() << " detection annotations" << std::endl;
-    for(int i = 0; i < segmentationResults.size(); ++i)
+    for(int i = 0; i < (int)segmentationResults.size(); ++i)
     {
         const Json::Value jsonHyp = segmentationResults[i];
         helpers::IdLabelType id = jsonHyp[JsonTypeNames[JsonTypes::Id]].asLabelType();
@@ -239,7 +239,7 @@ Solution JsonModel::getGroundTruth()
     // read division variable states
     const Json::Value divisionResults = root[JsonTypeNames[JsonTypes::DivisionResults]];
     std::cout << "\tcontains " << divisionResults.size() << " division annotations" << std::endl;
-    for(int i = 0; i < divisionResults.size(); ++i)
+    for(int i = 0; i < (int)divisionResults.size(); ++i)
     {
         const Json::Value jsonHyp = divisionResults[i];
         bool value = jsonHyp[JsonTypeNames[JsonTypes::Value]].asBool();
@@ -293,7 +293,7 @@ Solution JsonModel::getGroundTruth()
                 }
 
                 std::vector<IdLabelType> childrenIds;
-                for(int i = 0; i < children.size(); ++i)
+                for(int i = 0; i < (int)children.size(); ++i)
                 {
                     childrenIds.push_back(children[i].asLabelType());
                 }
