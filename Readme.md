@@ -5,6 +5,15 @@ This is a standalone tool for running tracking of divisible objects, with compet
 
 ## Installation
 
+### Conda
+
+You can install the python module of this package within a conda environment using one of the following lines, depending on whether you locally have CPLEX or GUROBI installed.
+
+    CPLEX_ROOT_DIR=/path/to/my/CPLEX/ conda install multi-hypotheses-tracking-with-cplex -c chaubold -c ilastik
+	GUROBI_ROOT_DIR=/path/to/my/Gurobi/mac64 conda install multi-hypotheses-tracking-with-gurobi -c chaubold -c ilastik
+
+### Manual compilation
+
 Requirements: 
 
 * a compiler capable of C++11 (clang or GCC >= 4.8)
@@ -45,6 +54,16 @@ $ ./validate -m model.json -s trackingresult.json
 $ ./printgraph -m model.json -s trackingresult.json -o mygraph.dot
 $ dot -Tpdf mygraph.dot > mygraph.pdf
 $ open mygraph.pdf
+```
+
+Or if you want to use it from python, you can create the model and weight as dictionaries (exactly same structure as the JSON format) and then in python run the following:
+
+```python
+import multiHypoTracking_with_gurobi as mht
+
+mymodel = {...}
+myweights = {"weights": [10,10,500,500]}
+result = mht.track(mymodel, myweights)
 ```
 
 ## JSON file formats
