@@ -90,12 +90,18 @@ void PythonModel::readDivisionHypothesis(dict& entry)
     divisionHypotheses_[ids] = hyp;
 }
 
-void PythonModel::readExclusionConstraints(list& entry)
+void PythonModel::readExclusionConstraint(list& entry)
 {
 	std::vector<helpers::IdLabelType> ids;
     for(size_t i = 0; (int)i < len(entry); i++)
     {
         ids.push_back(extract<IdLabelType>(entry[i]));
+    }
+
+	if(ids.size() < 2)
+    {
+        // std::cout << "Ignoring exclusion constraint with less than two elements" << std::endl;
+        return;
     }
 
     // add to list
@@ -153,7 +159,7 @@ void PythonModel::readFromPython(dict& graphDict)
 	}
 
 	// read divisions
-	if(graphDict.has_key(JsonTypeNames[JsonTypes::Divisions]))
+	if(graphDict.has_key(JsonTypeNames[JsonTypes::Divisions]) && len(graphDict[JsonTypeNames[JsonTypes::Divisions]]) > 0)
 	{
 		list divisionHypotheses = extract<list>(graphDict[JsonTypeNames[JsonTypes::Divisions]]);
 		for(size_t i = 0; (int)i < len(divisionHypotheses); i++)
@@ -163,16 +169,17 @@ void PythonModel::readFromPython(dict& graphDict)
 		}
 	}
 
-	// // read exclusion constraints between detections
-	// list exclusions = extract<list>(graphDict[JsonTypeNames[JsonTypes::Exclusions]]);
-	// std::cout << "\tcontains " << exclusions.size() << " exclusions" << std::endl;
-	// for(size_t i = 0; i < (int)exclusions.size(); i++)
-	// {
-	// 	const Json::Value jsonExc = exclusions[i];
-	//  readExclusionConstraints(jsonExc);
-	// }
+	// read exclusion constraints between detections
 	if(graphDict.has_key(JsonTypeNames[JsonTypes::Exclusions]) && len(graphDict[JsonTypeNames[JsonTypes::Exclusions]]) > 0)
-		throw std::runtime_error("FlowSolver cannot deal with exclusion constraints yet!");
+	{
+		list exclusions = extract<list>(graphDict[JsonTypeNames[JsonTypes::Exclusions]]);
+		std::cout << "\tcontains " << len(exclusions) << " exclusions" << std::endl;
+		for(size_t i = 0; (int)i < len(exclusions); i++)
+		{
+			list exclusionSet = extract<list>(exclusions[i]);
+			readExclusionConstraint(exclusionSet);
+		}
+	}
 }
 
 dict PythonModel::saveResultToPython(const Solution& sol) const

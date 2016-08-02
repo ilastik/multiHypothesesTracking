@@ -92,7 +92,7 @@ private:
      * 
      * @param entry json object for this hypothesis
      */
-    void readExclusionConstraints(boost::python::list& entry);
+    void readExclusionConstraint(boost::python::list& entry);
 
     /**
      * @brief Create a json string describing this link with its value (for result saving)
