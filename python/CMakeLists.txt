@@ -24,17 +24,19 @@ else()
 endif()
 
 # include external headers as system includes so we do not have to cope with their warnings
-include_directories( SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}/python2.7 )
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}/python2.7 include_directories(${PROJECT_SOURCE_DIR}/python/))
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pymultiHypoTracking.cpp.cmake ${CMAKE_CURRENT_BINARY_DIR}/pymultiHypoTracking.cpp @ONLY)
 
 # pymultiHypoTracking
-set(PYMULTIHYPOTRACKING_SRCS pymultiHypoTracking.cpp pythonmodel.cpp)
+set(PYMULTIHYPOTRACKING_SRCS ${CMAKE_CURRENT_BINARY_DIR}/pymultiHypoTracking.cpp pythonmodel.cpp)
 
-add_library(pymultiHypoTracking SHARED ${PYMULTIHYPOTRACKING_SRCS})#
-target_link_libraries(pymultiHypoTracking multiHypoTracking ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} )
+add_library(pymultiHypoTracking${SUFFIX} SHARED ${PYMULTIHYPOTRACKING_SRCS})#
+target_link_libraries(pymultiHypoTracking${SUFFIX} multiHypoTracking${SUFFIX} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} )
 if(WIN32)
-  set_target_properties(pymultiHypoTracking PROPERTIES PREFIX "" OUTPUT_NAME "multiHypoTracking" SUFFIX ".pyd")
+  set_target_properties(pymultiHypoTracking${SUFFIX} PROPERTIES PREFIX "" OUTPUT_NAME "multiHypoTracking${SUFFIX}" SUFFIX ".pyd")
 else()
-  set_target_properties(pymultiHypoTracking PROPERTIES PREFIX "" OUTPUT_NAME "multiHypoTracking" SUFFIX ".so")
+  set_target_properties(pymultiHypoTracking${SUFFIX} PROPERTIES PREFIX "" OUTPUT_NAME "multiHypoTracking${SUFFIX}" SUFFIX ".so")
 endif()
 
 # install
@@ -54,6 +56,6 @@ set(PYMULTIHYPOTRACKING_INSTALL_DIR ${PYMULTIHYPOTRACKING_INSTALL_DIR} CACHE PAT
 # use this in INSTALL() commands to get packaging right
 file(RELATIVE_PATH PYMULTIHYPOTRACKING_INSTALL_DIR ${CMAKE_INSTALL_PREFIX} ${PYMULTIHYPOTRACKING_INSTALL_DIR})
 
-install(TARGETS pymultiHypoTracking 
+install(TARGETS pymultiHypoTracking${SUFFIX} 
     RUNTIME DESTINATION ${PYMULTIHYPOTRACKING_INSTALL_DIR}
     LIBRARY DESTINATION ${PYMULTIHYPOTRACKING_INSTALL_DIR})

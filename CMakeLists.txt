@@ -38,6 +38,9 @@ IF(USE_STRING_IDS)
 	ADD_DEFINITIONS(-DUSE_STRING_IDS)
 ENDIF()
 
+# build options
+set(SUFFIX "" CACHE STRING "Library suffix appended to the library name - which enables having several differently configured libraries in the path")
+
 set(WITH_PYTHON "true" CACHE BOOL "Build python wrapper.")
 
 # --------------------------------------------------------------
@@ -65,11 +68,11 @@ include_directories(
 	${HDF5_INCLUDE_DIR}
 )
 
-add_library(multiHypoTracking SHARED ${LIB_SOURCES} ${HEADERS})
-target_link_libraries(multiHypoTracking ${OPTIMIZER_LIBRARIES})
+add_library(multiHypoTracking${SUFFIX} SHARED ${LIB_SOURCES} ${HEADERS})
+target_link_libraries(multiHypoTracking${SUFFIX} ${OPTIMIZER_LIBRARIES})
 
 # installation
-install(TARGETS multiHypoTracking 
+install(TARGETS multiHypoTracking${SUFFIX} 
         ARCHIVE DESTINATION lib
         LIBRARY DESTINATION lib
         RUNTIME DESTINATION bin)

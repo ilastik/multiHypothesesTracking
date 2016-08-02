@@ -26,7 +26,7 @@ object track(object& graphDict, object& weightsDict)
 /**
  * @brief Python interface of 'mht' module
  */
-BOOST_PYTHON_MODULE( multiHypoTracking )
+BOOST_PYTHON_MODULE( multiHypoTracking@SUFFIX@ )
 {
 	def("track", track, args("graph", "weights"),
 		"Use an ILP solver on a graph specified as a dictionary,"
