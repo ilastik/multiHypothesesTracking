@@ -118,11 +118,11 @@ void PythonModel::readFromPython(dict& graphDict)
 		if(settings.has_key(JsonTypeNames[JsonTypes::RequireSeparateChildrenOfDivision]))
 			settings_->requireSeparateChildrenOfDivision_ = extract<bool>(settings[JsonTypeNames[JsonTypes::RequireSeparateChildrenOfDivision]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::OptimizerEpGap]))
-			settings_->optimizerEpGap_ = extract<bool>(settings[JsonTypeNames[JsonTypes::OptimizerEpGap]]);
+			settings_->optimizerEpGap_ = extract<double>(settings[JsonTypeNames[JsonTypes::OptimizerEpGap]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::OptimizerVerbose]))
 			settings_->optimizerVerbose_ = extract<bool>(settings[JsonTypeNames[JsonTypes::OptimizerVerbose]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::OptimizerNumThreads]))
-			settings_->optimizerNumThreads_ = extract<bool>(settings[JsonTypeNames[JsonTypes::OptimizerNumThreads]]);
+			settings_->optimizerNumThreads_ = extract<int>(settings[JsonTypeNames[JsonTypes::OptimizerNumThreads]]);
 	}
 	else
 	{
