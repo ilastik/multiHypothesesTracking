@@ -1,6 +1,10 @@
 # run this as test? https://cmake.org/pipermail/cmake/2010-August/039174.html
-import multiHypoTracking
+try:
+    import multiHypoTracking_with_gurobi as mht
+except ImportError:
+    import multiHypoTracking_with_cplex as mht
 
+# set up a test model
 weights = {"weights": [10, 10, 10, 500, 500]}
 
 graph = {
@@ -30,9 +34,6 @@ graph = {
                 { "src" : 3, "dest" : 6, "features" : [[0], [-4]]}
         ]
 }
-
-res = multiHypoTracking.track(graph, weights)
-
 expectedResult = {'detectionResults': [{'id': 2, 'value': 1},
     {'id': 3, 'value': 1},
     {'id': 4, 'value': 1},
@@ -49,4 +50,12 @@ expectedResult = {'detectionResults': [{'id': 2, 'value': 1},
     # {'dest': 5, 'src': 3, 'value': 0},
     {'dest': 6, 'src': 3, 'value': 1}]}
 
+# test tracking
+res = mht.track(graph, weights)
 assert(res == expectedResult)
+
+# test traininig
+learnedWeights = mht.train(graph, expectedResult)
+assert('weights' in learnedWeights)
+assert(len(learnedWeights['weights']) == 5)
+assert(not any(w < 0 for w in learnedWeights['weights']))

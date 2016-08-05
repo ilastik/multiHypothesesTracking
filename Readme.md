@@ -61,13 +61,23 @@ Or if you want to use it from python, you can create the model and weight as dic
 ```python
 import multiHypoTracking_with_gurobi as mht
 
+# run tracking
 mymodel = {...}
 myweights = {"weights": [10,10,500,500]}
 result = mht.track(mymodel, myweights)
+
+# run structured learning
+myresults = {...}
+learnedweights = mht.track(mymodel, myresults)
 ```
+
+See [test/test.py](test/test.py) for a complete example.
 
 ## JSON file formats
 
+* Ids: every segmentation/detection hypotheses must get its own unique ID by which it is referenced throughout the model and ground truth. 
+ An ID is a `size_t` (unsigned long) by default, but by configuring the `WITH_STRING_IDS` flag in `ccmake` one can switch to strings. The 
+ provided conda packages use numbers and not strings.
 * Graph description: [test/magic.json](test/magic.json)
 	- there are two ways how weights and features work together: the same weight can be used as multiplier on the i'th feature but for different states, or different weights are used for each and every feature and state. This is controlled by specifying `"statesShareWeights"`.
 	- each feature vector is supposed to be a list of lists, where there are as many inner lists as the variable can take states

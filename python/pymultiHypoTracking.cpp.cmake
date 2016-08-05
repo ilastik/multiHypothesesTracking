@@ -23,6 +23,21 @@ object track(object& graphDict, object& weightsDict)
 	return result;
 }
 
+object train(object& graphDict, object& gtDict)
+{
+	dict pyGraph = extract<dict>(graphDict);
+	dict pyGt = extract<dict>(gtDict);
+
+	PythonModel model;
+	model.readFromPython(pyGraph);
+	model.setPythonGt(pyGt);
+	std::vector<double> weights = model.learn();
+	
+	object result = model.saveWeightsToPython(weights);
+    
+	return result;
+}
+
 /**
  * @brief Python interface of 'mht' module
  */
@@ -32,4 +47,9 @@ BOOST_PYTHON_MODULE( multiHypoTracking@SUFFIX@ )
 		"Use an ILP solver on a graph specified as a dictionary,"
 		"in the same structure as the supported JSON format. Similarly, the weights are also given as dict.\n\n"
 		"Returns a python dictionary similar to the result.json file");
+	def("train", train, args("graph", "groundTruth"),
+		"Run Structured Learning with an ILP solver on a graph specified as a dictionary,"
+		"in the same structure as the supported JSON format." 
+		"Similarly, the ground truth are also given as dict as in a result.json file .\n\n"
+		"Returns a python dictionary containing a weights entry");
 }
