@@ -45,12 +45,18 @@ public:
     boost::python::dict saveResultToPython(const helpers::Solution& sol) const;
 
     /**
-     * @brief Read in a ground truth solution (a boolean value per link) from a json file
+     * @brief Export a found weight vector as a python dictionary
      * 
-     * @param filename where to find the ground truth
-     * @return the solution as a vector of per-opengm-variable labelings
+     * @param weights the learned weight vector
      */
-    void setPythonGtFile(const std::string& filename);
+    boost::python::dict saveWeightsToPython(const std::vector<double>& weights) const;
+
+    /**
+     * @brief Specify the python dictionary containing a ground trouth which will be used in the getGroundTruth method.
+     * 
+     * @param python dictionary of ground truth
+     */
+    void setPythonGt(boost::python::dict& gtDict);
 
     /**
      * @brief get the ground truth for learning from a JSON file
@@ -126,8 +132,8 @@ private:
     helpers::StateFeatureVector extractFeatures(boost::python::dict& entry, helpers::JsonTypes type);
 
 private:
-    // ground truth filename
-    std::string groundTruthFilename_;
+    // ground truth dictionary
+    boost::python::dict groundTruthDict_;
 };
 
 } // end namespace mht
