@@ -326,46 +326,7 @@ Solution JsonModel::getGroundTruth()
         }
     }
 
-    // deduce states of appearance and disappearance variables
-    for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
-    {
-        size_t detValue = solution[iter->second.getDetectionVariable().getOpenGMVariableId()];
-
-        if(detValue > 0)
-        {
-            // each variable that has no active incoming links but is active should have its appearance variables set
-            if(iter->second.getNumActiveIncomingLinks(solution) == 0)
-            {
-                if(iter->second.getAppearanceVariable().getOpenGMVariableId() == -1)
-                {
-                    std::stringstream s;
-                    s << "Segmentation Hypothesis: " << iter->first << " - GT contains appearing variable that has no appearance features set!";
-                    throw std::runtime_error(s.str());
-                }
-                else
-                {
-                    // std::cout << "deducing appearance value " << detValue << " for node " << iter->first << std::endl;
-                    solution[iter->second.getAppearanceVariable().getOpenGMVariableId()] = detValue;
-                }
-            }
-
-            // each variable that has no active outgoing links but is active should have its disappearance variables set
-            if(iter->second.getNumActiveOutgoingLinks(solution) == 0)
-            {
-                if(iter->second.getDisappearanceVariable().getOpenGMVariableId() == -1)
-                {
-                    std::stringstream s;
-                    s << "Segmentation Hypothesis: " << iter->first << " - GT contains disappearing variable that has no disappearance features set!";
-                    throw std::runtime_error(s.str());
-                }
-                else
-                {
-                    // std::cout << "deducing disappearance value " << detValue << " for node " << iter->first << std::endl;
-                    solution[iter->second.getDisappearanceVariable().getOpenGMVariableId()] = detValue;
-                }
-            }
-        }
-    }
+    deduceAppearanceDisappearanceStates(solution);
 
     // std::cout << "found gt solution: " << solution << std::endl;
 

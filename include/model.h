@@ -89,6 +89,12 @@ public:
 	virtual helpers::Solution getGroundTruth() = 0;
 
 protected:
+	/**
+	 * @brief deduce states of appearance and disappearance variables and update the solution vector
+	 */
+	void deduceAppearanceDisappearanceStates(helpers::Solution& solution);
+
+protected:
 	// segmentation hypotheses
 	std::map<helpers::IdLabelType, SegmentationHypothesis> segmentationHypotheses_;
 	// linking hypotheses are stored as shared pointer so it is easier to pass them around
