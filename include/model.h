@@ -31,9 +31,10 @@ public:
 	/**
 	 * @brief Find the minimal-energy configuration using an ILP
 	 * @param weights a vector of weights to use
+	 * @param withIntegerConstraints set to false if you just want the LP relaxation. Don't expect the solution to work in the rest of the code!
 	 * @return the vector of per-variable labels, can be used with the detection/linking hypotheses to query their state
 	 */
-	helpers::Solution infer(const std::vector<helpers::ValueType>& weights);
+	helpers::Solution infer(const std::vector<helpers::ValueType>& weights, bool withIntegerConstraints = true);
 
 	/**
 	 * @brief Run learning using a given ground truth file

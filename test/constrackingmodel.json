@@ -6,7 +6,7 @@
 		"statesShareWeights" : true,
 
 		// the optimizer should be quiet,
-		"optimizerVerbose" : false,
+		"optimizerVerbose" : true,
 
 		// to be consistent with ConservationTracking we need additional constraints:
 		"requireSeparateChildrenOfDivision" : true,
