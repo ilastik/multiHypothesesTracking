@@ -38,6 +38,21 @@ object train(object& graphDict, object& gtDict)
 	return result;
 }
 
+bool validate(object& graphDict, object& gtDict)
+{
+	dict pyGraph = extract<dict>(graphDict);
+	dict pyGt = extract<dict>(gtDict);
+
+	PythonModel model;
+	model.readFromPython(pyGraph);
+	model.setPythonGt(pyGt);
+	
+	Solution solution = model.getGroundTruth();
+	bool valid = model.verifySolution(solution);
+	
+	return valid;
+}
+
 /**
  * @brief Python interface of 'mht' module
  */
@@ -52,4 +67,9 @@ BOOST_PYTHON_MODULE( multiHypoTracking@SUFFIX@ )
 		"in the same structure as the supported JSON format." 
 		"Similarly, the ground truth are also given as dict as in a result.json file .\n\n"
 		"Returns a python dictionary containing a weights entry");
+	def("validate", train, args("graph", "solution"),
+		"Validate a solution on a graph specified as a dictionary,"
+		"in the same structure as the supported JSON format." 
+		"Similarly, the solution is also given as dict as in a result.json file .\n\n"
+		"Returns a boolean whether the solution is valid");
 }

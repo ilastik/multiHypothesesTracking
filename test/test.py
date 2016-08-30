@@ -54,6 +54,9 @@ expectedResult = {'detectionResults': [{'id': 2, 'value': 1},
 res = mht.track(graph, weights)
 assert(res == expectedResult)
 
+# test validation
+assert(mht.validate(graph, expectedResult))
+
 # test traininig
 learnedWeights = mht.train(graph, expectedResult)
 assert('weights' in learnedWeights)
