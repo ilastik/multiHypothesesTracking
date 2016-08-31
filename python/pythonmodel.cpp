@@ -449,7 +449,7 @@ Solution PythonModel::getGroundTruth()
                 // always use ordered list of children!
                 std::sort(childrenIds.begin(), childrenIds.end());
 
-                DivisionHypothesis::IdType idx = std::make_tuple((size_t)extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]),
+                DivisionHypothesis::IdType idx = std::make_tuple((IdLabelType)extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]),
                                                                 childrenIds[0],
                                                                 childrenIds[1]);
 
