@@ -1,0 +1,79 @@
+{% if not WITH_CPLEX is defined %}
+  {% set WITH_CPLEX = False %}
+{% endif %}
+
+{% if not WITH_GUROBI is defined %}
+  {% set WITH_GUROBI = False %}
+{% endif %}
+
+package:
+  {% if WITH_CPLEX %}
+    name: multi-hypotheses-tracking-with-cplex
+  {% elif WITH_GUROBI %}
+    name: multi-hypotheses-tracking-with-gurobi
+  {% else %}
+    Need to specify either cplex or gurobi!
+  {% endif %}
+    version: "1.0"
+
+source:
+  git_url: https://github.com/chaubold/multiHypothesesTracking
+  git_tag: HEAD
+
+build:
+  {% set build_num = 3 %}
+  number: {{ build_num }}
+  detect_binary_files_with_prefix: true
+
+  string: py{{CONDA_PY}}_{{build_num}}_g{{GIT_FULL_HASH[:7]}}
+
+  script_env:
+    - WITH_CPLEX
+    - CPLEX_ROOT_DIR
+    - WITH_GUROBI
+    - GUROBI_ROOT_DIR
+
+requirements:
+  build:
+    - libgcc
+    - gcc 4.8.5 # [linux]
+    - gcc 4.8.5 # [osx]
+    - patchelf # [linux]
+    - boost 1.55.0
+    - opengm-structured-learning-headers
+    - python {{PY_VER}}*
+
+    {% if WITH_CPLEX is defined and WITH_CPLEX %}
+    - cplex-shared # Need to make sure that cplex dylibs exist
+    {% endif %}
+
+    {% if WITH_GUROBI is defined and WITH_GUROBI %}
+    - gurobi-symlink
+    {% endif %}
+
+  run:
+    - libgcc
+    - patchelf # [linux]
+    - boost 1.55.0
+    - python {{PY_VER}}*
+    {% if WITH_CPLEX is defined and WITH_CPLEX %}
+    - cplex-shared # Need to make sure that cplex dylibs exist
+    {% endif %}
+
+    {% if WITH_GUROBI is defined and WITH_GUROBI %}
+    - gurobi-symlink
+    {% endif %}
+
+test:
+  {% if WITH_CPLEX %}
+    imports:
+      - multiHypoTracking_with_cplex
+  {% elif WITH_GUROBI %}
+    imports:
+      - multiHypoTracking_with_gurobi
+  {% endif %}
+
+about:
+  home: https://github.com/chaubold/multiHypothesesTracking
+  license: GNU General Public License (GPL)
+  summary: ILP solver interface for JSON/Python specified tracking problems
