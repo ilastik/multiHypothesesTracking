@@ -75,5 +75,5 @@ test:
 
 about:
   home: https://github.com/chaubold/multiHypothesesTracking
-  license: GNU General Public License (GPL)
+  license: MIT
   summary: ILP solver interface for JSON/Python specified tracking problems
