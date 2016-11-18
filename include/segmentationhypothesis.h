@@ -124,7 +124,7 @@ public: // API
 	 * 
 	 * @param sol the opengm solution vector
 	 */
-	bool verifySolution(const helpers::Solution& sol) const;
+	bool verifySolution(const helpers::Solution& sol, const std::shared_ptr<helpers::Settings>& settings) const;
 
 	/**
 	 * @return the number of incoming links and external divisions of this detection which are active in the given solution

@@ -30,6 +30,7 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::OptimizerVerbose, "optimizerVerbose"},
 	{JsonTypes::OptimizerNumThreads, "optimizerNumThreads"},
 	{JsonTypes::AllowPartialMergerAppearance, "allowPartialMergerAppearance"},
+	{JsonTypes::AllowLengthOneTracks, "allowLengthOneTracks"},
 	{JsonTypes::RequireSeparateChildrenOfDivision, "requireSeparateChildrenOfDivision"}
 };
 

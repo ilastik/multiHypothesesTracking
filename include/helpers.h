@@ -166,6 +166,7 @@ enum class JsonTypes {Segmentations,
 	OptimizerVerbose,
 	OptimizerNumThreads,
 	AllowPartialMergerAppearance,
+	AllowLengthOneTracks,
 	RequireSeparateChildrenOfDivision
 };
 

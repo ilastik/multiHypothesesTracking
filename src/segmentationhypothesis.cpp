@@ -319,6 +319,12 @@ void SegmentationHypothesis::addToOpenGMModel(
 	addDivisionConstraintToOpenGM(model, settings->requireSeparateChildrenOfDivision_);
 	addExternalDivisionConstraintaToOpenGM(model);
 
+	if(!settings->allowLengthOneTracks_)
+	{
+		addConstraintToOpenGM(model, appearance_.getOpenGMVariableId(), disappearance_.getOpenGMVariableId(), 0, 0, 1, 
+							  LinearConstraintFunctionType::LinearConstraintType::LinearConstraintOperatorType::GreaterEqual);
+	}
+
 	// add transition exclusion constraints in the multilabel case:
 	if(detection_.getNumStates() > 1)
 	{
@@ -415,7 +421,7 @@ size_t SegmentationHypothesis::getNumActiveOutgoingLinks(const Solution& sol) co
 	return sum;
 }
 
-bool SegmentationHypothesis::verifySolution(const Solution& sol) const
+bool SegmentationHypothesis::verifySolution(const Solution& sol, const std::shared_ptr<Settings>& settings) const
 {
 	size_t ownValue = sol[detection_.getOpenGMVariableId()];
 	size_t divisionValue = 0;
@@ -462,6 +468,18 @@ bool SegmentationHypothesis::verifySolution(const Solution& sol) const
 		std::cout << "At node " << id_ << ": outgoing=" << sumOutgoing << " is NOT EQUAL to " << ownValue << " + " << divisionValue << " (own+div)" << std::endl;
 		return false;
 	}
+
+	//--------------------------------
+	// check no length one tracks
+	if(settings->allowLengthOneTracks_)
+	{
+		if(sol[appearance_.getOpenGMVariableId()] > 0 && sol[disappearance_.getOpenGMVariableId()] > 0)
+		{
+			std::cout << "Length one track even though it is forbidden at "<< id_ << std::endl;
+			return false;
+		}
+	}
+	
 
 	//--------------------------------
 	// check divisions

@@ -242,7 +242,7 @@ bool Model::verifySolution(const Solution& sol) const
 	// check that flow-conservation + division constraints are satisfied
 	for(auto iter = segmentationHypotheses_.begin(); iter != segmentationHypotheses_.end() ; ++iter)
 	{
-		if(!iter->second.verifySolution(sol))
+		if(!iter->second.verifySolution(sol, settings_))
 		{
 			std::cout << "\tFound violated flow conservation constraint " << std::endl;
 			valid = false;

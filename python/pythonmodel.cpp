@@ -125,6 +125,8 @@ void PythonModel::readFromPython(dict& graphDict)
 			settings_->statesShareWeights_ = extract<bool>(settings[JsonTypeNames[JsonTypes::StatesShareWeights]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::AllowPartialMergerAppearance]))
 			settings_->allowPartialMergerAppearance_ = extract<bool>(settings[JsonTypeNames[JsonTypes::AllowPartialMergerAppearance]]);
+        if(settings.has_key(JsonTypeNames[JsonTypes::AllowLengthOneTracks]))
+			settings_->allowLengthOneTracks_ = extract<bool>(settings[JsonTypeNames[JsonTypes::AllowLengthOneTracks]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::RequireSeparateChildrenOfDivision]))
 			settings_->requireSeparateChildrenOfDivision_ = extract<bool>(settings[JsonTypeNames[JsonTypes::RequireSeparateChildrenOfDivision]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::OptimizerEpGap]))

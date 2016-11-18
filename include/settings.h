@@ -35,6 +35,7 @@ public:
 public: // settings object makes these parameters public instead of writing tons of getters and setters
 	bool statesShareWeights_; // default = false
 	bool allowPartialMergerAppearance_; // default = true
+	bool allowLengthOneTracks_; // default = false
 	bool requireSeparateChildrenOfDivision_; // default = false
 	double optimizerEpGap_; // default = 0.01
 	bool optimizerVerbose_; // default = true
