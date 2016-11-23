@@ -43,7 +43,6 @@ build:
 
 requirements:
   build:
-    - libgcc
     - gcc 4.8.5 # [linux]
     - gcc 4.8.5 # [osx]
     - patchelf # [linux]
@@ -60,7 +59,7 @@ requirements:
     {% endif %}
 
   run:
-    - libgcc
+    - libgcc 4.8.5
     - patchelf # [linux]
     - boost 1.55.0
     - python {{PY_VER}}*
