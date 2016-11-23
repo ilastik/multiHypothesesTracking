@@ -1,7 +1,7 @@
 These recipe files can build two different packages:
 
-Package name        Python module
-------------        ---------------------------------
+Package name                            Python module
+------------                            ---------------------------------
 multi-hypotheses-tracking-with-cplex    import multiHypoTracking_with_cplex as multiHypoTracking
 multi-hypotheses-tracking-with-gurobi   import multiHypoTracking_with_gurobi as multiHypoTracking
 
