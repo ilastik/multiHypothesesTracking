@@ -30,8 +30,6 @@ source:
   path: ../
 
 build:
-  detect_binary_files_with_prefix: true
-
   number: 0
   string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_g{{GIT_FULL_HASH[:7]}}
 
