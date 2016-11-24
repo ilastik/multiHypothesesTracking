@@ -10,6 +10,10 @@ if [[ "$WITH_CPLEX" == "0" ]]; then
     WITH_CPLEX=""
 fi
 
+if [[ "$WITH_GUROBI" == "0" ]]; then
+    WITH_GUROBI=""
+fi
+
 # Platform-specific dylib extension
 if [ $(uname) == "Darwin" ]; then
     export DYLIB="dylib"
@@ -22,12 +26,7 @@ if [[ "$WITH_CPLEX" == "" ]]; then
     CPLEX_ARGS=""
     LINKER_FLAGS=""
 else
-    if [ $(echo $PREFIX | grep -q envs)$? -eq 0 ]; then
-        ROOT_ENV_PREFIX="${PREFIX}/../.."
-    else
-        ROOT_ENV_PREFIX="${PREFIX}"
-    fi
-    CPLEX_LOCATION_CACHE_FILE="${ROOT_ENV_PREFIX}/share/cplex-root-dir.path"
+    CPLEX_LOCATION_CACHE_FILE="$(conda info --root)/share/cplex-root-dir.path"
     
     if [[ "$CPLEX_ROOT_DIR" == "<UNDEFINED>" || "$CPLEX_ROOT_DIR" == "" ]]; then
         # Look for CPLEX_ROOT_DIR in the cplex-shared cache file.
@@ -102,7 +101,19 @@ else
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_ROOT_DIR=${GUROBI_ROOT_DIR}"
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_LIBRARY=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*.so)"
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_INCLUDE_DIR=${GUROBI_ROOT_DIR}/include"
-    GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
+    if [ $(uname) == "Darwin" ]; then
+        # Note: For Mac, the nice Gurobi people provide two versions of the gurobi library,
+        #       depending on which version of the C++ std library you need to use:
+        #       - For libstdc++ (from the GNU people), use libgurobi_stdc++.a
+        #       - For libc++    (from the clang people), use libgurobi_c++.a
+        #       We use gcc (even on Mac), so we use the libstdc++ version.
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_stdc++.a"
+    else
+        # Only one choice on Linux. It works with libstdc++ (from the GNU people).
+        # (The naming convention isn't consistent with the name on Mac, but that's okay.)
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
+    fi
+
     SUFFIX="_with_gurobi"
 fi
 
