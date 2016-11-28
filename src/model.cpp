@@ -179,9 +179,26 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 
 std::vector<ValueType> Model::learn()
 {
+	std::vector<helpers::ValueType> weights(computeNumWeights(), 0);
+	return learn(weights);
+}
+
+std::vector<ValueType> Model::learn(const std::vector<helpers::ValueType>& weights)
+{
 	// prepare OpenGM for learning
 	DatasetType dataset;
 	WeightsType initialWeights(computeNumWeights());
+
+	if(weights.size() != computeNumWeights())
+	{
+		std::cout << "Provided length of vector with initial weights has wrong length!" << std::endl;
+		throw std::runtime_error("Provided length of vector with initial weights has wrong length!");
+	}
+	for(size_t i = 0; i < weights.size(); ++i)
+	{
+		initialWeights.setWeight(i, weights[i]);
+	}
+	
 	dataset.setWeights(initialWeights);
 	initializeOpenGMModel(dataset.getWeights());
 

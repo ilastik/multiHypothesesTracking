@@ -38,6 +38,24 @@ object train(object& graphDict, object& gtDict)
 	return result;
 }
 
+object trainWithWeightInitialization(object& graphDict, object& gtDict, object& weightsDict)
+{
+	dict pyGraph = extract<dict>(graphDict);
+	dict pyGt = extract<dict>(gtDict);
+	dict pyWeights = extract<dict>(weightsDict);
+
+	FeatureVector weightInitialization = readWeightsFromPython(pyWeights);
+
+	PythonModel model;
+	model.readFromPython(pyGraph);
+	model.setPythonGt(pyGt);
+	std::vector<double> weights = model.learn(weightInitialization);
+	
+	object result = model.saveWeightsToPython(weights);
+    
+	return result;
+}
+
 bool validate(object& graphDict, object& gtDict)
 {
 	dict pyGraph = extract<dict>(graphDict);
@@ -65,6 +83,11 @@ BOOST_PYTHON_MODULE( multiHypoTracking@SUFFIX@ )
 	def("train", train, args("graph", "groundTruth"),
 		"Run Structured Learning with an ILP solver on a graph specified as a dictionary,"
 		"in the same structure as the supported JSON format." 
+		"Similarly, the ground truth are also given as dict as in a result.json file .\n\n"
+		"Returns a python dictionary containing a weights entry");
+	def("trainWithWeightInitialization", trainWithWeightInitialization, args("graph", "groundTruth", "initialWeights"),
+		"Run Structured Learning with an ILP solver on a graph specified as a dictionary,"
+		"in the same structure as the supported JSON format. Similarly, the weights are also given as dict." 
 		"Similarly, the ground truth are also given as dict as in a result.json file .\n\n"
 		"Returns a python dictionary containing a weights entry");
 	def("validate", train, args("graph", "solution"),

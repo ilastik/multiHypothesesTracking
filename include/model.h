@@ -36,6 +36,14 @@ public:
 	helpers::Solution infer(const std::vector<helpers::ValueType>& weights);
 
 	/**
+	 * @brief Run learning using a given ground truth file and initial weights
+	 * @details Loads the ground truth using getGroundTruth() and learns the best weights using Structured Bundled Risk Minimization
+	 * @param weights 
+	 * @return the vector of learned weights
+	 */
+	std::vector<helpers::ValueType> learn(const std::vector<helpers::ValueType>& weights);
+
+	/**
 	 * @brief Run learning using a given ground truth file
 	 * @details Loads the ground truth using getGroundTruth() and learns the best weights using Structured Bundled Risk Minimization
 	 * 
