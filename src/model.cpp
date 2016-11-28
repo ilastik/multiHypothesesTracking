@@ -209,6 +209,8 @@ std::vector<ValueType> Model::learn(const std::vector<helpers::ValueType>& weigh
 	
 	std::cout << "Done setting up dataset, creating learner" << std::endl;
 	opengm::learning::StructMaxMargin<DatasetType>::Parameter learnerParam;
+	learnerParam.optimizerParameter_.lambda = 1.00;
+	learnerParam.optimizerParameter_.nonNegativeWeights = settings_->nonNegativeWeightsOnly_;
 	opengm::learning::StructMaxMargin<DatasetType> learner(dataset, learnerParam);
 
 #ifdef WITH_CPLEX

@@ -135,6 +135,8 @@ void PythonModel::readFromPython(dict& graphDict)
 			settings_->optimizerVerbose_ = extract<bool>(settings[JsonTypeNames[JsonTypes::OptimizerVerbose]]);
 		if(settings.has_key(JsonTypeNames[JsonTypes::OptimizerNumThreads]))
 			settings_->optimizerNumThreads_ = extract<int>(settings[JsonTypeNames[JsonTypes::OptimizerNumThreads]]);
+        if(settings.has_key(JsonTypeNames[JsonTypes::NonNegativeWeightsOnly]))
+			settings_->nonNegativeWeightsOnly_ = extract<bool>(settings[JsonTypeNames[JsonTypes::NonNegativeWeightsOnly]]);
 	}
 	else
 	{

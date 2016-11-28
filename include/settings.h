@@ -40,6 +40,7 @@ public: // settings object makes these parameters public instead of writing tons
 	double optimizerEpGap_; // default = 0.01
 	bool optimizerVerbose_; // default = true
 	size_t optimizerNumThreads_; // default = 1, use 0 for all CPU cores
+	bool nonNegativeWeightsOnly_; // default = false
 };
 
 } // end namespace helpers

@@ -31,7 +31,8 @@ std::map<JsonTypes, std::string> JsonTypeNames = {
 	{JsonTypes::OptimizerNumThreads, "optimizerNumThreads"},
 	{JsonTypes::AllowPartialMergerAppearance, "allowPartialMergerAppearance"},
 	{JsonTypes::AllowLengthOneTracks, "allowLengthOneTracks"},
-	{JsonTypes::RequireSeparateChildrenOfDivision, "requireSeparateChildrenOfDivision"}
+	{JsonTypes::RequireSeparateChildrenOfDivision, "requireSeparateChildrenOfDivision"},
+	{JsonTypes::NonNegativeWeightsOnly, "nonNegativeWeightsOnly"}
 };
 
 void saveWeightsToJson(

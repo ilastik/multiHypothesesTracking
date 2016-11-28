@@ -167,7 +167,8 @@ enum class JsonTypes {Segmentations,
 	OptimizerNumThreads,
 	AllowPartialMergerAppearance,
 	AllowLengthOneTracks,
-	RequireSeparateChildrenOfDivision
+	RequireSeparateChildrenOfDivision,
+	NonNegativeWeightsOnly,
 };
 
 /// mapping from JsonTypes to strings which are used in the Json files

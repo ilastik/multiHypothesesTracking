@@ -10,7 +10,8 @@ Settings::Settings():
 	requireSeparateChildrenOfDivision_(false),
 	optimizerEpGap_(0.01),
 	optimizerVerbose_(true),
-	optimizerNumThreads_(1)
+	optimizerNumThreads_(1),
+	nonNegativeWeightsOnly_(false)
 {}
 
 Settings::Settings(const Json::Value& entry)
@@ -49,6 +50,11 @@ Settings::Settings(const Json::Value& entry)
 		optimizerNumThreads_ = entry[JsonTypeNames[JsonTypes::OptimizerNumThreads]].asUInt();
 	else 
 		optimizerNumThreads_ = 1;
+
+	if(entry.isMember(JsonTypeNames[JsonTypes::NonNegativeWeightsOnly]))
+		nonNegativeWeightsOnly_ = entry[JsonTypeNames[JsonTypes::NonNegativeWeightsOnly]].asBool();
+	else 
+		nonNegativeWeightsOnly_ = false;
 }
 
 void Settings::saveToJson(Json::Value& entry)
@@ -57,6 +63,7 @@ void Settings::saveToJson(Json::Value& entry)
 	entry[JsonTypeNames[JsonTypes::AllowPartialMergerAppearance]] = Json::Value(allowPartialMergerAppearance_);
 	entry[JsonTypeNames[JsonTypes::AllowLengthOneTracks]] = Json::Value(allowLengthOneTracks_);
 	entry[JsonTypeNames[JsonTypes::RequireSeparateChildrenOfDivision]] = Json::Value(requireSeparateChildrenOfDivision_);
+	entry[JsonTypeNames[JsonTypes::NonNegativeWeightsOnly]] = Json::Value(nonNegativeWeightsOnly_);
 	entry[JsonTypeNames[JsonTypes::OptimizerEpGap]] = Json::Value(optimizerEpGap_);
 	entry[JsonTypeNames[JsonTypes::OptimizerVerbose]] = Json::Value(optimizerVerbose_);
 	entry[JsonTypeNames[JsonTypes::OptimizerNumThreads]] = Json::Value((int)optimizerNumThreads_);
@@ -70,6 +77,7 @@ void Settings::print()
 		<< "\n\tAllowPartialMergerAppearance: " << (allowPartialMergerAppearance_ ? "true" : "false")
 		<< "\n\tAllowLengthOneTracks: " << (allowLengthOneTracks_ ? "true" : "false")
 		<< "\n\tRequireSeparateChildrenOfDivision: " << (requireSeparateChildrenOfDivision_ ? "true" : "false")
+		<< "\n\tNonNegativeWeightsOnly: " << (nonNegativeWeightsOnly_ ? "true" : "false")
 		<< "\n\tOptimizerEpGap: " << optimizerEpGap_
 		<< "\n\tOptimizerVerbose: " << (optimizerVerbose_ ? "true" : "false")
 		<< "\n\tOptimizerNumThreads: " << optimizerNumThreads_
