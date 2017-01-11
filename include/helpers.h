@@ -159,6 +159,7 @@ enum class JsonTypes {Segmentations,
 	AppearanceFeatures,
 	DisappearanceFeatures,
 	Weights,
+	ResultEnergy,
 	// settings-related
 	Settings,
 	StatesShareWeights,
