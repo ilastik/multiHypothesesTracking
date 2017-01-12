@@ -252,7 +252,7 @@ dict PythonModel::saveResultToPython(const Solution& sol) const
 	result[JsonTypeNames[JsonTypes::DetectionResults]] = detectionResults;
 	result[JsonTypeNames[JsonTypes::LinkResults]] = linkResults;
 	result[JsonTypeNames[JsonTypes::DivisionResults]] = divisionResults;
-    result[JsonTypeNames[JsonTypes::ResultEnergy]] = this->evaluateSolution(sol);
+    result[JsonTypeNames[JsonTypes::ResultEnergy]] = getLastSolutionValue();
 	return result;
 }
 

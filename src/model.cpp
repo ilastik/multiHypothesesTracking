@@ -171,6 +171,7 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 	optimizer.infer(optimizerVisitor);
 	optimizer.arg(solution);
 	std::cout << "solution has energy: " << optimizer.value() << std::endl;
+	foundSolutionValue_ = optimizer.value();
 
 	// std::cout << " found solution: " << solution << std::endl;
 
@@ -240,6 +241,11 @@ std::vector<ValueType> Model::learn(const std::vector<helpers::ValueType>& weigh
 double Model::evaluateSolution(const Solution& sol) const
 {
 	return model_.evaluate(sol);
+}
+
+double Model::getLastSolutionValue() const
+{
+	return foundSolutionValue_;
 }
 
 bool Model::verifySolution(const Solution& sol) const

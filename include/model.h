@@ -62,12 +62,18 @@ public:
 
 	/**
 	 * @brief Return the energy of the given solution vector
-	 * @detail WARNING: may only be used after calling initializeOpenGMModel(), learn() or infer() because it needs an initialized opengm model!
+	 * @detail WARNING: may only be used after calling initializeOpenGMModel(), because it needs an initialized opengm model!
+	 * @detail WARNING: the weights object that the model refers to must still be available, as well!
 	 * 
 	 * @param sol solution vector
 	 * @return energy of the system in this solution
 	 */
 	double evaluateSolution(const helpers::Solution& sol) const;
+	
+	/**
+	 * @brief Return the energy of the last found solution from tracking (zero by default)
+	 */
+	double getLastSolutionValue() const;
 
 	/**
 	 * @brief Create a graphviz dot output of the full graph, showing used nodes/links in blue and exclusion constraints in red
@@ -114,6 +120,7 @@ protected:
 
 	// OpenGM stuff
 	helpers::GraphicalModelType model_;
+	double foundSolutionValue_;
 
 	// model settings
 	std::shared_ptr<helpers::Settings> settings_;

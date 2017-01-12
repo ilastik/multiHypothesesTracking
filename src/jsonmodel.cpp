@@ -384,7 +384,7 @@ void JsonModel::saveResultToJson(const std::string& filename, const Solution& so
     }
 
     // store result energy
-    root[JsonTypeNames[JsonTypes::ResultEnergy]] = Json::Value(this->evaluateSolution(sol));
+    root[JsonTypeNames[JsonTypes::ResultEnergy]] = Json::Value(getLastSolutionValue());
 
     output << root << std::endl;
 }
