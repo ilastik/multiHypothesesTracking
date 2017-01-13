@@ -73,6 +73,9 @@ requirements:
     {% endif %}
 
 test:
+    source_files:
+      - test
+  
   {% if WITH_CPLEX %}
     imports:
       - multiHypoTracking_with_cplex
