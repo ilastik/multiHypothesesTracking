@@ -44,8 +44,10 @@ requirements:
     - gcc 4.8.5 # [linux]
     - gcc 4.8.5 # [osx]
     - patchelf # [linux]
-    - boost 1.55.0
+    - boost 1.55.0 # [py2k]
+    - boost 1.60.0 # [py3k]
     - opengm-structured-learning-headers
+    - python 2.7*|3.5*
     - python {{PY_VER}}*
 
     {% if WITH_CPLEX %}
@@ -59,7 +61,8 @@ requirements:
   run:
     - libgcc 4.8.5
     - patchelf # [linux]
-    - boost 1.55.0
+    - boost 1.55.0 # [py2k]
+    - boost 1.60.0 # [py3k]
     - python {{PY_VER}}*
     {% if WITH_CPLEX is defined and WITH_CPLEX %}
     - cplex-shared # Need to make sure that cplex dylibs exist

@@ -23,8 +23,10 @@ else()
   find_package( PythonLibs REQUIRED )
 endif()
 
+message("PYTHON_INCLUDE_DIRS: ${PYTHON_INCLUDE_DIRS}")
+
 # include external headers as system includes so we do not have to cope with their warnings
-include_directories( SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS}/python2.7 include_directories(${PROJECT_SOURCE_DIR}/python/))
+include_directories( SYSTEM ${Boost_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} ${PYTHON_INCLUDE_DIRS} include_directories(${PROJECT_SOURCE_DIR}/python/))
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pymultiHypoTracking.cpp.cmake ${CMAKE_CURRENT_BINARY_DIR}/pymultiHypoTracking.cpp @ONLY)
 
@@ -45,7 +47,7 @@ endif()
 # make use of ${PYTHON_EXECUTABLE} instead of /usr/bin/python
 if(NOT DEFINED PYMULTIHYPOTRACKING_INSTALL_DIR OR PYMULTIHYPOTRACKING_INSTALL_DIR MATCHES "^$")
     execute_process(COMMAND ${PYTHON_EXECUTABLE} -c 
-                    "from distutils.sysconfig import *; print get_python_lib(1)"
+                    "from distutils.sysconfig import *; print(get_python_lib(1))"
                     OUTPUT_VARIABLE PYTHON_SITE_PACKAGES OUTPUT_STRIP_TRAILING_WHITESPACE)
     file(TO_CMAKE_PATH ${PYTHON_SITE_PACKAGES} PYMULTIHYPOTRACKING_INSTALL_DIR)
 endif()
