@@ -10,8 +10,10 @@
 
 #ifdef WITH_CPLEX
 #include <opengm/inference/lpcplex2.hxx>
+#include <opengm/inference/lpcplex.hxx>
 #else
 #include <opengm/inference/lpgurobi2.hxx>
+#include <opengm/inference/lpgurobi.hxx>
 #endif
 
 #include <opengm/learning/struct-max-margin.hxx>
@@ -140,7 +142,7 @@ void Model::initializeOpenGMModel(WeightsType& weights)
 	std::cout << "Model has " << numIndicatorVars << " indicator variables" << std::endl;
 }
 
-Solution Model::infer(const std::vector<ValueType>& weights)
+Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerConstraints)
 {
 	// use weights that were given
 	WeightsType weightObject(computeNumWeights());
@@ -149,33 +151,72 @@ Solution Model::infer(const std::vector<ValueType>& weights)
 		weightObject.setWeight(i, weights[i]);
 	initializeOpenGMModel(weightObject);
 
+	if(withIntegerConstraints)
+	{
 #ifdef WITH_CPLEX
-	std::cout << "Using cplex optimizer" << std::endl;
-	typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
+		std::cout << "Using cplex optimizer" << std::endl;
+		typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
 #else
-	std::cout << "Using gurobi optimizer" << std::endl;
-	typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
+		std::cout << "Using gurobi optimizer" << std::endl;
+		typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
 #endif
-	OptimizerType::Parameter optimizerParam;
-	optimizerParam.integerConstraintNodeVar_ = true;
-	optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
-	optimizerParam.verbose_ = settings_->optimizerVerbose_;
-	optimizerParam.useSoftConstraints_ = false;
-	optimizerParam.epGap_ = settings_->optimizerEpGap_;
-	optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
-	OptimizerType optimizer(model_, optimizerParam);
+		OptimizerType::Parameter optimizerParam;
+		optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
+		optimizerParam.verbose_ = settings_->optimizerVerbose_;
+		optimizerParam.useSoftConstraints_ = false;
+		optimizerParam.integerConstraintNodeVar_ = true;
+		optimizerParam.epGap_ = settings_->optimizerEpGap_;
+		optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
-	Solution solution(model_.numberOfVariables());
-	OptimizerType::VerboseVisitorType optimizerVisitor;
-	optimizer.infer(optimizerVisitor);
-	optimizer.arg(solution);
-	std::cout << "solution has energy: " << optimizer.value() << std::endl;
-	foundSolutionValue_ = optimizer.value();
+		OptimizerType optimizer(model_, optimizerParam);
 
-	// std::cout << " found solution: " << solution << std::endl;
+		Solution solution(model_.numberOfVariables());
+		OptimizerType::VerboseVisitorType optimizerVisitor;
+		optimizer.infer(optimizerVisitor);
+		optimizer.arg(solution);
+		std::cout << "solution has energy: " << optimizer.value() << std::endl;
+		foundSolutionValue_ = optimizer.value();
+		return solution;
+	}
+	else
+	{
+#ifdef WITH_CPLEX
+		std::cout << "Using cplex optimizer" << std::endl;
+		typedef opengm::LPCplex<GraphicalModelType, opengm::Minimizer> OptimizerType;
+#else
+		std::cout << "Using gurobi optimizer" << std::endl;
+		typedef opengm::LPGurobi<GraphicalModelType, opengm::Minimizer> OptimizerType;
+#endif
+		OptimizerType::Parameter optimizerParam;
+		optimizerParam.verbose_ = settings_->optimizerVerbose_;
+		optimizerParam.integerConstraint_ = true;
+		optimizerParam.epGap_ = settings_->optimizerEpGap_;
+		optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
-	return solution;
+		OptimizerType optimizer(model_, optimizerParam);
+
+		Solution solution(model_.numberOfVariables());
+		OptimizerType::VerboseVisitorType optimizerVisitor;
+		optimizer.infer(optimizerVisitor);
+		optimizer.arg(solution);
+		
+		for(size_t i = 0; i < solution.size(); i++)
+        {
+            opengm::IndependentFactor<double, size_t, size_t> values;
+            optimizer.variable(i, values);
+            std::cout << "Variable " << i << ": ";
+            for(size_t state = 0; state < model_.numberOfLabels(i); state++)
+            {
+                std::cout << "(" << state << ")=" << values(state) << " ";
+            }
+            std::cout << std::endl;
+        }
+		
+		std::cout << "solution has energy: " << optimizer.value() << std::endl;
+		foundSolutionValue_ = optimizer.value();
+		return solution;
+	}
 }
 
 std::vector<ValueType> Model::learn()

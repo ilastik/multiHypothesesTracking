@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
 	    ("model,m", po::value<std::string>(&modelFilename), "filename of model stored as Json file")
 	    ("weights,w", po::value<std::string>(&weightsFilename), "filename of the weights stored as Json file")
 	    ("output,o", po::value<std::string>(&outputFilename), "filename where the resulting tracking (as links) will be stored as Json file")
+		("lp-relax", "run LP relaxation")
 	;
 
 	po::variables_map variableMap;
@@ -41,10 +42,11 @@ int main(int argc, char** argv) {
 	} 
 	else 
 	{
+		bool withIntegerConstraints = variableMap.count("lp-relax") == 0;
 	    JsonModel model;
 		model.readFromJson(modelFilename);
 		std::vector<double> weights = readWeightsFromJson(weightsFilename);
-		Solution solution = model.infer(weights);
+		Solution solution = model.infer(weights, withIntegerConstraints);
 		model.saveResultToJson(outputFilename, solution);
 	}
 }
