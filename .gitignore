@@ -1,6 +1,9 @@
 
 # added by GitSavvy
 /.tags
+tags
+
+*.sublime-project
 
 # added by GitSavvy
 /.tags_sorted_by_file
@@ -12,3 +15,8 @@
 build/
 buildCplex/
 buildStr/
+
+# ignore test folder but py and cpp files (json needs to be force-added!):
+test/*
+!test/*.cpp
+!test/*.py
