@@ -207,7 +207,7 @@ void SegmentationHypothesis::addDivisionConstraintToOpenGM(GraphicalModelType& m
 	}
 }
 
-void SegmentationHypothesis::addExternalDivisionConstraintaToOpenGM(GraphicalModelType& model)
+void SegmentationHypothesis::addExternalDivisionConstraintToOpenGM(GraphicalModelType& model)
 {
 	LinearConstraintFunctionType::LinearConstraintType onlyOneDivisionConstraint;
 	std::vector<LabelType> onlyOneFactorVariables;
@@ -317,7 +317,7 @@ void SegmentationHypothesis::addToOpenGMModel(
 	addIncomingConstraintToOpenGM(model);
 	addOutgoingConstraintToOpenGM(model);
 	addDivisionConstraintToOpenGM(model, settings->requireSeparateChildrenOfDivision_);
-	addExternalDivisionConstraintaToOpenGM(model);
+	addExternalDivisionConstraintToOpenGM(model);
 
 	if(!settings->allowLengthOneTracks_)
 	{

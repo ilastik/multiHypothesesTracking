@@ -156,7 +156,7 @@ private:
 	/**
 	 * @brief Add constraints of external division nodes (division hypotheses) to OpenGM
 	 */
-	void addExternalDivisionConstraintaToOpenGM(helpers::GraphicalModelType& model);
+	void addExternalDivisionConstraintToOpenGM(helpers::GraphicalModelType& model);
 
 	/**
 	 * @brief Add constraint that ensures that at most one of the two given opengm variables takes a state > 0
