@@ -53,9 +53,6 @@ void SegmentationHypothesis::toDot(std::ostream& stream, const Solution* sol) co
 
 void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& model)
 {
-	if(incomingLinks_.size() == 0 && appearance_.getOpenGMVariableId() < 0)
-		return;
-
 	// add constraint for sum of incoming = this label
 	LinearConstraintFunctionType::LinearConstraintType incomingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
@@ -96,14 +93,11 @@ void SegmentationHypothesis::addIncomingConstraintToOpenGM(GraphicalModelType& m
 
 void SegmentationHypothesis::addOutgoingConstraintToOpenGM(GraphicalModelType& model)
 {
-	if(outgoingLinks_.size() == 0 && disappearance_.getOpenGMVariableId() < 0)
-		return;
-
 	// add constraint for sum of ougoing = this label + division
 	LinearConstraintFunctionType::LinearConstraintType outgoingConsistencyConstraint;
 	std::vector<LabelType> factorVariables;
 	std::vector<LabelType> constraintShape;
-    
+   
     // add all outgoing transition variables with positive coefficient
     for(size_t i = 0; i < outgoingLinks_.size(); ++i)
     {
