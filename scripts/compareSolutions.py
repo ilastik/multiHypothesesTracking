@@ -1,4 +1,8 @@
-import commentjson as json
+try:
+    import commentjson as json
+except ImportError:
+    import json
+
 import argparse
     
 def extractEventLists(solution):
@@ -13,7 +17,7 @@ def extractEventLists(solution):
     moveEvents = set([(o["src"], o["dest"]) for o in moves if o['value'] > 0])
     divEvents = set([(o["parent"], o["children"][0], o["children"][1]) for o in divisions if o['value']])
     
-    return detEvents, moveEvents, divEvents, len(detections), len(moves), len(divisions)
+    return detEvents, moveEvents, divEvents, len(detEvents), len(moveEvents), len(divEvents)
 
 def precision(tp, fp):
     return float(tp) / (tp + fp)
@@ -71,17 +75,20 @@ if __name__ == "__main__":
     totalResultEvents= 0
     
     for i,n in enumerate(['detections', 'moves', 'divisions']):
-        tp = len(gtEvents[i].intersection(resultEvents[i]))
-        fp = len(resultEvents[i].difference(gtEvents[i]))
-        fn = len(gtEvents[i].difference(resultEvents[i]))
-        # tn = gtEvents[i + 3] - tp - fp - fn
+        try:
+            tp = len(gtEvents[i].intersection(resultEvents[i]))
+            fp = len(resultEvents[i].difference(gtEvents[i]))
+            fn = len(gtEvents[i].difference(resultEvents[i]))
+            # tn = gtEvents[i + 3] - tp - fp - fn
 
-        printStats(n, tp, fp, fn, gtEvents[i + 3], resultEvents[i + 3])
-        totalTp += tp
-        totalFp += fp
-        totalFn += fn
-        totalGtEvents += gtEvents[i + 3]
-        totalResultEvents += resultEvents[i + 3]
+            printStats(n, tp, fp, fn, gtEvents[i + 3], resultEvents[i + 3])
+            totalTp += tp
+            totalFp += fp
+            totalFn += fn
+            totalGtEvents += gtEvents[i + 3]
+            totalResultEvents += resultEvents[i + 3]
+        except ZeroDivisionError:
+            print("\n\nDid not find {} results".format(n))
     
     print('\n=======================')
     printStats('overall', totalTp, totalFp, totalFn, totalGtEvents, totalResultEvents)
