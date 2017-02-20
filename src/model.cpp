@@ -175,22 +175,77 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 		OptimizerType::VerboseVisitorType optimizerVisitor;
 		optimizer.infer(optimizerVisitor);
 		optimizer.arg(solution);
+
+		size_t numIntegralVariables = 0;
+        for(size_t i = 0; i < solution.size(); i++)
+        {
+            opengm::IndependentFactor<double, size_t, size_t> values;
+            optimizer.variable(i, values);
+            double v = values(solution[i]);
+            if(v == 0.0 || v == 1.0)
+                numIntegralVariables++;
+        }
+        std::cout << numIntegralVariables << " variables of " << model_.numberOfVariables() << " are integral! "
+                  << 100.0 * float(numIntegralVariables) / model_.numberOfVariables() << "%" << std::endl;
+
 		std::cout << "solution has energy: " << optimizer.value() << std::endl;
 		foundSolutionValue_ = optimizer.value();
 		return solution;
 	}
 	else
 	{
+// 		// TODO: implement as soft constraints, and use ExplicitFactors instead of learnable ones?!
+// #ifdef WITH_CPLEX
+// 		std::cout << "Using cplex optimizer" << std::endl;
+// 		typedef opengm::LPCplex<GraphicalModelType, opengm::Minimizer> OptimizerType;
+// #else
+// 		std::cout << "Using gurobi optimizer" << std::endl;
+// 		typedef opengm::LPGurobi<GraphicalModelType, opengm::Minimizer> OptimizerType;
+// #endif
+// 		OptimizerType::Parameter optimizerParam;
+// 		optimizerParam.verbose_ = settings_->optimizerVerbose_;
+// 		optimizerParam.integerConstraint_ = false;
+// 		optimizerParam.epGap_ = settings_->optimizerEpGap_;
+// 		optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
+
+// 		std::cout << "Constructing model" << std::endl;
+// 		OptimizerType optimizer(model_, optimizerParam);
+
+// 		Solution solution(model_.numberOfVariables());
+// 		OptimizerType::VerboseVisitorType optimizerVisitor;
+// 		std::cout << "Beginning to optimize LP relaxation..." << std::endl;
+// 		optimizer.infer(optimizerVisitor);
+// 		optimizer.arg(solution);
+		
+// 		size_t numIntegralVariables = 0;
+//         for(size_t i = 0; i < solution.size(); i++)
+//         {
+//             opengm::IndependentFactor<double, size_t, size_t> values;
+//             optimizer.variable(i, values);
+//             double v = values(solution[i]);
+//             if(v == 0.0 || v == 1.0)
+//                 numIntegralVariables++;
+//         }
+//         std::cout << numIntegralVariables << " variables of " << model_.numberOfVariables() << " are integral! "
+//                   << 100.0 * float(numIntegralVariables) / model_.numberOfVariables() << "%" << std::endl;
+		
+// 		std::cout << "solution has energy: " << optimizer.value() << std::endl;
+// 		foundSolutionValue_ = optimizer.value();
+// 		return solution;
+
 #ifdef WITH_CPLEX
 		std::cout << "Using cplex optimizer" << std::endl;
-		typedef opengm::LPCplex<GraphicalModelType, opengm::Minimizer> OptimizerType;
+		typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
 #else
 		std::cout << "Using gurobi optimizer" << std::endl;
-		typedef opengm::LPGurobi<GraphicalModelType, opengm::Minimizer> OptimizerType;
+		typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
 #endif
+
 		OptimizerType::Parameter optimizerParam;
+		optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
 		optimizerParam.verbose_ = settings_->optimizerVerbose_;
-		optimizerParam.integerConstraint_ = true;
+		optimizerParam.useSoftConstraints_ = false;
+		optimizerParam.integerConstraintNodeVar_ = false;
 		optimizerParam.epGap_ = settings_->optimizerEpGap_;
 		optimizerParam.numberOfThreads_ = settings_->optimizerNumThreads_;
 
@@ -200,19 +255,20 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 		OptimizerType::VerboseVisitorType optimizerVisitor;
 		optimizer.infer(optimizerVisitor);
 		optimizer.arg(solution);
-		
-		for(size_t i = 0; i < solution.size(); i++)
+
+		size_t numIntegralVariables = 0;
+        for(size_t i = 0; i < solution.size(); i++)
         {
             opengm::IndependentFactor<double, size_t, size_t> values;
             optimizer.variable(i, values);
-            std::cout << "Variable " << i << ": ";
-            for(size_t state = 0; state < model_.numberOfLabels(i); state++)
-            {
-                std::cout << "(" << state << ")=" << values(state) << " ";
-            }
-            std::cout << std::endl;
+            double v = values(solution[i]);
+            if(v == 0.0 || v == 1.0)
+                numIntegralVariables++;
         }
+        std::cout << numIntegralVariables << " variables of " << model_.numberOfVariables() << " are integral! "
+                  << 100.0 * float(numIntegralVariables) / model_.numberOfVariables() << "%" << std::endl;
 		
+
 		std::cout << "solution has energy: " << optimizer.value() << std::endl;
 		foundSolutionValue_ = optimizer.value();
 		return solution;

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include <boost/program_options.hpp>
 
@@ -46,7 +47,14 @@ int main(int argc, char** argv) {
 	    JsonModel model;
 		model.readFromJson(modelFilename);
 		std::vector<double> weights = readWeightsFromJson(weightsFilename);
+
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
+
 		Solution solution = model.infer(weights, withIntegerConstraints);
+        
+        std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> elapsed_seconds = endTime - startTime;
+        std::cout << "Finished tracking in " << elapsed_seconds.count() << " secs" << std::endl;
 		model.saveResultToJson(outputFilename, solution);
 	}
 }
