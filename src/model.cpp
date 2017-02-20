@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <numeric>
 #include <sstream>
+#include <chrono>
 
 // include the LPDef symbols only once!
 #undef OPENGM_LPDEF_NO_SYMBOLS
@@ -173,7 +174,11 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 
 		Solution solution(model_.numberOfVariables());
 		OptimizerType::VerboseVisitorType optimizerVisitor;
+		std::chrono::time_point<std::chrono::high_resolution_clock> startTime = std::chrono::high_resolution_clock::now();
 		optimizer.infer(optimizerVisitor);
+		std::chrono::time_point<std::chrono::high_resolution_clock> endTime = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double> elapsed_seconds = endTime - startTime;
+        std::cout << "Finished inference in " << elapsed_seconds.count() << " secs" << std::endl;
 		optimizer.arg(solution);
 
 		size_t numIntegralVariables = 0;
