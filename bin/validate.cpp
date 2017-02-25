@@ -50,8 +50,19 @@ int main(int argc, char** argv) {
 		
 		model.initializeOpenGMModel(weights);
 		model.setJsonGtFile(solutionFilename);
-		Solution solution = model.getGroundTruth();
-		bool valid = model.verifySolution(solution);
+		bool valid = false;
+		Solution solution;
+
+		try
+		{
+			solution = model.getGroundTruth();
+			valid = model.verifySolution(solution);
+		}
+		catch(...)
+		{
+			std::cout << "Could not read ground truth." << std::endl;
+		}
+
 		std::cout << "Is solution valid? " << (valid? "yes" : "no") << std::endl;
 
 		if(valid && variableMap.count("weights") > 0)
