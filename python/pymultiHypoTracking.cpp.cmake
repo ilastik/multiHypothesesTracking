@@ -9,17 +9,37 @@ using namespace mht;
 using namespace boost::python;
 using namespace helpers;
 
+/**
+ * @brief Helper class to release / lock the Python GIL
+ */
+class ScopedGILRelease {
+public:
+    inline ScopedGILRelease() { threadState_ = PyEval_SaveThread(); }
+    inline ~ScopedGILRelease() 
+    {
+        PyEval_RestoreThread(threadState_);
+        threadState_ = NULL;
+    }
+private:
+    PyThreadState* threadState_;
+};
+
 object track(object& graphDict, object& weightsDict)
 {
 	dict pyGraph = extract<dict>(graphDict);
 	dict pyWeights = extract<dict>(weightsDict);
-
+	
 	PythonModel model;
 	model.readFromPython(pyGraph);
 	FeatureVector weights = readWeightsFromPython(pyWeights);
-	Solution solution = model.infer(weights);
-	object result = model.saveResultToPython(solution);
+	Solution solution;
+
+	{
+		ScopedGILRelease gilLock;
+		solution = model.infer(weights);
+	}
     
+	object result = model.saveResultToPython(solution);
 	return result;
 }
 
@@ -27,12 +47,18 @@ object train(object& graphDict, object& gtDict)
 {
 	dict pyGraph = extract<dict>(graphDict);
 	dict pyGt = extract<dict>(gtDict);
-
 	PythonModel model;
 	model.readFromPython(pyGraph);
 	model.setPythonGt(pyGt);
-	std::vector<double> weights = model.learn();
+	std::vector<double> weights;
 	
+	{
+		// Not sure whether releasing the GIL here is safe,
+		// because this actually calls model.getGroundTruth(), which reads from python objects...
+		ScopedGILRelease gilLock;
+		weights = model.learn();
+	}
+		
 	object result = model.saveWeightsToPython(weights);
     
 	return result;
@@ -43,13 +69,19 @@ object trainWithWeightInitialization(object& graphDict, object& gtDict, object& 
 	dict pyGraph = extract<dict>(graphDict);
 	dict pyGt = extract<dict>(gtDict);
 	dict pyWeights = extract<dict>(weightsDict);
+	PythonModel model;
+	std::vector<double> weights;
+	model.readFromPython(pyGraph);
+	model.setPythonGt(pyGt);
 
 	FeatureVector weightInitialization = readWeightsFromPython(pyWeights);
 
-	PythonModel model;
-	model.readFromPython(pyGraph);
-	model.setPythonGt(pyGt);
-	std::vector<double> weights = model.learn(weightInitialization);
+	{
+		// Not sure whether releasing the GIL here is safe,
+		// because this actually calls model.getGroundTruth(), which reads from python objects...
+		ScopedGILRelease gilLock;
+		weights = model.learn(weightInitialization); 
+	}
 	
 	object result = model.saveWeightsToPython(weights);
     
@@ -60,13 +92,16 @@ bool validate(object& graphDict, object& gtDict)
 {
 	dict pyGraph = extract<dict>(graphDict);
 	dict pyGt = extract<dict>(gtDict);
-
 	PythonModel model;
 	model.readFromPython(pyGraph);
 	model.setPythonGt(pyGt);
-	
 	Solution solution = model.getGroundTruth();
-	bool valid = model.verifySolution(solution);
+	bool valid;
+
+	{
+		ScopedGILRelease gilLock;
+		valid = model.verifySolution(solution);
+	}
 	
 	return valid;
 }
