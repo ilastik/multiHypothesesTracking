@@ -147,6 +147,11 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 	// use weights that were given
 	WeightsType weightObject(computeNumWeights());
 	assert(weights.size() == weightObject.numberOfWeights());
+	if(weights.size() != weightObject.numberOfWeights())
+	{
+		std::cout << "Provided length of vector with initial weights has wrong length!" << std::endl;
+		throw std::runtime_error("Provided length of vector with initial weights has wrong length!");
+	}
 	for(size_t i = 0; i < weights.size(); i++)
 		weightObject.setWeight(i, weights[i]);
 	initializeOpenGMModel(weightObject);
