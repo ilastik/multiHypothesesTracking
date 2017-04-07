@@ -15,7 +15,10 @@ def extractEventLists(solution):
     
     detEvents = set([o["id"] for o in detections if o['value'] > 0])
     moveEvents = set([(o["src"], o["dest"]) for o in moves if o['value'] > 0])
-    divEvents = set([(o["parent"], o["children"][0], o["children"][1]) for o in divisions if o['value']])
+    try:
+        divEvents = set([(o["parent"], o["children"][0], o["children"][1]) for o in divisions if o['value']])
+    except KeyError:
+        divEvents = set([o["id"] for o in divisions if o['value']])
     
     return detEvents, moveEvents, divEvents, len(detEvents), len(moveEvents), len(divEvents)
 
