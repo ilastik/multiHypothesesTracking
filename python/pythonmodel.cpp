@@ -110,7 +110,123 @@ void PythonModel::readExclusionConstraint(list& entry)
 
 void PythonModel::setPythonGt(boost::python::dict& gtDict)
 {
-	groundTruthDict_ = gtDict;
+	// store the python GT in a set of maps (_gt...States)
+	list linkingResults = extract<list>(gtDict[JsonTypeNames[JsonTypes::LinkResults]]);
+    std::cout << "\tcontains " << len(linkingResults) << " linking annotations" << std::endl;
+
+    // first set all links and the respective source nodes to active
+    for(int i = 0; i < len(linkingResults); ++i)
+    {
+		dict entry = extract<dict>(linkingResults[i]);
+		if(!entry.has_key(JsonTypeNames[JsonTypes::SrcId]))
+			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing srcId"); 
+		if(!entry.has_key(JsonTypeNames[JsonTypes::DestId]))
+			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing destId");
+		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
+			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing value");
+
+		helpers::IdLabelType srcId = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::SrcId]]);
+		helpers::IdLabelType destId = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::DestId]]);
+        size_t value = extract<size_t>(entry[JsonTypeNames[JsonTypes::Value]]);
+
+        if(value > 0)
+        {
+            _gtLinkStates[std::make_pair(srcId, destId)] = value;
+        }
+    }
+
+    // read segmentation variables
+    list segmentationResults = extract<list>(gtDict[JsonTypeNames[JsonTypes::DetectionResults]]);
+    std::cout << "\tcontains " << len(segmentationResults) << " detection annotations" << std::endl;
+    for(int i = 0; i < len(segmentationResults); ++i)
+    {
+        dict entry = extract<dict>(segmentationResults[i]);
+
+		if(!entry.has_key(JsonTypeNames[JsonTypes::Id]))
+			throw std::runtime_error("Cannot read detection result without Id!");
+		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
+			throw std::runtime_error("Cannot read detection result without value!");
+
+		IdLabelType id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Id]]);
+        size_t value = extract<size_t>(entry[JsonTypeNames[JsonTypes::Value]]);
+
+        _gtDetectionStates[id] = value;
+    }
+
+    // read division variable states
+	list divisionResults = extract<list>(gtDict[JsonTypeNames[JsonTypes::DivisionResults]]);
+    std::cout << "\tcontains " << len(divisionResults) << " division annotations" << std::endl;
+    for(int i = 0; i < len(divisionResults); ++i)
+    {
+		dict entry = extract<dict>(divisionResults[i]);
+		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
+        	throw std::runtime_error("JSON entry for DivisionResult is invalid: missing Value");
+        bool value = extract<bool>(entry[JsonTypeNames[JsonTypes::Value]]);
+
+        if(value)
+        {
+            // depending on internal or external division node setup, handle both gracefully!
+            helpers::IdLabelType id;
+            if(entry.has_key(JsonTypeNames[JsonTypes::Id]))
+            {
+                // id is given for internal division
+                id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Id]]);
+            }
+            else
+            {
+                // parent is given for external
+                if(!entry.has_key(JsonTypeNames[JsonTypes::Parent]))
+                    throw std::runtime_error("Invalid configuration of a JSON division result entry");
+
+                id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]);
+            }
+
+            if(entry.has_key(JsonTypeNames[JsonTypes::Id]))
+            {
+            	_gtDivisionStates[id] = 1;
+            }
+            else if(entry.has_key(JsonTypeNames[JsonTypes::Parent]) && entry.has_key(JsonTypeNames[JsonTypes::Children]))
+            {
+				list children = extract<list>(entry[JsonTypeNames[JsonTypes::Children]]);
+
+                if(len(children) != 2)
+                {
+                    std::stringstream error;
+                    error << "Activating an external division of parent " << id << " requires two children!";
+                    throw std::runtime_error(error.str());
+                }
+
+                std::vector<IdLabelType> childrenIds;
+                for(int i = 0; i < len(children); ++i)
+                {
+                    childrenIds.push_back(extract<IdLabelType>(children[i]));
+                }
+
+                // always use ordered list of children!
+                std::sort(childrenIds.begin(), childrenIds.end());
+
+                DivisionHypothesis::IdType idx = std::make_tuple((IdLabelType)extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]),
+                                                                childrenIds[0],
+                                                                childrenIds[1]);
+
+                if(divisionHypotheses_.find(idx) == divisionHypotheses_.end())
+                {
+                    std::stringstream error;
+                    error << "Parent " << id << " does not have division to " << childrenIds[0] << " and " << childrenIds[1] << " to set active!";
+                    throw std::runtime_error(error.str());
+                }
+
+                _gtExternalDivisionStates[idx] = 1;
+            }
+            else
+            {
+                std::stringstream error;
+                error << "Trying to set division of " << id << " active but the variable had no division features and no external divisions!";
+                throw std::runtime_error(error.str());
+            }
+                
+        }
+    }
 }
 
 void PythonModel::readFromPython(dict& graphDict)
@@ -332,151 +448,31 @@ Solution PythonModel::getGroundTruth()
 	if(!model_.numberOfVariables() > 0)
         throw std::runtime_error("OpenGM model must be initialized before reading a ground truth!");
 	
-	list linkingResults = extract<list>(groundTruthDict_[JsonTypeNames[JsonTypes::LinkResults]]);
-    std::cout << "\tcontains " << len(linkingResults) << " linking annotations" << std::endl;
-
     // create a solution vector that holds a value for each segmentation / detection / link
     Solution solution(model_.numberOfVariables(), 0);
 
-    // first set all links and the respective source nodes to active
-    for(int i = 0; i < len(linkingResults); ++i)
+    for(auto link_iter = _gtLinkStates.begin(); link_iter != _gtLinkStates.end(); ++link_iter)
     {
-		dict entry = extract<dict>(linkingResults[i]);
-		if(!entry.has_key(JsonTypeNames[JsonTypes::SrcId]))
-			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing srcId"); 
-		if(!entry.has_key(JsonTypeNames[JsonTypes::DestId]))
-			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing destId");
-		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
-			throw std::runtime_error("Python dict entry for LinkingResult is invalid: missing value");
-
-		helpers::IdLabelType srcId = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::SrcId]]);
-		helpers::IdLabelType destId = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::DestId]]);
-        size_t value = extract<size_t>(entry[JsonTypeNames[JsonTypes::Value]]);
-
-        if(value > 0)
-        {
-            // try to find link
-            if(linkingHypotheses_.find(std::make_pair(srcId, destId)) == linkingHypotheses_.end())
-            {
-                std::stringstream s;
-                s << "Cannot find link to annotate: " << srcId << " to " << destId;
-                throw std::runtime_error(s.str());
-            }
-            
-            // set link active
-            std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[std::make_pair(srcId, destId)];
-            solution[hyp->getVariable().getOpenGMVariableId()] = value;
-        }
+    	std::shared_ptr<LinkingHypothesis> hyp = linkingHypotheses_[link_iter->first];
+    	solution[hyp->getVariable().getOpenGMVariableId()] = link_iter->second;
     }
 
-    // read segmentation variables
-    list segmentationResults = extract<list>(groundTruthDict_[JsonTypeNames[JsonTypes::DetectionResults]]);
-    std::cout << "\tcontains " << len(segmentationResults) << " detection annotations" << std::endl;
-    for(int i = 0; i < len(segmentationResults); ++i)
+    for(auto segment_iter = _gtDetectionStates.begin(); segment_iter != _gtDetectionStates.begin(); ++segment_iter)
     {
-        dict entry = extract<dict>(segmentationResults[i]);
-
-		if(!entry.has_key(JsonTypeNames[JsonTypes::Id]))
-			throw std::runtime_error("Cannot read detection result without Id!");
-		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
-			throw std::runtime_error("Cannot read detection result without value!");
-
-		IdLabelType id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Id]]);
-        size_t value = extract<size_t>(entry[JsonTypeNames[JsonTypes::Value]]);
-
-        solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] = value;
+    	SegmentationHypothesis hyp = segmentationHypotheses_[segment_iter->first];
+    	solution[hyp.getDetectionVariable().getOpenGMVariableId()] = segment_iter->second;
     }
 
-    // read division variable states
-	list divisionResults = extract<list>(groundTruthDict_[JsonTypeNames[JsonTypes::DivisionResults]]);
-    std::cout << "\tcontains " << len(divisionResults) << " division annotations" << std::endl;
-    for(int i = 0; i < len(divisionResults); ++i)
+    for(auto division_iter = _gtDivisionStates.begin(); division_iter != _gtDivisionStates.begin(); ++division_iter)
     {
-		dict entry = extract<dict>(divisionResults[i]);
-		if(!entry.has_key(JsonTypeNames[JsonTypes::Value]))
-        	throw std::runtime_error("JSON entry for DivisionResult is invalid: missing Value");
-        bool value = extract<bool>(entry[JsonTypeNames[JsonTypes::Value]]);
+    	SegmentationHypothesis hyp = segmentationHypotheses_[division_iter->first];
+    	solution[hyp.getDivisionVariable().getOpenGMVariableId()] = division_iter->second;
+    }
 
-        if(value)
-        {
-            // depending on internal or external division node setup, handle both gracefully!
-            helpers::IdLabelType id;
-            if(entry.has_key(JsonTypeNames[JsonTypes::Id]))
-            {
-                // id is given for internal division
-                id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Id]]);
-            }
-            else
-            {
-                // parent is given for external
-                if(!entry.has_key(JsonTypeNames[JsonTypes::Parent]))
-                    throw std::runtime_error("Invalid configuration of a JSON division result entry");
-
-                id = extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]);
-            }
-
-            if(solution[segmentationHypotheses_[id].getDetectionVariable().getOpenGMVariableId()] == 0)
-            {
-                // in any case the parent must be active!
-                std::stringstream error;
-                error << "Cannot activate division of node " << id << " that is not active!";
-                throw std::runtime_error(error.str());
-            }
-
-            if(entry.has_key(JsonTypeNames[JsonTypes::Id]))
-            {
-                if(segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId() < 0)
-                {
-                    std::stringstream error;
-                    error << "Trying to set division of " << id << " active but the variable had no division features!";
-                    throw std::runtime_error(error.str());
-                }
-                // internal if id is given AND there is a opengm variable for the internal division
-                solution[segmentationHypotheses_[id].getDivisionVariable().getOpenGMVariableId()] = 1;
-            }
-            else if(entry.has_key(JsonTypeNames[JsonTypes::Parent]) && entry.has_key(JsonTypeNames[JsonTypes::Children]))
-            {
-				list children = extract<list>(entry[JsonTypeNames[JsonTypes::Children]]);
-
-                if(len(children) != 2)
-                {
-                    std::stringstream error;
-                    error << "Activating an external division of parent " << id << " requires two children!";
-                    throw std::runtime_error(error.str());
-                }
-
-                std::vector<IdLabelType> childrenIds;
-                for(int i = 0; i < len(children); ++i)
-                {
-                    childrenIds.push_back(extract<IdLabelType>(children[i]));
-                }
-
-                // always use ordered list of children!
-                std::sort(childrenIds.begin(), childrenIds.end());
-
-                DivisionHypothesis::IdType idx = std::make_tuple((IdLabelType)extract<IdLabelType>(entry[JsonTypeNames[JsonTypes::Parent]]),
-                                                                childrenIds[0],
-                                                                childrenIds[1]);
-
-                if(divisionHypotheses_.find(idx) == divisionHypotheses_.end())
-                {
-                    std::stringstream error;
-                    error << "Parent " << id << " does not have division to " << childrenIds[0] << " and " << childrenIds[1] << " to set active!";
-                    throw std::runtime_error(error.str());
-                }
-
-                std::cout << "Setting external division to active! " << std::endl;
-                auto divHyp = divisionHypotheses_[idx];
-                solution[divHyp->getVariable().getOpenGMVariableId()] = 1;
-            }
-            else
-            {
-                std::stringstream error;
-                error << "Trying to set division of " << id << " active but the variable had no division features and no external divisions!";
-                throw std::runtime_error(error.str());
-            }
-                
-        }
+    for(auto ext_div_iter = _gtExternalDivisionStates.begin(); ext_div_iter != _gtExternalDivisionStates.begin(); ++ext_div_iter)
+    {
+    	std::shared_ptr<DivisionHypothesis> hyp = divisionHypotheses_[ext_div_iter->first];
+    	solution[hyp->getVariable().getOpenGMVariableId()] = ext_div_iter->second;
     }
 
 	deduceAppearanceDisappearanceStates(solution);

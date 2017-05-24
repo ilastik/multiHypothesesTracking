@@ -133,7 +133,10 @@ private:
 
 private:
     // ground truth dictionary
-    boost::python::dict groundTruthDict_;
+    std::map<std::pair<helpers::IdLabelType, helpers::IdLabelType>, helpers::LabelType> _gtLinkStates;
+    std::map<helpers::IdLabelType, helpers::LabelType> _gtDetectionStates;
+    std::map<helpers::IdLabelType, helpers::LabelType> _gtDivisionStates;
+    std::map<DivisionHypothesis::IdType, helpers::LabelType> _gtExternalDivisionStates;
 };
 
 } // end namespace mht
