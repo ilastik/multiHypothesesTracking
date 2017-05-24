@@ -55,7 +55,7 @@ object train(object& graphDict, object& gtDict)
 	{
 		// Not sure whether releasing the GIL here is safe,
 		// because this actually calls model.getGroundTruth(), which reads from python objects...
-		ScopedGILRelease gilLock;
+		// ScopedGILRelease gilLock;
 		weights = model.learn();
 	}
 		
@@ -79,7 +79,7 @@ object trainWithWeightInitialization(object& graphDict, object& gtDict, object& 
 	{
 		// Not sure whether releasing the GIL here is safe,
 		// because this actually calls model.getGroundTruth(), which reads from python objects...
-		ScopedGILRelease gilLock;
+		// ScopedGILRelease gilLock;
 		weights = model.learn(weightInitialization); 
 	}
 	
