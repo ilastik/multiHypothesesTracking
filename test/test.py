@@ -2,7 +2,7 @@
 try:
     import multiHypoTracking_with_gurobi as mht
 except ImportError:
-    import multiHypoTracking_cplex as mht
+    import multiHypoTracking_with_cplex as mht
 
 # set up a test model
 weights = {"weights": [10, 10, 10, 500, 500]}

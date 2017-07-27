@@ -42,10 +42,10 @@ build:
 requirements:
   build:
     - gcc 4.8.5 # [linux]
-    - gcc 4.8.5 # [osx]
     - patchelf # [linux]
-    - boost 1.55.0
     - hdf5 1.8.17
+    - boost 1.55.0 # [py2k]
+    - boost 1.63.0 # [py3k]
     - opengm-structured-learning-headers
     - python {{PY_VER}}*
 
@@ -58,11 +58,13 @@ requirements:
     {% endif %}
 
   run:
-    - libgcc 4.8.5
+    - libgcc 4.8.5 # [linux]
     - patchelf # [linux]
-    - boost 1.55.0
     - hdf5 1.8.17
+    - boost 1.55.0 # [py2k]
+    - boost 1.63.0 # [py3k]
     - python {{PY_VER}}*
+
     {% if WITH_CPLEX is defined and WITH_CPLEX %}
     - cplex-shared # Need to make sure that cplex dylibs exist
     {% endif %}
@@ -72,6 +74,9 @@ requirements:
     {% endif %}
 
 test:
+    source_files:
+      - test
+  
   {% if WITH_CPLEX %}
     imports:
       - multiHypoTracking_with_cplex

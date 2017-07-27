@@ -106,8 +106,8 @@ else
         #       depending on which version of the C++ std library you need to use:
         #       - For libstdc++ (from the GNU people), use libgurobi_stdc++.a
         #       - For libc++    (from the clang people), use libgurobi_c++.a
-        #       We use gcc (even on Mac), so we use the libstdc++ version.
-        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_stdc++.a"
+        #       We use clang now so we use the libc++ version.
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
     else
         # Only one choice on Linux. It works with libstdc++ (from the GNU people).
         # (The naming convention isn't consistent with the name on Mac, but that's okay.)
@@ -124,16 +124,33 @@ fi
 mkdir build
 cd build
 
+PY_VER=$(python -c "import sys; print('{}.{}'.format(*sys.version_info[:2]))")
+PY_ABIFLAGS=$(python -c "import sys; print('' if sys.version_info.major == 2 else sys.abiflags)")
+PY_ABI=${PY_VER}${PY_ABIFLAGS}
+
+if [ $(uname) == "Darwin" ]; then
+    CC=clang
+    CXX=clang++
+    CXXFLAGS="-std=c++11 -stdlib=libc++"
+    
+    export DYLIB="dylib"
+    LINKER_FLAGS="-L${PREFIX}/lib"
+else
+    CC=${PREFIX}/bin/gcc
+    CXX=${PREFIX}/bin/g++
+    export DYLIB="so"
+    LINKER_FLAGS="-Wl,-rpath-link,${PREFIX}/lib -L${PREFIX}/lib"
+fi
+
 CXXFLAGS="${CXXFLAGS} -I${PREFIX}/include"
-LDFLAGS="${LDFLAGS} -Wl,-rpath,${PREFIX}/lib -L${PREFIX}/lib"
 
 ##
 ## Configure
 ##
 cmake .. \
-        -DCMAKE_C_COMPILER=${PREFIX}/bin/gcc \
-        -DCMAKE_CXX_COMPILER=${PREFIX}/bin/g++ \
-        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 \
+        -DCMAKE_C_COMPILER=${CC} \
+        -DCMAKE_CXX_COMPILER=${CXX} \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 \
         -DCMAKE_INSTALL_PREFIX=${PREFIX} \
         -DCMAKE_PREFIX_PATH=${PREFIX} \
 \
@@ -150,9 +167,9 @@ cmake .. \
 \
         -DWITH_PYTHON=ON \
         -DPYTHON_EXECUTABLE=${PYTHON} \
-        -DPYTHON_LIBRARY=${PREFIX}/lib/libpython2.7.${DYLIB} \
-        -DPYTHON_INCLUDE_DIR=${PREFIX}/include/python2.7 \
-        -DPYTHON_INCLUDE_DIR2=${PREFIX}/include/python2.7 \
+        -DPYTHON_LIBRARY=${PREFIX}/lib/libpython${PY_ABI}.${DYLIB} \
+        -DPYTHON_INCLUDE_DIR=${PREFIX}/include/python${PY_ABI} \
+        -DPYTHON_INCLUDE_DIR2=${PREFIX}/include/python${PY_ABI} \
 \
         -DCMAKE_BUILD_TYPE=Release \
 ##
@@ -164,7 +181,7 @@ make -j${CPU_COUNT}
 make install
 
 MHT_LIB_SO=${PREFIX}/lib/libmultiHypoTracking${SUFFIX}.${DYLIB}
-MHT_PYMODULE_SO=${PREFIX}/lib/python2.7/site-packages/multiHypoTracking${SUFFIX}.so
+MHT_PYMODULE_SO=${SP_DIR}/multiHypoTracking${SUFFIX}.so
 
 ##
 ## Rename the python module entirely, and change cplex lib install names.
