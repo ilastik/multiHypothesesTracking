@@ -9,7 +9,8 @@ weights = {"weights": [10, 10, 10, 500, 500]}
 
 graph = {
     "settings": {
-        "statesShareWeights": True
+        "statesShareWeights": True,
+        "nonNegativeWeightsOnly": True
     },
 
     "segmentationHypotheses": [
@@ -43,11 +44,11 @@ expectedResult = {'detectionResults': [{'id': 2, 'value': 1},
                                        {'id': 4, 'value': 1},
                                        {'id': 5, 'value': 1},
                                        {'id': 6, 'value': 1}],
-                  'divisionResults': [{'id': 2, 'value': True},
-                                      # {'id': 3, 'value': False},
-                                      # {'id': 4, 'value': False},
-                                      # {'id': 5, 'value': False},
-                                      # {'id': 6, 'value': False}
+                  'divisionResults': [{'id': 2, 'value': 1},
+                                      # {'id': 3, 'value': 0},
+                                      # {'id': 4, 'value': 0},
+                                      # {'id': 5, 'value': 0},
+                                      # {'id': 6, 'value': 0}
                                      ],
                   'linkingResults': [{'dest': 4, 'src': 2, 'value': 1},
                                      {'dest': 5, 'src': 2, 'value': 1},
@@ -57,6 +58,7 @@ expectedResult = {'detectionResults': [{'id': 2, 'value': 1},
 
 # test tracking
 res = mht.track(graph, weights)
+del res['resultEnergy']
 assert(res == expectedResult)
 
 # test validation
