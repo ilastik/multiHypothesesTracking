@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 message( "\nConfiguring bin:" )
 
+set(Boost_USE_STATIC_LIBS OFF)
 find_package(Boost REQUIRED program_options)
 
 include_directories(

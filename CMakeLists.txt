@@ -13,6 +13,7 @@ find_package(HDF5 REQUIRED)
 # configure optimizer
 
 if(GUROBI_FOUND)
+    message("Using Gurobi optimizer!")
     set(OPTIMIZER_INCLUDE_DIRS ${GUROBI_INCLUDE_DIR})
     set(OPTIMIZER_LIBRARIES ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
     add_definitions(-DWITH_GUROBI)
@@ -45,19 +46,20 @@ set(WITH_PYTHON "true" CACHE BOOL "Build python wrapper.")
 
 # --------------------------------------------------------------
 # check for C++ 11 support:
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
-else()
-        message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+if (NOT WIN32)
+    include(CheckCXXCompilerFlag)
+    CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+    CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+    if(COMPILER_SUPPORTS_CXX11)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+    elseif(COMPILER_SUPPORTS_CXX0X)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+    else()
+            message(SEND_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+    endif()
+
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-local-typedefs")
 endif()
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-local-typedefs")
-
 # --------------------------------------------------------------
 file(GLOB_RECURSE LIB_SOURCES src/*.cpp)
 file(GLOB_RECURSE HEADERS include/*.h*)
@@ -70,7 +72,7 @@ include_directories(
 	${HDF5_INCLUDE_DIR}
 )
 
-add_library(multiHypoTracking${SUFFIX} SHARED ${LIB_SOURCES} ${HEADERS})
+add_library(multiHypoTracking${SUFFIX} STATIC ${LIB_SOURCES} ${HEADERS})
 target_link_libraries(multiHypoTracking${SUFFIX} ${OPTIMIZER_LIBRARIES})
 
 # installation
