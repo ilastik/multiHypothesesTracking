@@ -50,11 +50,11 @@ requirements:
     - python {{PY_VER}}*
 
     {% if WITH_CPLEX %}
-    - cplex-shared # Need to make sure that cplex dylibs exist
+    - cplex-shared # [not win]
     {% endif %}
 
     {% if WITH_GUROBI %}
-    - gurobi-symlink
+    - gurobi-symlink # [not win]
     {% endif %}
 
   run:
@@ -66,11 +66,11 @@ requirements:
     - python {{PY_VER}}*
 
     {% if WITH_CPLEX is defined and WITH_CPLEX %}
-    - cplex-shared # Need to make sure that cplex dylibs exist
+    - cplex-shared # [not win]
     {% endif %}
 
     {% if WITH_GUROBI is defined and WITH_GUROBI %}
-    - gurobi-symlink
+    - gurobi-symlink # [not win]
     {% endif %}
 
 test:
