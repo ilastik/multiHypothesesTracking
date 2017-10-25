@@ -45,7 +45,7 @@ requirements:
     - patchelf # [linux]
     - hdf5 1.8.17
     - boost 1.55.0 # [py2k]
-    - boost 1.63.0 # [py3k]
+    - boost 1.63.0* # [py3k]
     - opengm-structured-learning-headers
     - python {{PY_VER}}*
 
@@ -62,7 +62,7 @@ requirements:
     - patchelf # [linux]
     - hdf5 1.8.17
     - boost 1.55.0 # [py2k]
-    - boost 1.63.0 # [py3k]
+    - boost 1.63.0* # [py3k]
     - python {{PY_VER}}*
 
     {% if WITH_CPLEX is defined and WITH_CPLEX %}
