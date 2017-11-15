@@ -9,12 +9,12 @@
 {% set WITH_GUROBI = WITH_GUROBI|int %}
 
 package:
-  {% if WITH_CPLEX %}
+  {% if WITH_CPLEX == 1 %}
     name: multi-hypotheses-tracking-with-cplex
-  {% elif WITH_GUROBI %}
+  {% elif WITH_GUROBI == 1 %}
     name: multi-hypotheses-tracking-with-gurobi
   {% else %}
-    Need to specify either cplex or gurobi!
+    Need to specify either cplex or gurobi
   {% endif %}
   
   {% set tagged_version = GIT_DESCRIBE_TAG %}
@@ -49,11 +49,11 @@ requirements:
     - opengm-structured-learning-headers
     - python {{PY_VER}}*
 
-    {% if WITH_CPLEX %}
+    {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
     {% endif %}
 
-    {% if WITH_GUROBI %}
+    {% if WITH_GUROBI == 1 %}
     - gurobi-symlink # [not win]
     {% endif %}
 
@@ -65,11 +65,11 @@ requirements:
     - boost 1.63.0* # [py3k]
     - python {{PY_VER}}*
 
-    {% if WITH_CPLEX is defined and WITH_CPLEX %}
+    {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
     {% endif %}
 
-    {% if WITH_GUROBI is defined and WITH_GUROBI %}
+    {% if WITH_GUROBI == 1 %}
     - gurobi-symlink # [not win]
     {% endif %}
 
@@ -77,15 +77,15 @@ test:
     source_files:
       - test
   
-  {% if WITH_CPLEX %}
+  {% if WITH_CPLEX == 1 %}
     imports:
       - multiHypoTracking_with_cplex
-  {% elif WITH_GUROBI %}
+  {% elif WITH_GUROBI == 1 %}
     imports:
       - multiHypoTracking_with_gurobi
   {% endif %}
 
 about:
-  home: https://github.com/chaubold/multiHypothesesTracking
+  home: https://github.com/ilastik/multiHypothesesTracking
   license: MIT
   summary: ILP solver interface for JSON/Python specified tracking problems
