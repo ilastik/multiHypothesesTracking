@@ -38,6 +38,7 @@ build:
     - CPLEX_ROOT_DIR
     - WITH_GUROBI
     - GUROBI_ROOT_DIR
+    - GUROBI_LIB_WIN # [win]
 
 requirements:
   build:

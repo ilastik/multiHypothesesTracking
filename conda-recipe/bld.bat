@@ -23,11 +23,11 @@ IF "%WITH_CPLEX%" == "0" (
 	REM if we build with Gurobi, we need to configure the paths.
 	REM MHT chooses gurobi first if that is configured.
 	REM The GUROBI_ROOT_DIR should point to gurobiXYZ\win64
-    dir "%GUROBI_ROOT_DIR%\lib\gurobi*.lib" /s/b | findstr gurobi[0-9][0-9].lib > gurobilib.tmp
-    set /p GUROBI_LIB=<gurobilib.tmp
-    ECHO found gurobi lib %GUROBI_LIB%
+    REM dir "%GUROBI_ROOT_DIR%\lib\gurobi*.lib" /s/b|findstr gurobi[0-9][0-9].lib>gurobilib.tmp
+    REM set /p GUROBI_LIB=<gurobilib.tmp
+    ECHO found gurobi lib %GUROBI_LIB_WIN%
     SET GUROBI_ARGS=-DWITH_GUROBI=ON -DGUROBI_ROOT_DIR=%GUROBI_ROOT_DIR% ^
-      -DGUROBI_LIBRARY=%GUROBI_LIB% -DGUROBI_INCLUDE_DIR=%GUROBI_ROOT_DIR%\include ^
+      -DGUROBI_LIBRARY=%GUROBI_LIB_WIN% -DGUROBI_INCLUDE_DIR=%GUROBI_ROOT_DIR%\include ^
       -DGUROBI_CXX_LIBRARY=%GUROBI_ROOT_DIR%\lib\gurobi_c++md2015.lib
     SET SUFFIX=_with_gurobi
 ) ELSE (
