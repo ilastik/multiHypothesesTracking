@@ -72,7 +72,11 @@ include_directories(
 	${HDF5_INCLUDE_DIR}
 )
 
-add_library(multiHypoTracking${SUFFIX} STATIC ${LIB_SOURCES} ${HEADERS})
+if (WIN32)
+	add_library(multiHypoTracking${SUFFIX} STATIC ${LIB_SOURCES} ${HEADERS})
+else()
+	add_library(multiHypoTracking${SUFFIX} SHARED ${LIB_SOURCES} ${HEADERS})
+endif()
 target_link_libraries(multiHypoTracking${SUFFIX} ${OPTIMIZER_LIBRARIES})
 
 # installation
