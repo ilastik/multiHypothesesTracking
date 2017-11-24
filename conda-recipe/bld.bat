@@ -26,13 +26,12 @@ IF "%WITH_CPLEX%" == "0" (
     REM dir "%GUROBI_ROOT_DIR%\lib\gurobi*.lib" /s/b|findstr gurobi[0-9][0-9].lib>gurobilib.tmp
     REM set /p GUROBI_LIB=<gurobilib.tmp
     ECHO found gurobi lib %GUROBI_LIB_WIN%
-    SET GUROBI_ARGS=-DWITH_GUROBI=ON -DGUROBI_ROOT_DIR=%GUROBI_ROOT_DIR% ^
-      -DGUROBI_LIBRARY=%GUROBI_LIB_WIN% -DGUROBI_INCLUDE_DIR=%GUROBI_ROOT_DIR%\include ^
-      -DGUROBI_CXX_LIBRARY=%GUROBI_ROOT_DIR%\lib\gurobi_c++md2015.lib
+    SET OPTIMIZER_ARGS=-DWITH_GUROBI=ON -DGUROBI_ROOT_DIR="%GUROBI_ROOT_DIR:"=%" ^
+      -DGUROBI_LIBRARY="%GUROBI_LIB_WIN:"=%" -DGUROBI_INCLUDE_DIR="%GUROBI_ROOT_DIR:"=%\include" ^
+      -DGUROBI_CXX_LIBRARY="%GUROBI_ROOT_DIR:"=%\lib\gurobi_c++md2015.lib"
     SET SUFFIX=_with_gurobi
 ) ELSE (
-	REM CPLEX is found automatically if installed. 
-	REM No idea what happens with two CPLEXinstallations, but for now we don't care.
+    SET OPTIMIZER_ARGS=-DWITH_CPLEX=ON -DCPLEX_ROOT_DIR="%CPLEX_ROOT_DIR:"=%" -DCPLEX_WIN_VERSION=%CPLEX_WIN_VERSION%
     SET SUFFIX=_with_cplex
 )
 
@@ -45,7 +44,7 @@ cmake .. -G "%CMAKE_GENERATOR%" -DCMAKE_PREFIX_PATH="%LIBRARY_PREFIX%" ^
     -DBOOST_ROOT="%LIBRARY%" ^
     -DCMAKE_CXX_FLAGS="-DBOOST_ALL_NO_LIB /EHsc" ^
     ^
-    %GUROBI_ARGS% ^
+    %OPTIMIZER_ARGS% ^
     ^
     -DSUFFIX=%SUFFIX% ^
     -DWITH_PYTHON=ON ^
