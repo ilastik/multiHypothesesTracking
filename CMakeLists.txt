@@ -24,6 +24,9 @@ else()
 	    add_definitions(-DWITH_CPLEX)
 	    # CPLEX switch to be compatible with STL
 		ADD_DEFINITIONS(-DIL_STD)
+        # Following flags are required by CPLEX 128:
+        set( CPLEX_LINKER_FLAGS "-ldl" )
+        set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CPLEX_LINKER_FLAGS}" )
     else()
     	message(FATAL_ERROR "No optimizer found at all!")
     endif()
