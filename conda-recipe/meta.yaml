@@ -43,7 +43,6 @@ build:
 
 requirements:
   build:
-    - gcc 4.8.5 # [linux]
     - patchelf # [linux]
     - hdf5 1.10.1
     - boost 1.55.0 # [py2k]
@@ -60,7 +59,6 @@ requirements:
     {% endif %}
 
   run:
-    - libgcc 4.8.5 # [linux]
     - patchelf # [linux]
     - hdf5 1.10.1
     - boost 1.55.0 # [py2k]
