@@ -40,6 +40,7 @@ build:
     - WITH_GUROBI
     - GUROBI_ROOT_DIR
     - GUROBI_LIB_WIN # [win]
+    - DO_NOT_BUILD_WITH_CXX11_ABI  # [linux]
 
 requirements:
   build:

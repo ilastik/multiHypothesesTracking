@@ -140,7 +140,10 @@ else
     CXX=g++
     export DYLIB="so"
     LINKER_FLAGS="-Wl,-rpath-link,${PREFIX}/lib -L${PREFIX}/lib"
-    CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 ${CXXFLAGS}"
+    # Check which gcxx abi to use; for compatibility with libs build with gcc < 5:
+    if [[ ${DO_NOT_BUILD_WITH_CXX11_ABI} == '1' ]]; then
+        CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 ${CXXFLAGS}"
+    fi
 fi
 
 CXXFLAGS="${CXXFLAGS} -I${PREFIX}/include"
