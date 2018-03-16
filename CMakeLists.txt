@@ -2,6 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.6)
 PROJECT(multiHypoTracking)
 set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_extensions/)
 
+set ( LINUX FALSE )
+if(UNIX AND NOT APPLE)
+    set( LINUX TRUE )
+endif()
+
 # --------------------------------------------------------------
 # dependencies
 find_package( Cplex )
@@ -27,7 +32,12 @@ else()
         # Following flags are required by CPLEX 128:
         # the --no-as-needed ... --as-needed is needed :) because the cplex
         # guys forgot to link against libdl
-        set( CPLEX_LINKER_FLAGS "-Wl,--no-as-needed -ldl -Wl,--as-needed" )
+        if ( LINUX )
+            set( CPLEX_LINKER_FLAGS "-Wl,--no-as-needed -ldl -Wl,--as-needed" )
+        else()
+            set( CPLEX_LINKER_FLAGS "-ldl" )
+        endif()
+
         set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CPLEX_LINKER_FLAGS}" )
     else()
     	message(FATAL_ERROR "No optimizer found at all!")
