@@ -136,10 +136,14 @@ if [ $(uname) == "Darwin" ]; then
     export DYLIB="dylib"
     LINKER_FLAGS="-L${PREFIX}/lib"
 else
-    CC=${PREFIX}/bin/gcc
-    CXX=${PREFIX}/bin/g++
+    CC=gcc
+    CXX=g++
     export DYLIB="so"
     LINKER_FLAGS="-Wl,-rpath-link,${PREFIX}/lib -L${PREFIX}/lib"
+    # Check which gcxx abi to use; for compatibility with libs build with gcc < 5:
+    if [[ ${DO_NOT_BUILD_WITH_CXX11_ABI} == '1' ]]; then
+        CXXFLAGS="-D_GLIBCXX_USE_CXX11_ABI=0 ${CXXFLAGS}"
+    fi
 fi
 
 CXXFLAGS="${CXXFLAGS} -I${PREFIX}/include"
