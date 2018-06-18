@@ -30,7 +30,7 @@ source:
   path: ../
 
 build:
-  number: 1
+  number: 2
   string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_g{{GIT_FULL_HASH[:7]}}
 
   script_env:
@@ -62,6 +62,8 @@ requirements:
   run:
     - patchelf # [linux]
     - hdf5 1.10.1
+    # in order to support older linux distros after gcc5 switch:
+    - libstdcxx-ng >=5.4.0  # [linux]
     - boost 1.55.0 # [py2k]
     - boost 1.63.0* # [py3k]
     - python {{PY_VER}}*
