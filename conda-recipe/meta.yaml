@@ -30,8 +30,8 @@ source:
   path: ../
 
 build:
-  number: 2
-  string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_g{{GIT_FULL_HASH[:7]}}
+  number: 3
+  string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_h{{PKG_HASH}}_g{{GIT_FULL_HASH[:7]}}
 
   script_env:
     - WITH_CPLEX
@@ -45,11 +45,11 @@ build:
 requirements:
   build:
     - patchelf # [linux]
-    - hdf5 1.10.1
+    - hdf5 {{ hdf5 }}
     - boost 1.55.0 # [py2k]
-    - boost 1.63.0* # [py3k]
+    - boost {{ boost }} # [py3k]
     - opengm-structured-learning-headers
-    - python {{PY_VER}}*
+    - python {{ python }}
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
@@ -61,12 +61,12 @@ requirements:
 
   run:
     - patchelf # [linux]
-    - hdf5 1.10.1
+    - hdf5
     # in order to support older linux distros after gcc5 switch:
-    - libstdcxx-ng >=5.4.0  # [linux]
+    - libstdcxx-ng >={{ libstdcxxng }}  # [linux]
     - boost 1.55.0 # [py2k]
-    - boost 1.63.0* # [py3k]
-    - python {{PY_VER}}*
+    - boost  # [py3k]
+    - python
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
