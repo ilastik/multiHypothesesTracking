@@ -99,7 +99,14 @@ else
     GUROBI_ARGS=""
     GUROBI_ARGS="${GUROBI_ARGS} -DWITH_GUROBI=ON"
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_ROOT_DIR=${GUROBI_ROOT_DIR}"
-    GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_LIBRARY=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*.so)"
+    # since gurobi 801, there is a _light lib included, which we can link agains:
+    if ls ${GUROBI_ROOT_DIR}/lib/libgurobi*_light.so 1> /dev/null 2>&1; then
+        # Gurobi >= 801
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_LIBRARY=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*_light.so)"
+    else
+        # Gurobi < 801
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_LIBRARY=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi.so)"
+    fi
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_INCLUDE_DIR=${GUROBI_ROOT_DIR}/include"
     if [ $(uname) == "Darwin" ]; then
         # Note: For Mac, the nice Gurobi people provide two versions of the gurobi library,
