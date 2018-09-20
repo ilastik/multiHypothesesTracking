@@ -219,7 +219,14 @@ if [[ "$WITH_GUROBI" != "" ]]; then
     (
         if [ `uname` == "Darwin" ]; then
             # Set install name according using @rpath
-            fullpath=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*.so*)
+            # since gurobi 801, there is a _light lib included, which we can link agains:
+            if ls ${GUROBI_ROOT_DIR}/lib/libgurobi*_light.so* 1> /dev/null 2>&1; then
+                # Gurobi >= 801
+                fullpath=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*_light.so*)
+            else
+                # Gurobi < 801
+                fullpath=$(ls ${GUROBI_ROOT_DIR}/lib/libgurobi*.so*)
+            fi
             install_name_tool -change $fullpath @rpath/$(basename $fullpath) ${MHT_LIB_SO} 
             install_name_tool -change $fullpath @rpath/$(basename $fullpath) ${MHT_PYMODULE_SO}
         fi
