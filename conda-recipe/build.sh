@@ -126,9 +126,8 @@ cd build
 
 if [ $(uname) == "Darwin" ]; then
     CXXFLAGS="-std=c++11 -stdlib=libc++"
-    
-    export DYLIB="dylib"
-    LINKER_FLAGS="-L${PREFIX}/lib"
+    LDFLAGS="-undefined dynamic_lookup ${LDFLAGS}"
+    LDFLAGS="-L${PREFIX}/lib ${LDFLAGS}"
 else
     LDFLAGS="-Wl,-rpath-link,${PREFIX}/lib -L${PREFIX}/lib"
 fi

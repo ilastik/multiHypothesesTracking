@@ -34,7 +34,16 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pymultiHypoTracking.cpp.cmake ${CMAKE
 set(PYMULTIHYPOTRACKING_SRCS ${CMAKE_CURRENT_BINARY_DIR}/pymultiHypoTracking.cpp pythonmodel.cpp)
 
 add_library(pymultiHypoTracking${SUFFIX} SHARED ${PYMULTIHYPOTRACKING_SRCS})#
-target_link_libraries(pymultiHypoTracking${SUFFIX} multiHypoTracking${SUFFIX} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} )
+# building with the "new" conda compilers resulted in strange test errors
+# like: TypeError: Expecting an object of type dict; got an object of type dict instead
+# Solution is not to link against python during the build
+# See: https://github.com/casacore/python-casacore/issues/144
+if(APPLE)
+  target_link_libraries(pymultiHypoTracking${SUFFIX} multiHypoTracking${SUFFIX} ${Boost_LIBRARIES} )
+else()
+  target_link_libraries(pymultiHypoTracking${SUFFIX} multiHypoTracking${SUFFIX} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES} )
+endif()
+
 if(WIN32)
   set_target_properties(pymultiHypoTracking${SUFFIX} PROPERTIES PREFIX "" OUTPUT_NAME "multiHypoTracking${SUFFIX}" SUFFIX ".pyd")
 else()
