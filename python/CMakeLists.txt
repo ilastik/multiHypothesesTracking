@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 message( "\nConfiguring python wrapper:" )
 
 # dependencies
-find_package( Boost REQUIRED COMPONENTS python serialization )
+find_package( Boost REQUIRED COMPONENTS python37 serialization )
 find_package( PythonInterp REQUIRED )
 
 if(WIN32)
