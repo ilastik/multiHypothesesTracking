@@ -109,9 +109,9 @@ else
         #       We use clang now so we use the libc++ version.
         GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
     else
-        # Only one choice on Linux. It works with libstdc++ (from the GNU people).
-        # (The naming convention isn't consistent with the name on Mac, but that's okay.)
-        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
+        # we have to specify the lib that was built using the new cxx abi. With
+        # gurobi 8.1.1 it is libgurobi_g++5.2.a
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_g++5.2.a"
     fi
 
     SUFFIX="_with_gurobi"
