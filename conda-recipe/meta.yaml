@@ -40,14 +40,15 @@ build:
     - WITH_GUROBI
     - GUROBI_ROOT_DIR
     - GUROBI_LIB_WIN # [win]
-    - DO_NOT_BUILD_WITH_CXX11_ABI  # [linux]
 
 requirements:
   build:
+    - cmake
+    - {{ compiler("cxx") }}
     - patchelf # [linux]
+  host:
     - hdf5 {{ hdf5 }}
-    - boost 1.55.0 # [py2k]
-    - boost {{ boost }} # [py3k]
+    - boost {{ boost }}
     - opengm-structured-learning-headers
     - python {{ python }}
 
@@ -58,14 +59,10 @@ requirements:
     {% if WITH_GUROBI == 1 %}
     - gurobi-symlink # [not win]
     {% endif %}
-
   run:
     - patchelf # [linux]
     - hdf5
-    # in order to support older linux distros after gcc5 switch:
-    - libstdcxx-ng >={{ libstdcxxng }}  # [linux]
-    - boost 1.55.0 # [py2k]
-    - boost  # [py3k]
+    - boost
     - python
 
     {% if WITH_CPLEX == 1 %}
