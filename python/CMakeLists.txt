@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 2.8)
 message( "\nConfiguring python wrapper:" )
 
-# dependencies
-find_package( Boost REQUIRED COMPONENTS python37 serialization )
+# dependencies; python major, minor version seem to be required with boost>=1.68 on win
+# disclaimer, did not try other python versions
+find_package( Boost REQUIRED COMPONENTS python${Python_VERSION_MAJOR}${Python_VERSION_MINOR} serialization )
 find_package( PythonInterp REQUIRED )
 
 if(WIN32)
