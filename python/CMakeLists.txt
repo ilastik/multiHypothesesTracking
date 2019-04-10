@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 message( "\nConfiguring python wrapper:" )
 
+find_package( PythonInterp REQUIRED )
 # dependencies; python major, minor version seem to be required with boost>=1.68 on win
 # disclaimer, did not try other python versions
-find_package( Boost REQUIRED COMPONENTS python${Python_VERSION_MAJOR}${Python_VERSION_MINOR} serialization )
-find_package( PythonInterp REQUIRED )
+find_package( Boost REQUIRED COMPONENTS python${PYTHON_VERSION_MAJOR}${PYTHON_VERSION_MINOR} serialization )
 
 if(WIN32)
   GET_FILENAME_COMPONENT(PYTHON_PREFIX "${PYTHON_EXECUTABLE}" PATH)
