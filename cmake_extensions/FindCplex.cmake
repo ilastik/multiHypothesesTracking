@@ -35,35 +35,21 @@ if(WIN32)
   endif()
 
   MESSAGE(STATUS "Found CLPEX version ${CPLEX_WIN_VERSION} at '${CPLEX_ROOT_DIR}'")
-
-  STRING(REGEX REPLACE "/VC/bin/.*" "" VISUAL_STUDIO_PATH ${CMAKE_C_COMPILER})
-  STRING(REGEX MATCH "Studio [0-9]+" CPLEX_WIN_VS_VERSION ${VISUAL_STUDIO_PATH})
-  STRING(REGEX REPLACE "Studio " "" CPLEX_WIN_VS_VERSION ${CPLEX_WIN_VS_VERSION})
-
   set(CPLEX_WIN_VS_VERSION ${CPLEX_WIN_VS_VERSION} CACHE STRING "Visual Studio Version")
 
-  if(${CPLEX_WIN_VS_VERSION} STREQUAL "9")
-    set(CPLEX_WIN_VS_VERSION 2008)
-  elseif(${CPLEX_WIN_VS_VERSION} STREQUAL "10")
-    set(CPLEX_WIN_VS_VERSION 2010)
-  elseif(${CPLEX_WIN_VS_VERSION} STREQUAL "11")
-    set(CPLEX_WIN_VS_VERSION 2012)
-  elseif(${CPLEX_WIN_VS_VERSION} STREQUAL "14")
+  if (${MSVC_TOOLSET_VERSION} EQUAL "140")
     set(CPLEX_WIN_VS_VERSION 2015)
+  elseif (${MSVC_TOOLSET_VERSION} EQUAL "141")
+    set(CPLEX_WIN_VS_VERSION 2017)
+  elseif (${MSVC_TOOLSET_VERSION} EQUAL "142")
+    set(CPLEX_WIN_VS_VERSION 2019)
   else()
-    MESSAGE(FATAL_ERROR "CPLEX: unknown Visual Studio version '${CPLEX_WIN_VS_VERSION}' at '${VISUAL_STUDIO_PATH}'.")
+    MESSAGE(FATAL_ERROR "CPLEX: unknown Visual Studio version '${MSVC_TOOLSET_VERSION}'.")
   endif()
 
-
-  if("${CMAKE_C_COMPILER}" MATCHES "amd64")
-    set(CPLEX_WIN_BITNESS x64)
-  else()
-    set(CPLEX_WIN_BITNESS x86)
-  endif()
-
+  # We only use 64 bit builds - if you want to build 32 bit stuff make something nice here, I won't bother
+  set(CPLEX_WIN_BITNESS x64)
   set(CPLEX_WIN_BITNESS ${CPLEX_WIN_BITNESS} CACHE STRING "On Windows: x86 or x64 (32bit resp. 64bit)")
-
-  MESSAGE(STATUS "FindCPLEX: using Visual Studio ${CPLEX_WIN_VS_VERSION} ${CPLEX_WIN_BITNESS} at '${VISUAL_STUDIO_PATH}'")
 
   if(NOT CPLEX_WIN_LINKAGE)
     set(CPLEX_WIN_LINKAGE mda CACHE STRING "CPLEX linkage variant on Windows. One of these: mda (dll, release), mdd (dll, debug), mta (static, release), mtd (static, debug)")

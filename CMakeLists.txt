@@ -9,20 +9,33 @@ endif()
 
 # --------------------------------------------------------------
 # dependencies
-find_package( Cplex )
 find_package( Opengm REQUIRED )
-find_package( GUROBI )
 find_package(HDF5 REQUIRED)
 
 # --------------------------------------------------------------
 # configure optimizer
 
-if(GUROBI_FOUND)
-    message("Using Gurobi optimizer!")
-    set(OPTIMIZER_INCLUDE_DIRS ${GUROBI_INCLUDE_DIR})
-    set(OPTIMIZER_LIBRARIES ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
-    add_definitions(-DWITH_GUROBI)
-else()
+if(WITH_GUROBI AND WITH_CPLEX)
+    message(FATAL_ERROR "PLEASE only specify ONE solver to use. Both Cplex and Gurobi have been specified.")
+endif()
+
+if(NOT (WITH_GUROBI OR WITH_CPLEX))
+    message(FATAL_ERROR "PLEASE specify ONE solver to use. Neither Cplex nor Gurobi have been specified.")
+endif()
+
+if(WITH_GUROBI)
+    find_package( GUROBI )
+    if(GUROBI_FOUND)
+        message("Using Gurobi optimizer!")
+        set(OPTIMIZER_INCLUDE_DIRS ${GUROBI_INCLUDE_DIR})
+        set(OPTIMIZER_LIBRARIES ${GUROBI_LIBRARY} ${GUROBI_CXX_LIBRARY})
+        add_definitions(-DWITH_GUROBI)
+        message("GUROBI_FOUND: ${GUROBI_FOUND} - GUROBI_LIBRARY: ${GUROBI_LIBRARY}")
+    endif()
+endif()
+
+if(WITH_CPLEX)
+    find_package( Cplex )
 	if(CPLEX_FOUND)
 	    set(OPTIMIZER_INCLUDE_DIRS ${CPLEX_INCLUDE_DIRS})
 	    set(OPTIMIZER_LIBRARIES ${CPLEX_LIBRARIES})
@@ -32,6 +45,7 @@ else()
         # Following flags are required by CPLEX 128:
         # the --no-as-needed ... --as-needed is needed :) because the cplex
         # guys forgot to link against libdl
+        message("CPLEX_FOUND: ${CPLEX_FOUND} - CPLEX_LIBRARIES: ${CPLEX_LIBRARIES}")
         if ( LINUX )
             set( CPLEX_LINKER_FLAGS "-Wl,--no-as-needed -ldl -Wl,--as-needed" )
         else()
@@ -39,8 +53,6 @@ else()
         endif()
 
         set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${CPLEX_LINKER_FLAGS}" )
-    else()
-    	message(FATAL_ERROR "No optimizer found at all!")
     endif()
 endif()
 
