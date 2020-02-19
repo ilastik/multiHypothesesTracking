@@ -17,7 +17,6 @@ package:
     Need to specify either cplex or gurobi
   {% endif %}
 
-
   {% set tagged_version = GIT_DESCRIBE_TAG %}
 
   # If we're using a non-tagged revision, append '.postN' to the version
@@ -48,10 +47,10 @@ requirements:
     - {{ compiler("cxx") }}
     - patchelf # [linux]
   host:
-    - hdf5 {{ hdf5 }}
-    - boost {{ boost }}
+    - hdf5 {{ hdf5 }}*
+    - boost {{ boost }}*
     - opengm-structured-learning-headers
-    - python {{ python }}
+    - python {{ python }}*
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]

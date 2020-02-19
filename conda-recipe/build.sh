@@ -153,6 +153,7 @@ cmake .. \
         -DBoost_PYTHON_LIBRARY=${PREFIX}/lib/libboost_python${CONDA_PY}${SHLIB_EXT} \
         -DBoost_PYTHON_LIBRARY_RELEASE=${PREFIX}/lib/libboost_python${CONDA_PY}${SHLIB_EXT} \
         -DBoost_PYTHON_LIBRARY_DEBUG=${PREFIX}/lib/libboost_python${CONDA_PY}${SHLIB_EXT} \
+        -DBoost_NO_BOOST_CMAKE=ON \
         ${CPLEX_ARGS} \
         ${GUROBI_ARGS} \
         -DSUFFIX=${SUFFIX} \
