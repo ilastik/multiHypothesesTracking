@@ -17,6 +17,7 @@ package:
     Need to specify either cplex or gurobi
   {% endif %}
 
+
   {% set tagged_version = GIT_DESCRIBE_TAG %}
 
   # If we're using a non-tagged revision, append '.postN' to the version
