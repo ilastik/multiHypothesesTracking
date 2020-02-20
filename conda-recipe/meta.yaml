@@ -47,10 +47,10 @@ requirements:
     - {{ compiler("cxx") }}
     - patchelf # [linux]
   host:
-    - hdf5 {{ hdf5 }}
-    - boost {{ boost }}
+    - hdf5 {{ hdf5 }}*
+    - boost {{ boost }}*
     - opengm-structured-learning-headers
-    - python {{ python }}
+    - python {{ python }}*
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]

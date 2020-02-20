@@ -44,7 +44,8 @@ cmake .. -G "NMake Makefiles" ^
     ^
     -DSUFFIX=%SUFFIX% ^
     -DWITH_PYTHON=ON ^
-    -DPYTHON_EXECUTABLE=%PYTHON%
+    -DPYTHON_EXECUTABLE=%PYTHON% ^
+    -DBoost_NO_BOOST_CMAKE=ON
 
 nmake all
 if errorlevel 1 exit 1
