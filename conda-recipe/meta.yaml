@@ -30,7 +30,7 @@ source:
   path: ../
 
 build:
-  number: 1000
+  number: 0
   string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_h{{PKG_HASH}}_g{{GIT_FULL_HASH[:7]}}
 
   script_env:
@@ -50,7 +50,7 @@ requirements:
     - hdf5 {{ hdf5 }}*
     - boost {{ boost }}*
     - opengm-structured-learning-headers
-    - python {{ python }}*
+    - python
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
@@ -60,7 +60,6 @@ requirements:
     - gurobi-symlink # [not win]
     {% endif %}
   run:
-    - patchelf # [linux]
     - hdf5
     - boost
     - python
