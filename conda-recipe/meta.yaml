@@ -51,6 +51,7 @@ requirements:
     - boost {{ boost }}*
     - opengm-structured-learning-headers
     - python
+    - zlib
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
@@ -63,6 +64,7 @@ requirements:
     - hdf5
     - boost
     - python
+    - zlib
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
