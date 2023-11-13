@@ -1,0 +1,14 @@
+boost:
+  - 1.74.0
+hdf5:
+  - 1.12.2
+python:
+  - 3.7
+  - 3.8
+  - 3.9
+
+
+pin_run_as_build:
+  boost: x.x
+  hdf5: x.x.x
+  python: x.x

@@ -16,7 +16,7 @@ else (GUROBI_INCLUDE_DIR)
 
 find_path(GUROBI_INCLUDE_DIR
           NAMES gurobi_c++.h
-          PATHS "$ENV{GUROBI_HOME}/include"
+          PATHS "$ENV{GUROBI_ROOT_DIR}/include"
                   "/Library/gurobi502/mac64/include"
                  "C:\\libs\\gurobi502\\include"
           )
@@ -30,27 +30,26 @@ gurobi46
         gurobi52
         gurobi55
         gurobi60
-              PATHS "$ENV{GUROBI_HOME}/lib"
+        gurobi70
+        gurobi80
+        gurobi81
+        gurobi90
+        gurobi95
+              PATHS "$ENV{GUROBI_ROOT_DIR}/lib"
                     "/Library/gurobi502/mac64/lib"
                     "C:\\libs\\gurobi502\\lib"
               )
 
 if (MSVC)
-  STRING(REGEX REPLACE "/VC/bin/.*" "" VISUAL_STUDIO_PATH ${CMAKE_C_COMPILER})
-
-  STRING(REGEX MATCH "Studio [0-9]+" VISUAL_STUDIO_VERSION ${VISUAL_STUDIO_PATH})
-  STRING(REGEX REPLACE "Studio " "" VISUAL_STUDIO_VERSION ${VISUAL_STUDIO_VERSION})
-
-  if (VISUAL_STUDIO_VERSION STREQUAL "10")
-    set (VISUAL_STUDIO_YEAR "2010")
-  elseif (VISUAL_STUDIO_VERSION STREQUAL "11")
-    set (VISUAL_STUDIO_YEAR "2012")
-  elseif (VISUAL_STUDIO_VERSION STREQUAL "12")
-    set (VISUAL_STUDIO_YEAR "2013")
-  else ()
-    message(FATAL_ERROR "Unsupported compiler version: ${VISUAL_STUDIO_VERSION}")
-  endif ()
-
+  if (${MSVC_TOOLSET_VERSION} EQUAL "140")
+    set (VISUAL_STUDIO_YEAR "2015")
+  elseif (${MSVC_TOOLSET_VERSION} EQUAL "141")
+    set (VISUAL_STUDIO_YEAR "2017")
+  elseif (${MSVC_TOOLSET_VERSION} EQUAL "142")
+    set (VISUAL_STUDIO_YEAR "2019")
+  else()
+    MESSAGE(FATAL_ERROR "FindGUROBI: unknown Visual Studio version '${MSVC_TOOLSET_VERSION}'.")
+  endif()
   set (GUROBI_LIB_NAME gurobi_c++md${VISUAL_STUDIO_YEAR})
 else ()
   set (GUROBI_LIB_NAME gurobi_c++)
@@ -59,7 +58,7 @@ endif ()
 
 find_library( GUROBI_CXX_LIBRARY
               NAMES ${GUROBI_LIB_NAME}
-              PATHS "$ENV{GUROBI_HOME}/lib"
+              PATHS "$ENV{GUROBI_ROOT_DIR}/lib"
                     "/Library/gurobi502/mac64/lib"
                     "C:\\libs\\gurobi502\\lib"
               )
