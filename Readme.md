@@ -1,8 +1,6 @@
 # Multi Hypothesis Tracking
 
-> *Note:* This repository is no longer maintained, find the maintained version: here https://github.com/ilastik/multiHypothesesTracking
-
-by Carsten Haubold, 2015
+originally developed by Carsten Haubold, 2015; maintained by the ilastik team.
 
 This is a standalone tool for running tracking of divisible objects, with competing detection hypotheses in each frame. When specifying a ground truth labeling for a dataset, the weights can be learned using structured learning (by [OpenGM's](http://github.com/opengm/opengm) implementation of [SBMRM](https://github.com/funkey/sbmrm)). The tracking problem is then solved as ILP by Gurobi or CPLEX, depending on how this tool was compiled.
 
