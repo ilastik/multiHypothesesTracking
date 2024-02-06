@@ -89,6 +89,9 @@ fi
 if [[ "$WITH_GUROBI" == "" ]]; then
     GUROBI_ARGS=""
 else
+    # remove trailing slash if there is one
+    GUROBI_ROOT_DIR=${GUROBI_ROOT_DIR%/}
+    echo "Passing GUROBI_ROOT_DIR with value ${GUROBI_ROOT_DIR}"
     GUROBI_ARGS=""
     GUROBI_ARGS="${GUROBI_ARGS} -DWITH_GUROBI=ON"
     GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_ROOT_DIR=${GUROBI_ROOT_DIR}"
