@@ -34,7 +34,13 @@ gurobi46
         gurobi80
         gurobi81
         gurobi90
+        gurobi91
         gurobi95
+        gurobi100
+        gurobi110
+        gurobi120
+        gurobi130
+        gurobi140
               PATHS "$ENV{GUROBI_ROOT_DIR}/lib"
                     "/Library/gurobi502/mac64/lib"
                     "C:\\libs\\gurobi502\\lib"
