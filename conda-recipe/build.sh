@@ -112,9 +112,8 @@ else
         #       We use clang now so we use the libc++ version.
         GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
     else
-        # we have to specify the lib that was built using the new cxx abi. With
-        # gurobi 8.1.1 it is libgurobi_g++5.2.a
-        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_g++5.2.a"
+        # seems that at least gurobi1200 does also provide ibgurobi_c++.a (linking to libgurobi_g++8.5.a)
+        GUROBI_ARGS="${GUROBI_ARGS} -DGUROBI_CXX_LIBRARY=${GUROBI_ROOT_DIR}/lib/libgurobi_c++.a"
     fi
 
     SUFFIX="_with_gurobi"
