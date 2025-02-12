@@ -61,10 +61,8 @@ requirements:
     - gurobi-symlink # [not win]
     {% endif %}
   run:
-    - hdf5
-    - boost
+    # other pins via run_exports
     - python
-    - zlib
 
     {% if WITH_CPLEX == 1 %}
     - cplex-shared # [not win]
