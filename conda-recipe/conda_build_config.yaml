@@ -11,6 +11,8 @@ python:
   - 3.10
   - 3.11
 
+zlib:
+  - 1.2.13
 
 pin_run_as_build:
   boost: x.x
