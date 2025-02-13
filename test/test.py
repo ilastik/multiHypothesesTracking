@@ -1,8 +1,6 @@
 # run this as test? https://cmake.org/pipermail/cmake/2010-August/039174.html
-try:
-    import multiHypoTracking_with_gurobi as mht
-except ImportError:
-    import multiHypoTracking_with_cplex as mht
+import multiHypoTracking_with_gurobi as mht
+
 
 # set up a test model
 weights = {"weights": [10, 10, 10, 500, 500]}

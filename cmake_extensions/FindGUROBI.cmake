@@ -76,7 +76,7 @@ set(GUROBI_LIBRARIES "${GUROBI_CXX_LIBRARY};${GUROBI_LIBRARY}" )
 # set(GUROBI_COMPILER_FLAGS "-DIL_STD" CACHE STRING "Gurobi Compiler Flags")
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set LIBCPLEX_FOUND to TRUE
+# handle the QUIETLY and REQUIRED arguments and set LIBGUROBI_FOUND to TRUE
 # if all listed variables are TRUE
 find_package_handle_standard_args(GUROBI DEFAULT_MSG
                                   GUROBI_LIBRARY GUROBI_CXX_LIBRARY GUROBI_INCLUDE_DIR)

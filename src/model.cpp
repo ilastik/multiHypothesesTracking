@@ -8,13 +8,8 @@
 #undef OPENGM_LPDEF_NO_SYMBOLS
 #include <opengm/inference/auxiliary/lpdef.hxx>
 
-#ifdef WITH_CPLEX
-#include <opengm/inference/lpcplex2.hxx>
-#include <opengm/inference/lpcplex.hxx>
-#else
 #include <opengm/inference/lpgurobi2.hxx>
 #include <opengm/inference/lpgurobi.hxx>
-#endif
 
 #include <opengm/learning/struct-max-margin.hxx>
 
@@ -158,13 +153,9 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 
 	if(withIntegerConstraints)
 	{
-#ifdef WITH_CPLEX
-		std::cout << "Using cplex optimizer" << std::endl;
-		typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#else
+
 		std::cout << "Using gurobi optimizer" << std::endl;
 		typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#endif
 
 		OptimizerType::Parameter optimizerParam;
 		optimizerParam.relaxation_ = OptimizerType::Parameter::TightPolytope;
@@ -186,13 +177,9 @@ Solution Model::infer(const std::vector<ValueType>& weights, bool withIntegerCon
 	}
 	else
 	{
-#ifdef WITH_CPLEX
-		std::cout << "Using cplex optimizer" << std::endl;
-		typedef opengm::LPCplex<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#else
 		std::cout << "Using gurobi optimizer" << std::endl;
 		typedef opengm::LPGurobi<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#endif
+
 		OptimizerType::Parameter optimizerParam;
 		optimizerParam.verbose_ = settings_->optimizerVerbose_;
 		optimizerParam.integerConstraint_ = true;
@@ -260,11 +247,7 @@ std::vector<ValueType> Model::learn(const std::vector<helpers::ValueType>& weigh
 	learnerParam.optimizerParameter_.nonNegativeWeights = settings_->nonNegativeWeightsOnly_;
 	opengm::learning::StructMaxMargin<DatasetType> learner(dataset, learnerParam);
 
-#ifdef WITH_CPLEX
-	typedef opengm::LPCplex2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#else
 	typedef opengm::LPGurobi2<GraphicalModelType, opengm::Minimizer> OptimizerType;
-#endif
 	
 	OptimizerType::Parameter optimizerParam;
 	optimizerParam.integerConstraintNodeVar_ = true;

@@ -1,22 +1,5 @@
-{% if not WITH_CPLEX is defined %}
-  {% set WITH_CPLEX = 0 %}
-{% endif %}
-{% set WITH_CPLEX = WITH_CPLEX|int %}
-
-{% if not WITH_GUROBI is defined %}
-  {% set WITH_GUROBI = 0 %}
-{% endif %}
-{% set WITH_GUROBI = WITH_GUROBI|int %}
-
 package:
-  {% if WITH_CPLEX == 1 %}
-    name: multi-hypotheses-tracking-with-cplex
-  {% elif WITH_GUROBI == 1 %}
     name: multi-hypotheses-tracking-with-gurobi
-  {% else %}
-    Need to specify either cplex or gurobi
-  {% endif %}
-
   {% set tagged_version = GIT_DESCRIBE_TAG %}
 
   # If we're using a non-tagged revision, append '.postN' to the version
@@ -34,10 +17,6 @@ build:
   string: py{{CONDA_PY}}_{{PKG_BUILDNUM}}_h{{PKG_HASH}}_g{{GIT_FULL_HASH[:7]}}
 
   script_env:
-    - WITH_CPLEX
-    - CPLEX_ROOT_DIR
-    - CPLEX_WIN_VERSION # [win]
-    - WITH_GUROBI
     - GUROBI_ROOT_DIR
     - GUROBI_LIB_WIN # [win]
 
@@ -52,37 +31,19 @@ requirements:
     - opengm-structured-learning-headers
     - python
     - zlib
-
-    {% if WITH_CPLEX == 1 %}
-    - cplex-shared # [not win]
-    {% endif %}
-
-    {% if WITH_GUROBI == 1 %}
     - gurobi-symlink # [not win]
-    {% endif %}
+
   run:
     # other pins via run_exports
     - python
-
-    {% if WITH_CPLEX == 1 %}
-    - cplex-shared # [not win]
-    {% endif %}
-
-    {% if WITH_GUROBI == 1 %}
     - gurobi-symlink # [not win]
-    {% endif %}
+    - boost {{ boost }}*
 
 test:
     source_files:
       - test
-
-  {% if WITH_CPLEX == 1 %}
-    imports:
-      - multiHypoTracking_with_cplex
-  {% elif WITH_GUROBI == 1 %}
     imports:
       - multiHypoTracking_with_gurobi
-  {% endif %}
 
 about:
   home: https://github.com/ilastik/multiHypothesesTracking

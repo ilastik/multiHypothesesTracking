@@ -2,15 +2,14 @@
 
 originally developed by Carsten Haubold, 2015; maintained by the ilastik team.
 
-This is a standalone tool for running tracking of divisible objects, with competing detection hypotheses in each frame. When specifying a ground truth labeling for a dataset, the weights can be learned using structured learning (by [OpenGM's](http://github.com/opengm/opengm) implementation of [SBMRM](https://github.com/funkey/sbmrm)). The tracking problem is then solved as ILP by Gurobi or CPLEX, depending on how this tool was compiled.
+This is a standalone tool for running tracking of divisible objects, with competing detection hypotheses in each frame. When specifying a ground truth labeling for a dataset, the weights can be learned using structured learning (by [OpenGM's](http://github.com/opengm/opengm) implementation of [SBMRM](https://github.com/funkey/sbmrm)). The tracking problem is then solved as ILP by Gurobi, depending on how this tool was compiled.
 
 ## Installation
 
 ### Conda
 
-You can install the python module of this package within a conda environment using one of the following lines, depending on whether you locally have CPLEX or GUROBI installed.
+You can install the python module of this package within a conda environment using one of the following lines, depending on whether you locally have GUROBI installed.
 
-    CPLEX_ROOT_DIR=/path/to/my/CPLEX/ conda install multi-hypotheses-tracking-with-cplex -c chaubold -c ilastik
 	GUROBI_ROOT_DIR=/path/to/my/Gurobi/mac64 conda install multi-hypotheses-tracking-with-gurobi -c chaubold -c ilastik
 
 ### Manual compilation
