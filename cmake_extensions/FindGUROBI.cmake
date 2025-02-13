@@ -1,86 +1,38 @@
-#### Taken from http://www.openflipper.org/svnrepo/CoMISo/trunk/CoMISo/cmake/FindGUROBI.cmake
-
-
-# - Try to find GUROBI
-# Once done this will define
-# GUROBI_FOUND - System has Gurobi
-# GUROBI_INCLUDE_DIRS - The Gurobi include directories
-# GUROBI_LIBRARIES - The libraries needed to use Gurobi
-
-if (GUROBI_INCLUDE_DIR)
-  # in cache already
-  set(GUROBI_FOUND TRUE)
-  set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}" )
-  set(GUROBI_LIBRARIES "${GUROBI_LIBRARY};${GUROBI_CXX_LIBRARY}" )
-else (GUROBI_INCLUDE_DIR)
-
+# Adapted from https://support.gurobi.com/hc/en-us/articles/360039499751-How-do-I-use-CMake-to-build-Gurobi-C-C-projects
 find_path(GUROBI_INCLUDE_DIR
-          NAMES gurobi_c++.h
-          PATHS "$ENV{GUROBI_ROOT_DIR}/include"
-                  "/Library/gurobi502/mac64/include"
-                 "C:\\libs\\gurobi502\\include"
-          )
+    NAMES gurobi_c.h
+    HINTS ${GUROBI_ROOT_DIR} $ENV{GUROBI_HOME}
+    PATH_SUFFIXES include)
 
-find_library( GUROBI_LIBRARY
-              NAMES gurobi
-gurobi45
-gurobi46
-        gurobi50
-        gurobi51
-        gurobi52
-        gurobi55
-        gurobi60
-        gurobi70
-        gurobi80
-        gurobi81
-        gurobi90
-        gurobi91
-        gurobi95
-        gurobi100
-        gurobi110
-        gurobi120
-        gurobi130
-        gurobi140
-              PATHS "$ENV{GUROBI_ROOT_DIR}/lib"
-                    "/Library/gurobi502/mac64/lib"
-                    "C:\\libs\\gurobi502\\lib"
-              )
+find_library(GUROBI_LIBRARY
+    NAMES gurobi gurobi100 gurobi110 gurobi120
+    HINTS ${GUROBI_ROOT_DIR} $ENV{GUROBI_HOME}
+    PATH_SUFFIXES lib)
 
-if (MSVC)
-  if (${MSVC_TOOLSET_VERSION} EQUAL "140")
-    set (VISUAL_STUDIO_YEAR "2015")
-  elseif (${MSVC_TOOLSET_VERSION} EQUAL "141")
-    set (VISUAL_STUDIO_YEAR "2017")
-  elseif (${MSVC_TOOLSET_VERSION} EQUAL "142")
-    set (VISUAL_STUDIO_YEAR "2019")
-  else()
-    MESSAGE(FATAL_ERROR "FindGUROBI: unknown Visual Studio version '${MSVC_TOOLSET_VERSION}'.")
-  endif()
-  set (GUROBI_LIB_NAME gurobi_c++md${VISUAL_STUDIO_YEAR})
-else ()
-  set (GUROBI_LIB_NAME gurobi_c++)
-endif ()
+if(MSVC)
+    set(MSVC_YEAR "2017")
 
+    if(MT)
+        set(M_FLAG "mt")
+    else()
+        set(M_FLAG "md")
+    endif()
 
-find_library( GUROBI_CXX_LIBRARY
-              NAMES ${GUROBI_LIB_NAME}
-              PATHS "$ENV{GUROBI_ROOT_DIR}/lib"
-                    "/Library/gurobi502/mac64/lib"
-                    "C:\\libs\\gurobi502\\lib"
-              )
-
-set(GUROBI_INCLUDE_DIRS "${GUROBI_INCLUDE_DIR}" )
-set(GUROBI_LIBRARIES "${GUROBI_CXX_LIBRARY};${GUROBI_LIBRARY}" )
-
-# use c++ headers as default
-# set(GUROBI_COMPILER_FLAGS "-DIL_STD" CACHE STRING "Gurobi Compiler Flags")
+    find_library(GUROBI_CXX_LIBRARY
+        NAMES gurobi_c++${M_FLAG}${MSVC_YEAR}
+        HINTS ${GUROBI_ROOT_DIR}
+        PATH_SUFFIXES lib)
+    find_library(GUROBI_CXX_DEBUG_LIBRARY
+        NAMES gurobi_c++${M_FLAG}d${MSVC_YEAR}
+        HINTS ${GUROBI_ROOT_DIR}
+        PATH_SUFFIXES lib)
+else()
+    find_library(GUROBI_CXX_LIBRARY
+        NAMES gurobi_c++
+        HINTS ${GUROBI_ROOT_DIR}
+        PATH_SUFFIXES lib)
+    set(GUROBI_CXX_DEBUG_LIBRARY ${GUROBI_CXX_LIBRARY})
+endif()
 
 include(FindPackageHandleStandardArgs)
-# handle the QUIETLY and REQUIRED arguments and set LIBGUROBI_FOUND to TRUE
-# if all listed variables are TRUE
-find_package_handle_standard_args(GUROBI DEFAULT_MSG
-                                  GUROBI_LIBRARY GUROBI_CXX_LIBRARY GUROBI_INCLUDE_DIR)
-
-mark_as_advanced(GUROBI_INCLUDE_DIR GUROBI_LIBRARY GUROBI_CXX_LIBRARY)
-
-endif(GUROBI_INCLUDE_DIR)
+find_package_handle_standard_args(GUROBI DEFAULT_MSG GUROBI_LIBRARY)
