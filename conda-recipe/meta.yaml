@@ -27,7 +27,7 @@ requirements:
     - patchelf # [linux]
   host:
     - hdf5 {{ hdf5 }}*
-    - boost {{ boost }}*
+    - libboost-python-devel {{ boost }}*
     - opengm-structured-learning-headers
     - python
     - zlib
@@ -37,7 +37,6 @@ requirements:
     # other pins via run_exports
     - python
     - gurobi-symlink # [not win]
-    - boost {{ boost }}*
 
 test:
     source_files:
